@@ -1,4 +1,4 @@
-export class DidMethodNotSupportedError extends Error {
+export class InitializationError extends Error {
   constructor(message?: string) {
     super(message);
     this.name = this.constructor.name;

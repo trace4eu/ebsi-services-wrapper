@@ -1,15 +1,11 @@
-import { JWK } from 'jose';
-import { EntityKeyPair } from './entityKeyPair';
-import { SignatureOptions } from '../dtos/signatures';
+import { Algorithm } from "../types/types.js";
 
 export interface Wallet {
-  signJwt(data: Buffer, opts?: SignatureOptions): Promise<string>;
+  // signVC(data: Buffer, opts?: SignatureOptions): Promise<string>;
 
-  sign(data: unknown): Promise<string>;
+  signVP(alg: Algorithm, vc: string | string[]): Promise<string>;
 
-  toPrimitives(): EntityKeyPair;
+  // signEthTx(data: unknown): Promise<string>;
 
-  // static create(): Promise<EnterpriseWallet>;
-
-  getPublicKeyJWK(): Promise<JWK>;
+  // toPrimitives(): EntityKeyPair;
 }

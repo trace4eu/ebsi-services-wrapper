@@ -1,52 +1,16 @@
-import { DidMethod } from '../../../../shared/utils/did';
-import DidMethodNotSupportedException from '../exceptions/didMethodNotSupportedException';
-import { EnterpriseWallet } from './wallet.interface.js';
-import { EntityKeyPair } from './entityKeyPair';
-import EtherWallet from './etherWallet';
-import DidKeyWallet from './didKeyWallet';
-import EbsiVcWallet from './ebsiVcWallet';
-import EbsiTxWallet from './ebsiTxWallet';
-import DidWebWallet from './didWebWallet';
-import { DidCreationOptions } from '../../services/entityKeyPairCreation/entityKeyPairCreationRequest';
+import { Wallet } from "./wallet.interface.js";
+import { EntityKeyPair, WalletInitialization } from "../types/types.js";
+import LocalWallet from "./localWallet.js";
+import EnterpriseWallet from "./enterpriseWallet.js";
 
-export default class EnterpriseWalletFactory {
-  static async create(
-    method: string,
-    opts?: DidCreationOptions,
-  ): Promise<EnterpriseWallet> {
-    if (method === DidMethod.Ethr) {
-      return EtherWallet.create();
+export default class WalletFactory {
+  static createInstance(
+    isEnterpriseWallet: boolean,
+    data: WalletInitialization,
+  ): Wallet {
+    if (isEnterpriseWallet) {
+      return new EnterpriseWallet();
     }
-    if (method === DidMethod.DidKey) {
-      return DidKeyWallet.create();
-    }
-    if (method === DidMethod.Web) {
-      return DidWebWallet.create(opts);
-    }
-    throw new DidMethodNotSupportedException(method);
-  }
-
-  static load(
-    method: string,
-    entityKeyPair: EntityKeyPair,
-    isTxWallet?: boolean,
-  ): EnterpriseWallet {
-    if (method === DidMethod.Ethr) {
-      return new EtherWallet(entityKeyPair);
-    }
-    if (method === DidMethod.DidKey) {
-      return new DidKeyWallet(entityKeyPair);
-    }
-    if (method === DidMethod.Ebsi && isTxWallet) {
-      return new EbsiTxWallet(entityKeyPair);
-    }
-    if (method === DidMethod.Ebsi) {
-      return new EbsiVcWallet(entityKeyPair);
-    }
-    if (method === DidMethod.Web) {
-      return new DidWebWallet(entityKeyPair);
-    }
-
-    throw new DidMethodNotSupportedException(method);
+    return new LocalWallet(data.entityData as EntityKeyPair);
   }
 }
