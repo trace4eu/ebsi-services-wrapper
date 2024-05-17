@@ -1,7 +1,7 @@
-import { Wallet } from "./wallet.interface.js";
-import { EntityKeyPair, WalletInitialization } from "../types/types.js";
-import LocalWallet from "./localWallet.js";
-import EnterpriseWallet from "./enterpriseWallet.js";
+import { Wallet } from './wallet.interface';
+import { EntityKeyPair, WalletInitialization } from '../types/types';
+import LocalWallet from './localWallet';
+import EnterpriseWallet from './enterpriseWallet';
 
 export default class WalletFactory {
   static createInstance(

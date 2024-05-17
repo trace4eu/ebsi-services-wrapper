@@ -1,20 +1,22 @@
-import { Wallet } from "./wallet.interface.js";
-import { Algorithm, EntityKeyPair, KeyPairJwk } from "../types/types.js";
-import { ethers } from "ethers";
+import { Wallet } from './wallet.interface';
+import { Algorithm, EntityKeyPair, KeyPairJwk } from '../types/types';
+import { ethers } from 'ethers';
 import {
   exportKeyPairJwk,
   getPrivateKeyJwk,
   getPrivateKeyJwkES256,
   prefixWith0x,
-} from "../utils/keys.js";
+} from '../utils/keys';
 
+import { CONFIG_OPTS } from '../config';
+import * as crypto from 'crypto';
+import { calculateJwkThumbprint } from 'jose';
 import {
-  createVerifiablePresentationJwt,
-  EbsiIssuer,
-  EbsiVerifiablePresentation,
-} from "@cef-ebsi/verifiable-presentation";
-import { randomUUID } from "node:crypto";
-import { CONFIG_OPTS } from "../config.js";
+  ebsiWrapper,
+  EbsiWrapperIssuer,
+  EbsiWrapperVerifiablePresentation,
+} from '../wrappers/ebsiWrapper';
+import { SignatureError } from '../errors/SignatureError';
 
 export default class LocalWallet implements Wallet {
   constructor(entityKeyPair: EntityKeyPair) {
@@ -33,7 +35,7 @@ export default class LocalWallet implements Wallet {
     );
     this.did = entityKeyPair.did;
     const privateKeyJwkES256 = getPrivateKeyJwkES256(
-      entityKeyPair.keys.find((key) => key.alg === Algorithm.ES256K)
+      entityKeyPair.keys.find((key) => key.alg === Algorithm.ES256)
         ?.privateKeyHex as string,
     );
     this.keys[Algorithm.ES256] = exportKeyPairJwk(
@@ -42,29 +44,30 @@ export default class LocalWallet implements Wallet {
     );
   }
 
-  private keys: {
+  private readonly keys: {
     ES256K?: KeyPairJwk;
     ES256?: KeyPairJwk;
     // RS256?: KeyPairJwk;
     // EdDSA?: KeyPairJwk;
   };
-  private did: string;
+  private readonly did: string;
   private ethWallet: ethers.Wallet;
 
-  async signVP(alg: Algorithm, vc: string | string[]): Promise<string> {
-    const keys = this.keys[alg];
-    if (!keys) throw new Error(`No keys defined for alg ${alg}`);
+  async signVP(alg: string, vc: string | string[]): Promise<string> {
+    const keyPair = this.keys[alg];
+    if (!keyPair) throw new SignatureError(`No keys defined for alg ${alg}`);
+    keyPair.kid = await calculateJwkThumbprint(keyPair.publicKeyJwk, 'sha256');
 
-    const issuer: EbsiIssuer = {
+    const issuer: EbsiWrapperIssuer = {
       did: this.did,
-      kid: keys.kid,
-      privateKeyJwk: keys.privateKeyJwk,
-      publicKeyJwk: keys.publicKeyJwk,
-      alg: alg as "ES256K",
+      kid: `${this.did}#${keyPair.kid}`,
+      privateKeyJwk: keyPair.privateKeyJwk,
+      publicKeyJwk: keyPair.publicKeyJwk,
+      alg: alg as 'ES256K',
     };
 
     let verifiableCredential: string[];
-    if (vc === "empty") {
+    if (vc === 'empty') {
       verifiableCredential = [];
     } else if (Array.isArray(vc)) {
       verifiableCredential = vc;
@@ -73,23 +76,21 @@ export default class LocalWallet implements Wallet {
     }
 
     const payload = {
-      id: `urn:did:${randomUUID()}`,
-      "@context": ["https://www.w3.org/2018/credentials/v1"],
-      type: ["VerifiablePresentation"],
+      id: `urn:did:${crypto.randomUUID()}`,
+      '@context': ['https://www.w3.org/2018/credentials/v1'],
+      type: ['VerifiablePresentation'],
       holder: this.did,
       verifiableCredential,
-    } as EbsiVerifiablePresentation;
+    } as EbsiWrapperVerifiablePresentation;
 
-    return await createVerifiablePresentationJwt(
+    return await ebsiWrapper.createVerifiablePresentationJwt(
       payload,
       issuer,
       CONFIG_OPTS.pilot.authorisationApiUrl,
       {
-        skipValidation: true,
         ebsiAuthority: CONFIG_OPTS.pilot.domain
-          .replace("http://", "")
-          .replace("https://", ""),
-        nonce: randomUUID(),
+          .replace('http://', '')
+          .replace('https://', ''),
         exp: Math.floor(Date.now() / 1000) + 900,
         nbf: Math.floor(Date.now() / 1000) - 100,
       },
@@ -99,4 +100,6 @@ export default class LocalWallet implements Wallet {
   getEntityKey(alg: Algorithm) {
     return this.keys[alg];
   }
+
+  private validateInput(): void {}
 }

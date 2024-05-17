@@ -1,6 +1,5 @@
-import {DidMethod} from "../types/types.js";
-import {DidMethodNotSupportedError} from "../errors/index.js";
-
+import { DidMethod } from '../types/types';
+import { DidMethodNotSupportedError } from '../errors/DidMethodNotSupportedError';
 
 const isKeyDid = (did: string): boolean => {
   if (!did) return false;

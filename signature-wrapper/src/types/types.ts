@@ -1,13 +1,13 @@
-import { JWK } from "jose";
+import { JWK } from 'jose';
 
 export enum DidMethod {
-  DidKey = "key",
-  Ebsi = "ebsi",
+  DidKey = 'key',
+  Ebsi = 'ebsi',
 }
 
 export enum Algorithm {
-  ES256K = "ES256K",
-  ES256 = "ES256",
+  ES256K = 'ES256K',
+  ES256 = 'ES256',
 }
 
 export interface EntityKeyPair {
@@ -16,12 +16,11 @@ export interface EntityKeyPair {
 }
 
 export interface KeyPairData {
-  alg: Algorithm;
+  alg: string;
   privateKeyHex: string;
 }
 
 export interface KeyPairJwk {
-  id: string;
   kid: string;
   privateKeyJwk: JWK;
   publicKeyJwk: JWK;

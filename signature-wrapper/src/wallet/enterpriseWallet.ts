@@ -1,4 +1,4 @@
-import { Wallet } from "./wallet.interface.js";
+import { Wallet } from './wallet.interface';
 
 export default class EnterpriseWallet implements Wallet {
   /* constructor(
@@ -9,6 +9,6 @@ export default class EnterpriseWallet implements Wallet {
   constructor() {}
 
   async signVP(): Promise<string> {
-    throw new Error("Not Implemented yet");
+    throw new Error('Not Implemented yet');
   }
 }

@@ -1,0 +1,15 @@
+# dependencies
+/node_modules
+package-lock.json
+
+# testing
+/coverage
+
+# misc
+.DS_Store
+.env
+
+npm-debug.log*
+/dist
+/coverage
+/.idea
