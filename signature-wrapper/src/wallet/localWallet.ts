@@ -16,7 +16,10 @@ import {
   EbsiWrapperIssuer,
   EbsiWrapperVerifiablePresentation,
 } from '../wrappers/ebsiWrapper';
-import { SignatureError } from '../errors/SignatureError';
+import { SignatureError } from '../errors';
+import { validateUnsignedTransaction } from '../utils/ethers';
+import { ethersWrapper } from '../wrappers/ethersWrapper';
+import { UnsignedTransaction } from '@ethersproject/transactions/src.ts';
 
 export class LocalWallet implements Wallet {
   constructor(entityKeyPair: EntityKeyPair) {
@@ -95,6 +98,11 @@ export class LocalWallet implements Wallet {
         nbf: Math.floor(Date.now() / 1000) - 100,
       },
     );
+  }
+
+  async signEthTx(data: ethers.UnsignedTransaction): Promise<string> {
+    validateUnsignedTransaction(data);
+    return await ethersWrapper.signTransaction(this.ethWallet, data);
   }
 
   getEntityKey(alg: Algorithm) {

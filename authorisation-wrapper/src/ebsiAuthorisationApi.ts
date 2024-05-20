@@ -59,13 +59,7 @@ export class EbsiAuthorisationApi implements AuthorisationApi {
             : [],
       }),
     );
-    /*
-    const tokenResponse = await axios.post(
-      tokenEndpoint,
-      tokenPresentatationEndpointParams,
-    );
-    return tokenResponse.data as TokenResponse;
-    */
+
     const tokenResponse = await httpCall.post(
       tokenEndpoint,
       tokenPresentatationEndpointParams,

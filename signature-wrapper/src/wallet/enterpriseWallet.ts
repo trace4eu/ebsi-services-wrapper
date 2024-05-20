@@ -1,4 +1,5 @@
 import { Wallet } from './wallet.interface';
+import { ethers } from 'ethers';
 
 export class EnterpriseWallet implements Wallet {
   /* constructor(
@@ -9,6 +10,10 @@ export class EnterpriseWallet implements Wallet {
   constructor() {}
 
   async signVP(): Promise<string> {
+    throw new Error('Not Implemented yet');
+  }
+
+  async signEthTx(): Promise<string> {
     throw new Error('Not Implemented yet');
   }
 }
