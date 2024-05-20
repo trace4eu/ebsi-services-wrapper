@@ -1,9 +1,9 @@
 import { Wallet } from './wallet.interface';
 import { EntityKeyPair, WalletInitialization } from '../types/types';
-import LocalWallet from './localWallet';
-import EnterpriseWallet from './enterpriseWallet';
+import { LocalWallet } from './localWallet';
+import { EnterpriseWallet } from './enterpriseWallet';
 
-export default class WalletFactory {
+export class WalletFactory {
   static createInstance(
     isEnterpriseWallet: boolean,
     data: WalletInitialization,

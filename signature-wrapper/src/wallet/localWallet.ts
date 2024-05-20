@@ -18,7 +18,7 @@ import {
 } from '../wrappers/ebsiWrapper';
 import { SignatureError } from '../errors/SignatureError';
 
-export default class LocalWallet implements Wallet {
+export class LocalWallet implements Wallet {
   constructor(entityKeyPair: EntityKeyPair) {
     this.keys = {};
     this.did = entityKeyPair.did;
@@ -63,7 +63,7 @@ export default class LocalWallet implements Wallet {
       kid: `${this.did}#${keyPair.kid}`,
       privateKeyJwk: keyPair.privateKeyJwk,
       publicKeyJwk: keyPair.publicKeyJwk,
-      alg: alg as 'ES256K',
+      alg: alg as 'ES256' | 'ES256K',
     };
 
     let verifiableCredential: string[];

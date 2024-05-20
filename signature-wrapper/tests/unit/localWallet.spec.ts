@@ -1,7 +1,7 @@
 import { Algorithm } from '../../src/types/types';
 import { ebsiWrapper } from '../../src/wrappers/ebsiWrapper';
 import { SignatureError } from '../../src/errors/SignatureError';
-import WalletFactory from '../../src/wallet/walletFactory';
+import { WalletFactory } from '../../src';
 
 describe('Local Wallet should', () => {
   const entityKeys = {

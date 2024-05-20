@@ -1,12 +1,12 @@
-export default {
-  preset: "ts-jest",
-  testEnvironment: "node",
-  rootDir: ".",
-  roots: ["<rootDir>/src/", "<rootDir>/tests/"],
-  testMatch: ["**/?(*.)+(spec|tests|tests).+(ts|tsx|js)"],
+module.exports = {
+  preset: 'ts-jest',
+  testEnvironment: 'node',
+  rootDir: '.',
+  roots: ['<rootDir>/src/', '<rootDir>/tests/'],
+  testMatch: ['**/?(*.)+(spec|test|tests).+(ts|tsx|js)'],
   transform: {
-    "^.+\\.(ts|tsx)?$": [
-      "ts-jest",
+    '^.+\\.(ts|tsx)?$': [
+      'ts-jest',
       {
         diagnostics: true,
         warnOnly: true,
@@ -17,15 +17,15 @@ export default {
       },
     ],
   },
-  moduleFileExtensions: ["ts", "tsx", "js", "jsx", "json"],
-  coverageDirectory: "./coverage/",
+  moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json'],
+  coverageDirectory: './coverage/',
   collectCoverageFrom: [
-    "src/**/*.{ts,tsx}",
-    "!src/**/*.d.ts",
-    "!**/node_modules/**",
+    'src/**/*.{ts,tsx}',
+    '!src/**/*.d.ts',
+    '!**/node_modules/**',
   ],
   collectCoverage: false,
-  reporters: ["default", ["jest-junit", { outputDirectory: "./coverage" }]],
+  reporters: ['default', ['jest-junit', { outputDirectory: './coverage' }]],
   testTimeout: 100000,
   setupFiles: [],
 };

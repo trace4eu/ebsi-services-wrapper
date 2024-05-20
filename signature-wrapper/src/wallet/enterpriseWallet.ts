@@ -1,6 +1,6 @@
 import { Wallet } from './wallet.interface';
 
-export default class EnterpriseWallet implements Wallet {
+export class EnterpriseWallet implements Wallet {
   /* constructor(
     private readonly urlSignatureEndpoint: string,
     private readonly did: string,
