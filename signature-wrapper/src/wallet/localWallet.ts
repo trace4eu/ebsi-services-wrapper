@@ -105,10 +105,6 @@ export class LocalWallet implements Wallet {
     return await ethersWrapper.signTransaction(this.ethWallet, data);
   }
 
-  getEntityKey(alg: Algorithm) {
-    return this.keys[alg];
-  }
-
   getDid(): string {
     return this.did;
   }
@@ -116,6 +112,4 @@ export class LocalWallet implements Wallet {
   getEthAddress(): string {
     return this.ethWallet.address;
   }
-
-  private validateInput(): void {}
 }

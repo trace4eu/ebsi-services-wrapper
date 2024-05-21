@@ -16,4 +16,12 @@ export class EnterpriseWallet implements Wallet {
   async signEthTx(): Promise<string> {
     throw new Error('Not Implemented yet');
   }
+
+  getDid(): string {
+    throw new Error('Not Implemented yet');
+  }
+
+  getEthAddress(): string {
+    throw new Error('Not Implemented yet');
+  }
 }

@@ -8,5 +8,8 @@ export interface Wallet {
 
   signEthTx(data: ethers.UnsignedTransaction): Promise<string>;
 
+  getDid(): string;
+  getEthAddress(): string;
+
   // toPrimitives(): EntityKeyPair;
 }

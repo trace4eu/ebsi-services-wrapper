@@ -29,6 +29,14 @@ describe('Local Wallet should', () => {
     expect(vp).toBeDefined();
   });
 
+  it('Get did and the ethereum address of a wallet', () => {
+    const wallet = WalletFactory.createInstance(false, entityKey);
+    expect(wallet.getEthAddress()).toBe(
+      '0xC09b57dA0F949F666DaD6dAE3cfC6A5D977B8639',
+    );
+    expect(wallet.getDid()).toBe('did:ebsi:zobuuYAHkAbRFCcqdcJfTgR');
+  });
+
   it('Generate a signed Ethereum Transaction', async () => {
     entityKey.entityData.did = 'did:ebsi:z22h9L3a8f32vF9CY9jWMqKL';
     entityKey.entityData.keys[0].privateKeyHex =
