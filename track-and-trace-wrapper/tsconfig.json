@@ -1,16 +1,20 @@
 {
   "extends": "@tsconfig/node16/tsconfig.json",
   "compilerOptions": {
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
     "resolveJsonModule": true,
     "allowSyntheticDefaultImports": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
-    "declaration": true,
+    "declaration": false,
     "sourceMap": true,
     "incremental": true,
     "strict": false,
-    "outDir": "dist"
+    "outDir": "./dist",
+    "baseUrl": "./",
+    "allowJs": true
   },
-  "include": ["src"],
-  "exclude": ["node_modules", "dist", "tests"]
+  "include": ["./src","./tests", "./global.d.ts"],
+  "exclude": ["./node_modules", "./dist"]
 }
