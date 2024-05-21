@@ -109,5 +109,13 @@ export class LocalWallet implements Wallet {
     return this.keys[alg];
   }
 
+  getDid(): string {
+    return this.did;
+  }
+
+  getEthAddress(): string {
+    return this.ethWallet.address;
+  }
+
   private validateInput(): void {}
 }

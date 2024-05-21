@@ -6,7 +6,7 @@ import { EnterpriseWallet } from './enterpriseWallet';
 export class WalletFactory {
   static createInstance(
     isEnterpriseWallet: boolean,
-    data: WalletInitialization,
+    data?: WalletInitialization,
   ): Wallet {
     if (isEnterpriseWallet) {
       return new EnterpriseWallet();

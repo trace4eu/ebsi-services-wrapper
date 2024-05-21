@@ -1,0 +1,16 @@
+{
+  "extends": "@tsconfig/node16/tsconfig.json",
+  "compilerOptions": {
+    "resolveJsonModule": true,
+    "allowSyntheticDefaultImports": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "declaration": true,
+    "sourceMap": true,
+    "incremental": true,
+    "strict": false,
+    "outDir": "dist"
+  },
+  "include": ["src"],
+  "exclude": ["node_modules", "dist", "tests"]
+}

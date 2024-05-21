@@ -25,8 +25,8 @@ describe('Local Wallet should', () => {
   it('Generate a signed Verifiable Credential', async () => {});
 
   it('Generate a signed Verifiable Presentation', async () => {
-    const vc = await wallet.signVP(Algorithm.ES256K, 'empty');
-    expect(vc).toBeDefined();
+    const vp = await wallet.signVP(Algorithm.ES256K, 'empty');
+    expect(vp).toBeDefined();
   });
 
   it('Generate a signed Ethereum Transaction', async () => {
