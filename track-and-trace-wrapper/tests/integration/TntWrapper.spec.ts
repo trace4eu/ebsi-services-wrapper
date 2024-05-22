@@ -1,3 +1,4 @@
+import { describe, it, expect, vi, beforeAll } from 'vitest';
 import { WalletFactory } from '@trace4eu/signature-wrapper';
 import * as SignatureWrapperTypes from '@trace4eu/signature-wrapper';
 import { EbsiAuthorisationApi } from '@trace4eu/authorisation-wrapper';
