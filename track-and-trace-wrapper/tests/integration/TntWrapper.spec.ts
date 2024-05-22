@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeAll } from 'vitest';
-import { WalletFactory } from '../../../signature-wrapper/src/wallet/walletFactory';
-import * as SignatureWrapperTypes from '../../../signature-wrapper/src/types/types';
-import {EbsiAuthorisationApi} from '../../../authorisation-wrapper/src/ebsiAuthorisationApi'
+import { WalletFactory } from '@trace4eu/signature-wrapper/src/wallet/walletFactory';
+import * as SignatureWrapperTypes from '@trace4eu/signature-wrapper/src/types/types';
+import { EbsiAuthorisationApi } from '@trace4eu/authorisation-wrapper/src/ebsiAuthorisationApi';
 
 const entityKey = {
   entityData: {

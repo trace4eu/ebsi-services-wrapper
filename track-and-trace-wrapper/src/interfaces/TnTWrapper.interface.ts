@@ -1,4 +1,4 @@
-import { Wallet } from '../../../signature-wrapper';
+import { Wallet } from '@trace4eu/signature-wrapper';
 
 
 /** Interface TnTWrapper */
