@@ -3,6 +3,7 @@ import { URLSearchParams } from 'node:url';
 import crypto from 'crypto';
 import { TokenResponse } from './types';
 import { Wallet } from '@trace4eu/signature-wrapper';
+
 import { httpCall } from './utils/http';
 import { isJwt } from './utils/jwt';
 import { EbsiAuthorisationApiError } from './errors';

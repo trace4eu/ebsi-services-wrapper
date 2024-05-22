@@ -20,7 +20,7 @@
   },
   "homepage": "https://github.com/trace4eu/ebsi-services-wrapper#readme",
   "dependencies": {
-    "@trace4eu/signature-wrapper": "file:/Users/pcosio/workspace/trace4EU/ebsi-services-wrapper/signature-wrapper",
+    "@trace4eu/signature-wrapper": "../signature-wrapper",
     "jose": "^5.3.0"
   },
   "devDependencies": {
