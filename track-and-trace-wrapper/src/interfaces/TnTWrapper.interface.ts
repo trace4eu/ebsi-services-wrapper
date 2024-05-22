@@ -1,4 +1,4 @@
-import { Wallet } from '@trace4eu/signature-wrapper/src/wallet/wallet.interface';
+import { Wallet } from '@trace4eu/signature-wrapper';
 import { Document } from '../types/document';
 
 /** Interface TnTWrapper */
@@ -8,6 +8,6 @@ export interface ITnTWrapper {
   addEventToDocument(): any;
   getDocument(): any;
   getEvent(): any;
-  listdocuments(): any;
+  listDocuments(): any;
   listEventOfDocument(): any;
 }

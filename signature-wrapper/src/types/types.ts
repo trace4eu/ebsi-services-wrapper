@@ -10,23 +10,15 @@ export enum Algorithm {
   ES256 = 'ES256',
 }
 
-export interface EntityKeyPair {
-  did: string;
-  keys: KeyPairData[];
-}
-
 export interface KeyPairData {
-  alg: string;
-  privateKeyHex: string;
+  kid?: string;
+  alg?: string;
+  privateKeyHex?: string;
 }
 
 export interface KeyPairJwk {
-  kid: string;
+  kid?: string;
+  alg: Algorithm;
   privateKeyJwk: JWK;
   publicKeyJwk: JWK;
-}
-
-export interface WalletInitialization {
-  entityData?: EntityKeyPair;
-  urlEnterpriseWallet?: string;
 }

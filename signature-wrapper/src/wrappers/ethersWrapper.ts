@@ -3,7 +3,7 @@ import { ethers } from 'ethers';
 class EthersWrapper {
   async signTransaction(
     wallet: ethers.Wallet,
-    unsignedTrx: ethers.UnsignedTransaction,
+    unsignedTrx: ethers.Transaction,
   ) {
     return wallet.signTransaction(unsignedTrx);
   }

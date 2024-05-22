@@ -94,7 +94,7 @@ export class EbsiAuthorisationApi implements AuthorisationApi {
     };
   }
 
-  private checkAuthorisationApiMetadata(authorisationApiMetadata) {
+  private checkAuthorisationApiMetadata(authorisationApiMetadata: any) {
     // TODO: check authorisation api metadata: check that has the desired scopes supported, urls, etc.
   }
 }

@@ -1,13 +1,13 @@
 import { Wallet } from './wallet.interface';
 import { ethers } from 'ethers';
+import { KeyPairData } from '../types/types';
 
 export class EnterpriseWallet implements Wallet {
-  /* constructor(
-    private readonly urlSignatureEndpoint: string,
+  constructor(
     private readonly did: string,
-    private readonly kid: string,
-  ) {} */
-  constructor() {}
+    private readonly keys: KeyPairData[],
+    private readonly urlSignatureEndpoint: string,
+  ) {}
 
   async signVP(): Promise<string> {
     throw new Error('Not Implemented yet');

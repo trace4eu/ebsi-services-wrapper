@@ -1,9 +1,9 @@
-import { decodeJwt } from "jose";
+import { decodeJwt } from 'jose';
 
 export function isJwt(jwt: string): boolean {
   try {
     const jwtDecoded = decodeJwt(jwt);
-    if (jwtDecoded) return true;
+    return !!jwtDecoded;
   } catch (error) {
     return false;
   }

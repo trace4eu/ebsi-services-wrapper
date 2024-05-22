@@ -42,7 +42,7 @@ export function exportKeyPairJwk(
 ): KeyPairJwk {
   const publicKeyJwk = getPublicKeyJwk(privateKeyJwk, alg);
   return {
-    kid: '',
+    alg,
     privateKeyJwk,
     publicKeyJwk,
   };
@@ -66,4 +66,11 @@ export function getPrivateKeyJwk(privateKeyHex: string): JWK {
     .replace(/\//g, '_')
     .replace(/=/g, '');
   return { ...publicKeyJWK, d };
+}
+
+export function findKeyByAlg(
+  keyPairs: KeyPairJwk[],
+  alg: Algorithm,
+): KeyPairJwk | undefined {
+  return keyPairs.find((keyPair) => keyPair.alg === alg);
 }

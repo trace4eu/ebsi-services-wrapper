@@ -1,8 +1,9 @@
 import { Wallet } from './wallet.interface';
-import { Algorithm, EntityKeyPair, KeyPairJwk } from '../types/types';
+import { Algorithm, KeyPairData, KeyPairJwk } from '../types/types';
 import { ethers } from 'ethers';
 import {
   exportKeyPairJwk,
+  findKeyByAlg,
   getPrivateKeyJwk,
   getPrivateKeyJwkES256,
   prefixWith0x,
@@ -16,49 +17,46 @@ import {
   EbsiWrapperIssuer,
   EbsiWrapperVerifiablePresentation,
 } from '../wrappers/ebsiWrapper';
-import { SignatureError } from '../errors';
+import { InitializationError, SignatureError } from '../errors';
 import { validateUnsignedTransaction } from '../utils/ethers';
 import { ethersWrapper } from '../wrappers/ethersWrapper';
-import { UnsignedTransaction } from '@ethersproject/transactions/src.ts';
+import { UnsupportedAlgorithmError } from '../errors/UnspportedAlgorithmError';
 
+const supportedSignatureAlgorithms = [Algorithm.ES256K, Algorithm.ES256];
 export class LocalWallet implements Wallet {
-  constructor(entityKeyPair: EntityKeyPair) {
-    this.keys = {};
-    this.did = entityKeyPair.did;
-    this.ethWallet = new ethers.Wallet(
-      prefixWith0x(
-        entityKeyPair.keys.find((key) => key.alg === Algorithm.ES256K)
-          ?.privateKeyHex as string,
-      ),
-    );
-    const privateKeyJwk = getPrivateKeyJwk(this.ethWallet.privateKey);
-    this.keys[Algorithm.ES256K] = exportKeyPairJwk(
-      Algorithm.ES256K,
-      privateKeyJwk,
-    );
-    this.did = entityKeyPair.did;
-    const privateKeyJwkES256 = getPrivateKeyJwkES256(
-      entityKeyPair.keys.find((key) => key.alg === Algorithm.ES256)
-        ?.privateKeyHex as string,
-    );
-    this.keys[Algorithm.ES256] = exportKeyPairJwk(
-      Algorithm.ES256,
-      privateKeyJwkES256,
-    );
+  constructor(did: string, keys: KeyPairData[]) {
+    this.validateKeys(keys);
+    this.keys = [];
+    this.did = did;
+
+    keys.forEach((keyPair) => {
+      if (keyPair.alg === Algorithm.ES256K && keyPair.privateKeyHex) {
+        this.ethWallet = new ethers.Wallet(prefixWith0x(keyPair.privateKeyHex));
+        this.keys.push(
+          exportKeyPairJwk(
+            Algorithm.ES256K,
+            getPrivateKeyJwk(keyPair.privateKeyHex),
+          ),
+        );
+      }
+      if (keyPair.alg === Algorithm.ES256 && keyPair.privateKeyHex) {
+        const privateKeyJwkES256 = getPrivateKeyJwkES256(keyPair.privateKeyHex);
+        this.keys.push(exportKeyPairJwk(keyPair.alg, privateKeyJwkES256));
+      }
+    });
   }
 
-  private readonly keys: {
-    ES256K?: KeyPairJwk;
-    ES256?: KeyPairJwk;
-    // RS256?: KeyPairJwk;
-    // EdDSA?: KeyPairJwk;
-  };
+  private readonly keys: KeyPairJwk[];
   private readonly did: string;
-  private ethWallet: ethers.Wallet;
+  protected ethWallet!: ethers.Wallet;
 
   async signVP(alg: string, vc: string | string[]): Promise<string> {
-    const keyPair = this.keys[alg];
+    const keyPair: KeyPairJwk | undefined = findKeyByAlg(
+      this.keys,
+      alg as Algorithm,
+    );
     if (!keyPair) throw new SignatureError(`No keys defined for alg ${alg}`);
+    this.validaSignatureAlgorithm(keyPair.alg);
     keyPair.kid = await calculateJwkThumbprint(keyPair.publicKeyJwk, 'sha256');
 
     const issuer: EbsiWrapperIssuer = {
@@ -100,7 +98,7 @@ export class LocalWallet implements Wallet {
     );
   }
 
-  async signEthTx(data: ethers.UnsignedTransaction): Promise<string> {
+  async signEthTx(data: ethers.Transaction): Promise<string> {
     validateUnsignedTransaction(data);
     return await ethersWrapper.signTransaction(this.ethWallet, data);
   }
@@ -111,5 +109,19 @@ export class LocalWallet implements Wallet {
 
   getEthAddress(): string {
     return this.ethWallet.address;
+  }
+
+  private validateKeys(keys: KeyPairData[]): void {
+    const isES256K = keys.some((key) => key.alg === Algorithm.ES256K);
+    const isES256 = keys.some((key) => key.alg === Algorithm.ES256);
+    if (!isES256K || !isES256)
+      throw new InitializationError('ES256 and ES256K keys are required');
+  }
+
+  private validaSignatureAlgorithm(alg: string): void {
+    if (!supportedSignatureAlgorithms.includes(alg as Algorithm))
+      throw new UnsupportedAlgorithmError(
+        `Supported algorithms: ${supportedSignatureAlgorithms.toString()}`,
+      );
   }
 }

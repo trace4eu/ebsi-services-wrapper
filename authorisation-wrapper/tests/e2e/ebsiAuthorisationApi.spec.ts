@@ -5,24 +5,20 @@ import { isJwt } from '../../src/utils/jwt';
 import { SignatureError } from '@trace4eu/signature-wrapper/dist/errors/SignatureError';
 
 describe('Ebsi Authorisation Api should', () => {
-  const entityKeys = {
-    entityData: {
-      did: 'did:ebsi:zobuuYAHkAbRFCcqdcJfTgR',
-      keys: [
-        {
-          alg: 'ES256K',
-          privateKeyHex:
-            'c4877a6d51c382b25a57684b5ac0a70398ab77b0eda0fcece0ca14ed00737e57',
-        },
-        {
-          alg: Algorithm.ES256,
-          privateKeyHex:
-            'fa50bbba9feade27ea61dd9973abfd7c04e72366b607558cd0b423b75d067a86 ',
-        },
-      ],
+  const did = 'did:ebsi:zobuuYAHkAbRFCcqdcJfTgR';
+  const entityKeys = [
+    {
+      alg: 'ES256K',
+      privateKeyHex:
+        'c4877a6d51c382b25a57684b5ac0a70398ab77b0eda0fcece0ca14ed00737e57',
     },
-  };
-  const wallet = WalletFactory.createInstance(false, entityKeys);
+    {
+      alg: Algorithm.ES256,
+      privateKeyHex:
+        'fa50bbba9feade27ea61dd9973abfd7c04e72366b607558cd0b423b75d067a86 ',
+    },
+  ];
+  const wallet = WalletFactory.createInstance(false, did, entityKeys);
   const ebsiAuthorisationApi = new EbsiAuthorisationApi(wallet);
 
   it('Generate an access token with tnt_create scope', async () => {
