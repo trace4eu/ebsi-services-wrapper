@@ -10,7 +10,3 @@ export enum Algorithm {
   ES256 = 'ES256',
 } */
 /** Interface TnTWrapper */
-export interface ITntWrapper {
-  
-}
-
