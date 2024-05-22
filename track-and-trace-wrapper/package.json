@@ -20,8 +20,8 @@
   },
   "homepage": "https://github.com/trace4eu/ebsi-services-wrapper#readme",
   "dependencies": {
-    "@trace4eu/signature-wrapper": "file:/Users/pcosio/workspace/trace4EU/ebsi-services-wrapper/signature-wrapper",
-    "@trace4eu/authorisation-wrapper": "file:/Users/pcosio/workspace/trace4EU/ebsi-services-wrapper/authorisation-wrapper"
+    "@trace4eu/signature-wrapper": "../signature-wrapper",
+    "@trace4eu/authorisation-wrapper": "../authorisation-wrapper"
   },
   "devDependencies": {
     "@tsconfig/node16": "^16.1.3",
