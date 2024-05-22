@@ -3,7 +3,7 @@ import { ITnTWrapper } from '../interfaces/TnTWrapper.interface';
 import * as SignatureWrapperTypes from '@trace4eu/signature-wrapper/src/types/types';
 
 export class TnTWrapper implements ITnTWrapper {
-  wallet;
+  wallet: Wallet;
   createDocument() {
     throw new Error('Method not implemented.');
   }

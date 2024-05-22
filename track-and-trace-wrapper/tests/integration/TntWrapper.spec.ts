@@ -21,8 +21,6 @@ const entityKey = {
   },
 };
 
-
-
 const wallet = WalletFactory.createInstance(false, entityKey);
 const ebsiAuthorisationApi = new EbsiAuthorisationApi(wallet);
 
