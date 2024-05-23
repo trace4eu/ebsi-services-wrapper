@@ -21,7 +21,9 @@
   "homepage": "https://github.com/trace4eu/ebsi-services-wrapper#readme",
   "dependencies": {
     "@trace4eu/authorisation-wrapper": "../authorisation-wrapper",
-    "@trace4eu/signature-wrapper": "../signature-wrapper"
+    "@trace4eu/signature-wrapper": "../signature-wrapper",
+    "ethers": "^5.7.2",
+    "axios": "^1.7.2"
   },
   "devDependencies": {
     "@tsconfig/node20": "^20.1.4",

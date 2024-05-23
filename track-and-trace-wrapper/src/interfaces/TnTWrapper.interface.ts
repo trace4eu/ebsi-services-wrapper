@@ -1,10 +1,13 @@
 import { Wallet } from '@trace4eu/signature-wrapper';
 import { Document } from '../types/document';
+import { Optional } from '../types/optional';
 
 /** Interface TnTWrapper */
 export interface ITnTWrapper {
-  wallet: Wallet;
-  createDocument(document: Document): any;
+  /**
+   * @param documentHash base64 encoded document hash
+   */
+  createDocument(documentHash: string): Promise<Optional<string>>;
   addEventToDocument(): any;
   getDocument(): any;
   getEvent(): any;
