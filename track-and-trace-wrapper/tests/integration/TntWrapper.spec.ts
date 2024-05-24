@@ -40,6 +40,7 @@ describe('Track and Trace Wrapper', () => {
     });
     it('createDocument', async () => {
       const documentHash = `0x${crypto.randomBytes(32).toString('hex')}`;
+      console.log(documentHash);
       const documentMetadata = 'documentMetadata';
       const document = await tntWrapper.createDocument(
         documentHash,

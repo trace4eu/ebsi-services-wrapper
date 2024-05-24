@@ -6,7 +6,7 @@ export interface Wallet {
 
   signVP(alg: string, vc: string | string[]): Promise<string>;
 
-  signEthTx(data: ethers.UnsignedTransaction): Promise<string>;
+  signEthTx(data: ethers.Transaction): Promise<string>;
 
   getDid(): string;
   getEthAddress(): string;

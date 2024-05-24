@@ -20,13 +20,23 @@ export class TnTWrapper implements ITnTWrapper {
       documentHash,
       documentMetadata,
     );
+    if (DocumentUnsignedTx.isEmpty()) {
+      return Optional.None();
+    }
+    const DocumentUnsignedTxJson = {
+      to: DocumentUnsignedTx.get().to,
+      from: DocumentUnsignedTx.get().from,
+      data: DocumentUnsignedTx.get().data,
+      nonce: DocumentUnsignedTx.get().nonce,
+      value: DocumentUnsignedTx.get().value,
+      chainId: DocumentUnsignedTx.get().chainId,
+      gasLimit: DocumentUnsignedTx.get().gasLimit,
+      gasPrice: DocumentUnsignedTx.get().gasPrice,
+    };
+    const DocumentSignedTx = await this.wallet.signEthTx(
+      DocumentUnsignedTxJson,
+    );
     return Optional.None();
-    //if (DocumentUnsignedTx.isEmpty()) {
-    //  return Optional.None();
-    //}
-    //const DocumentSignedTx = await this.wallet.signEthTx(
-    //  DocumentUnsignedTx.get(),
-    //);
     //await this.sendSendSignedTransaction(DocumentSignedTx);
 
     //throw new Error('Method not implemented.');
@@ -50,7 +60,7 @@ export class TnTWrapper implements ITnTWrapper {
   private async sendCreateDocumentRequest(
     documentHash: string,
     documentMetadata: string,
-  ): Promise<Optional<ethers.UnsignedTransaction>> {
+  ): Promise<Optional<ethers.Transaction>> {
     const ebsiDID = this.wallet.getDid();
     const ebsiAuthorisationApi = new EbsiAuthorisationApi(this.wallet);
     const token = await ebsiAuthorisationApi.getAccessToken(
@@ -89,14 +99,14 @@ export class TnTWrapper implements ITnTWrapper {
     const response = axios
       .request(config)
       .then((response) => {
-        console.log(JSON.stringify(response.data));
-        return Optional.Some(response.data);
+        console.log(JSON.stringify(response.data.result));
+        return Optional.Some(response.data.result);
       })
       .catch((error) => {
         console.log(error);
         return Optional.None();
       });
-    return response;
+    return response as Promise<Optional<ethers.Transaction>>;
   }
 
   private async sendSendSignedTransaction(signedTx: string): Promise<void> {
