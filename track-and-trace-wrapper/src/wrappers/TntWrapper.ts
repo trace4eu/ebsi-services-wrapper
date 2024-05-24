@@ -4,6 +4,7 @@ import * as SignatureWrapperTypes from '@trace4eu/signature-wrapper';
 import { Optional } from '../types/optional';
 import axios from 'axios';
 import ethers from 'ethers';
+import { EbsiAuthorisationApi } from '@trace4eu/authorisation-wrapper';
 
 export class TnTWrapper implements ITnTWrapper {
   private wallet: Wallet;
@@ -11,18 +12,24 @@ export class TnTWrapper implements ITnTWrapper {
   constructor(wallet: Wallet) {
     this.wallet = wallet;
   }
-  async createDocument(documentHash: string): Promise<Optional<string>> {
-    const DocumentUnsignedTx =
-      await this.sendCreateDocumentRequest(documentHash);
-    if (DocumentUnsignedTx.isEmpty()) {
-      return Optional.None();
-    }
-    const DocumentSignedTx = await this.wallet.signEthTx(
-      DocumentUnsignedTx.get(),
+  async createDocument(
+    documentHash: string,
+    documentMetadata: string,
+  ): Promise<Optional<string>> {
+    const DocumentUnsignedTx = await this.sendCreateDocumentRequest(
+      documentHash,
+      documentMetadata,
     );
-    await this.sendSendSignedTransaction(DocumentSignedTx);
+    return Optional.None();
+    //if (DocumentUnsignedTx.isEmpty()) {
+    //  return Optional.None();
+    //}
+    //const DocumentSignedTx = await this.wallet.signEthTx(
+    //  DocumentUnsignedTx.get(),
+    //);
+    //await this.sendSendSignedTransaction(DocumentSignedTx);
 
-    throw new Error('Method not implemented.');
+    //throw new Error('Method not implemented.');
   }
   addEventToDocument() {
     throw new Error('Method not implemented.');
@@ -42,21 +49,29 @@ export class TnTWrapper implements ITnTWrapper {
 
   private async sendCreateDocumentRequest(
     documentHash: string,
+    documentMetadata: string,
   ): Promise<Optional<ethers.UnsignedTransaction>> {
     const ebsiDID = this.wallet.getDid();
+    const ebsiAuthorisationApi = new EbsiAuthorisationApi(this.wallet);
+    const token = await ebsiAuthorisationApi.getAccessToken(
+      'ES256',
+      'tnt_create',
+      [],
+    );
+    const ethAddress = this.wallet.getEthAddress();
 
     const data = JSON.stringify({
       jsonrpc: '2.0',
       method: 'createDocument',
       params: [
         {
-          from: '0xc9765eC58E49e6E386549CEAA34FB0d8bB69C320 TODO add address',
+          from: ethAddress,
           documentHash: documentHash,
-          documentMetadata: 'TODO add metadata',
+          documentMetadata: documentMetadata,
           didEbsiCreator: ebsiDID,
         },
       ],
-      id: 474,
+      id: 666,
     });
 
     const config = {
@@ -66,7 +81,7 @@ export class TnTWrapper implements ITnTWrapper {
       headers: {
         'Content-Type': 'application/json',
         Accept: 'application/json',
-        Authorization: 'Bearer <TOKEN>',
+        Authorization: 'Bearer ' + token.access_token,
       },
       data: data,
     };

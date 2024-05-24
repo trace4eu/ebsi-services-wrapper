@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeAll } from 'vitest';
 import { WalletFactory } from '@trace4eu/signature-wrapper';
 import * as SignatureWrapperTypes from '@trace4eu/signature-wrapper';
 import { EbsiAuthorisationApi } from '@trace4eu/authorisation-wrapper';
+import { TnTWrapper } from '../../src/wrappers/TntWrapper';
 
 const did = 'did:ebsi:zobuuYAHkAbRFCcqdcJfTgR';
 const entityKey = [
@@ -19,6 +20,7 @@ const entityKey = [
 
 const wallet = WalletFactory.createInstance(false, did, entityKey);
 const ebsiAuthorisationApi = new EbsiAuthorisationApi(wallet);
+const tntWrapper = new TnTWrapper(wallet);
 
 describe('Track and Trace Wrapper', () => {
   describe('createDocument', () => {
@@ -26,13 +28,23 @@ describe('Track and Trace Wrapper', () => {
       console.log('createDocument test always true');
       expect(true);
     });
-    it('createDocument', async () => {
+    it('getBarerToken', async () => {
       const tntCreateBarerToken = await ebsiAuthorisationApi.getAccessToken(
         'ES256',
         'tnt_create',
         [],
       );
       console.log(tntCreateBarerToken);
+      expect(true);
+    });
+    it('createDocument', async () => {
+      const documentHash = 'documentHash';
+      const documentMetadata = 'documentMetadata';
+      const document = await tntWrapper.createDocument(
+        documentHash,
+        documentMetadata,
+      );
+      console.log(document);
       expect(true);
     });
   });

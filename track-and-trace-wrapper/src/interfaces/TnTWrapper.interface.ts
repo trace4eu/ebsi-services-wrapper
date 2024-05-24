@@ -6,8 +6,12 @@ import { Optional } from '../types/optional';
 export interface ITnTWrapper {
   /**
    * @param documentHash base64 encoded document hash
+   * @param documentMetadata document metadata
    */
-  createDocument(documentHash: string): Promise<Optional<string>>;
+  createDocument(
+    documentHash: string,
+    documentMetadata: string,
+  ): Promise<Optional<string>>;
   addEventToDocument(): any;
   getDocument(): any;
   getEvent(): any;
