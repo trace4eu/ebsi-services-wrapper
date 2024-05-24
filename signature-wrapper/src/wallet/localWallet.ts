@@ -1,5 +1,11 @@
 import { Wallet } from './wallet.interface';
-import { Algorithm, KeyPairData, KeyPairJwk } from '../types/types';
+import {
+  Algorithm,
+  KeyPairData,
+  KeyPairJwk,
+  SignatureResponse,
+  UnsignedTransaction,
+} from '../types/types';
 import { ethers } from 'ethers';
 import {
   exportKeyPairJwk,
@@ -18,7 +24,10 @@ import {
   EbsiWrapperVerifiablePresentation,
 } from '../wrappers/ebsiWrapper';
 import { InitializationError, SignatureError } from '../errors';
-import { validateUnsignedTransaction } from '../utils/ethers';
+import {
+  formatEthereumTransaction,
+  validateUnsignedTransaction,
+} from '../utils/ethers';
 import { ethersWrapper } from '../wrappers/ethersWrapper';
 import { UnsupportedAlgorithmError } from '../errors/UnspportedAlgorithmError';
 
@@ -98,9 +107,20 @@ export class LocalWallet implements Wallet {
     );
   }
 
-  async signEthTx(data: ethers.Transaction): Promise<string> {
+  async signEthTx(data: UnsignedTransaction): Promise<SignatureResponse> {
     validateUnsignedTransaction(data);
-    return await ethersWrapper.signTransaction(this.ethWallet, data);
+
+    const signedRawTransaction = await ethersWrapper.signTransaction(
+      this.ethWallet,
+      formatEthereumTransaction(data),
+    );
+    const { r, s, v } = ethers.utils.parseTransaction(signedRawTransaction);
+    return {
+      r,
+      s,
+      v: `0x${Number(v).toString(16)}`,
+      signedRawTransaction,
+    };
   }
 
   getDid(): string {

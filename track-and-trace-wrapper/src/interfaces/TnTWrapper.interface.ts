@@ -11,7 +11,7 @@ export interface ITnTWrapper {
   createDocument(
     documentHash: string,
     documentMetadata: string,
-  ): Promise<Optional<string>>;
+  ): Promise<string>;
   addEventToDocument(): any;
   getDocument(): any;
   getEvent(): any;

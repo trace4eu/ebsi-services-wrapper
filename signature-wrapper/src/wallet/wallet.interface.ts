@@ -1,4 +1,8 @@
-import { Algorithm } from '../types/types';
+import {
+  Algorithm,
+  SignatureResponse,
+  UnsignedTransaction,
+} from '../types/types';
 import { ethers } from 'ethers';
 
 export interface Wallet {
@@ -6,7 +10,7 @@ export interface Wallet {
 
   signVP(alg: string, vc: string | string[]): Promise<string>;
 
-  signEthTx(data: ethers.Transaction): Promise<string>;
+  signEthTx(data: UnsignedTransaction): Promise<SignatureResponse>;
 
   getDid(): string;
   getEthAddress(): string;

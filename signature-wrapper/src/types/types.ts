@@ -22,3 +22,21 @@ export interface KeyPairJwk {
   privateKeyJwk: JWK;
   publicKeyJwk: JWK;
 }
+
+export interface UnsignedTransaction {
+  from?: string;
+  to: string;
+  data: string;
+  nonce: string;
+  chainId: string;
+  gasLimit: string;
+  gasPrice: string;
+  value: string;
+}
+
+export interface SignatureResponse {
+  signedRawTransaction: string;
+  r: string;
+  s: string;
+  v: string;
+}

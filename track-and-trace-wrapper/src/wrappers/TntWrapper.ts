@@ -1,27 +1,38 @@
-import { Wallet } from '@trace4eu/signature-wrapper';
+import { UnsignedTransaction, Wallet } from '@trace4eu/signature-wrapper';
 import { ITnTWrapper } from '../interfaces/TnTWrapper.interface';
-import * as SignatureWrapperTypes from '@trace4eu/signature-wrapper';
 import { Optional } from '../types/optional';
 import axios from 'axios';
-import ethers from 'ethers';
-import { EbsiAuthorisationApi } from '@trace4eu/authorisation-wrapper';
+import {
+  AuthorisationApi,
+  EbsiAuthorisationApi,
+} from '@trace4eu/authorisation-wrapper';
 
 export class TnTWrapper implements ITnTWrapper {
   private wallet: Wallet;
+  private ebsiAuthtorisationApi: AuthorisationApi;
 
   constructor(wallet: Wallet) {
     this.wallet = wallet;
+    this.ebsiAuthtorisationApi = new EbsiAuthorisationApi(this.wallet);
   }
   async createDocument(
     documentHash: string,
     documentMetadata: string,
-  ): Promise<Optional<string>> {
+  ): Promise<string> {
+    const { access_token } = await this.ebsiAuthtorisationApi.getAccessToken(
+      'ES256',
+      'tnt_create',
+      [],
+    );
     const DocumentUnsignedTx = await this.sendCreateDocumentRequest(
       documentHash,
       documentMetadata,
+      access_token,
     );
+    // ToDO
     if (DocumentUnsignedTx.isEmpty()) {
-      return Optional.None();
+      // return Optional.None();
+      throw new Error('Error sending request to ebsi api');
     }
     const DocumentUnsignedTxJson = {
       to: DocumentUnsignedTx.get().to,
@@ -33,13 +44,16 @@ export class TnTWrapper implements ITnTWrapper {
       gasLimit: DocumentUnsignedTx.get().gasLimit,
       gasPrice: DocumentUnsignedTx.get().gasPrice,
     };
-    const DocumentSignedTx = await this.wallet.signEthTx(
+    const signatureResponseData = await this.wallet.signEthTx(
       DocumentUnsignedTxJson,
     );
-    return Optional.None();
-    //await this.sendSendSignedTransaction(DocumentSignedTx);
-
-    //throw new Error('Method not implemented.');
+    // return Optional.None();
+    await this.sendSendSignedTransaction(
+      DocumentUnsignedTxJson,
+      signatureResponseData,
+      access_token,
+    );
+    return documentHash;
   }
   addEventToDocument() {
     throw new Error('Method not implemented.');
@@ -60,28 +74,21 @@ export class TnTWrapper implements ITnTWrapper {
   private async sendCreateDocumentRequest(
     documentHash: string,
     documentMetadata: string,
-  ): Promise<Optional<ethers.Transaction>> {
+    accesToken: string,
+  ): Promise<Optional<UnsignedTransaction>> {
     const ebsiDID = this.wallet.getDid();
-    const ebsiAuthorisationApi = new EbsiAuthorisationApi(this.wallet);
-    const token = await ebsiAuthorisationApi.getAccessToken(
-      'ES256',
-      'tnt_create',
-      [],
-    );
-    const ethAddress = this.wallet.getEthAddress();
-
     const data = JSON.stringify({
       jsonrpc: '2.0',
       method: 'createDocument',
       params: [
         {
-          from: ethAddress,
+          from: this.wallet.getEthAddress(),
           documentHash: documentHash,
           documentMetadata: documentMetadata,
           didEbsiCreator: ebsiDID,
         },
       ],
-      id: 666,
+      id: Math.ceil(Math.random() * 1000),
     });
 
     const config = {
@@ -91,7 +98,7 @@ export class TnTWrapper implements ITnTWrapper {
       headers: {
         'Content-Type': 'application/json',
         Accept: 'application/json',
-        Authorization: 'Bearer ' + token.access_token,
+        Authorization: 'Bearer ' + accesToken,
       },
       data: data,
     };
@@ -106,31 +113,25 @@ export class TnTWrapper implements ITnTWrapper {
         console.log(error);
         return Optional.None();
       });
-    return response as Promise<Optional<ethers.Transaction>>;
+    return response as Promise<Optional<UnsignedTransaction>>;
   }
 
-  private async sendSendSignedTransaction(signedTx: string): Promise<void> {
+  private async sendSendSignedTransaction(
+    unsignedTransaction: object,
+    signedTx: object,
+    accessToken: string,
+  ): Promise<object> {
     const data = JSON.stringify({
       jsonrpc: '2.0',
       method: 'sendSignedTransaction',
-      id: 1,
+      id: Math.ceil(Math.random() * 1000),
       params: [
         {
           protocol: 'eth',
           unsignedTransaction: {
-            from: '0x89205A3A3b2A69De6Dbf7f01ED13B2108B2c43e7',
-            to: '0xFde86148db58f57787C06BeAf63a9c3f789357b3',
-            data: '0x0000...',
-            nonce: '0x00',
-            chainId: '0x1b3b',
-            gasLimit: '0x10000',
-            gasPrice: '0x00',
-            value: '0x00',
+            ...unsignedTransaction,
           },
-          r: '0x...',
-          s: '0x...',
-          v: '0x...',
-          signedRawTransaction: signedTx,
+          ...signedTx,
         },
       ],
     });
@@ -142,18 +143,18 @@ export class TnTWrapper implements ITnTWrapper {
       headers: {
         'Content-Type': 'application/json',
         Accept: 'application/json',
-        Authorization: 'Bearer <TOKEN>',
+        Authorization: 'Bearer ' + accessToken,
       },
       data: data,
     };
 
-    axios
+    const response = axios
       .request(config)
-      .then((response) => {
-        console.log(JSON.stringify(response.data));
-      })
+      .then()
       .catch((error) => {
         console.log(error);
+        return Optional.None();
       });
+    return response as Promise<Optional<object>>;
   }
 }
