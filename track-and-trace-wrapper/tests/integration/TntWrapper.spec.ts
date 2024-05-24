@@ -3,6 +3,7 @@ import { WalletFactory } from '@trace4eu/signature-wrapper';
 import * as SignatureWrapperTypes from '@trace4eu/signature-wrapper';
 import { EbsiAuthorisationApi } from '@trace4eu/authorisation-wrapper';
 import { TnTWrapper } from '../../src/wrappers/TntWrapper';
+import crypto from 'node:crypto';
 
 const did = 'did:ebsi:zobuuYAHkAbRFCcqdcJfTgR';
 const entityKey = [
@@ -38,7 +39,7 @@ describe('Track and Trace Wrapper', () => {
       expect(true);
     });
     it('createDocument', async () => {
-      const documentHash = 'documentHash';
+      const documentHash = `0x${crypto.randomBytes(32).toString('hex')}`;
       const documentMetadata = 'documentMetadata';
       const document = await tntWrapper.createDocument(
         documentHash,
