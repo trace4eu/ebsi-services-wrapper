@@ -10,3 +10,16 @@ export enum Algorithm {
   ES256 = 'ES256',
 } */
 /** Interface TnTWrapper */
+
+export interface DocumentData {
+  metadata: string;
+  timestamp: Timestamp;
+  events: any[];
+  creator: string;
+}
+
+export interface Timestamp {
+  datetime: string;
+  source: string;
+  proof: string;
+}
