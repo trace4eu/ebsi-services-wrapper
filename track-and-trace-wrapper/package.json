@@ -1,8 +1,9 @@
 {
   "name": "@trace4eu/tnt-wrapper",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "",
   "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
     "release": "standard-version",
     "test": "vitest related ./tests/**/*.ts",
@@ -20,8 +21,8 @@
   },
   "homepage": "https://github.com/trace4eu/ebsi-services-wrapper#readme",
   "dependencies": {
-    "@trace4eu/authorisation-wrapper": "../authorisation-wrapper",
-    "@trace4eu/signature-wrapper": "../signature-wrapper",
+    "@trace4eu/authorisation-wrapper": "^0.0.8",
+    "@trace4eu/signature-wrapper": "^0.0.3",
     "axios": "^1.7.2",
     "ethers": "^5.7.2"
   },
