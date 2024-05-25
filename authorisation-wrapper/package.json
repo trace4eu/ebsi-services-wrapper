@@ -1,8 +1,9 @@
 {
   "name": "@trace4eu/authorisation-wrapper",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "",
   "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
     "release": "standard-version",
     "test": "jest",
@@ -20,7 +21,7 @@
   },
   "homepage": "https://github.com/trace4eu/ebsi-services-wrapper#readme",
   "dependencies": {
-    "@trace4eu/signature-wrapper": "../signature-wrapper",
+    "@trace4eu/signature-wrapper": "@trace4eu/signature-wrapper",
     "jose": "^5.3.0"
   },
   "devDependencies": {
