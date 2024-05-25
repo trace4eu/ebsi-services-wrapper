@@ -1,6 +1,11 @@
 import {Algorithm, WalletFactory} from "@trace4eu/signature-wrapper";
 import {EbsiAuthorisationApi} from "@trace4eu/authorisation-wrapper";
+import {TnTWrapper} from "@trace4eu/track-and-trace-wrapper";
+import * as crypto from 'crypto';
 
+function timeout(ms: number): Promise<void> {
+  return new Promise<void>(resolve => setTimeout(resolve, ms));
+}
 
 async function main() {
   const did = 'did:ebsi:zobuuYAHkAbRFCcqdcJfTgR';
@@ -24,6 +29,19 @@ async function main() {
     [],
   );
   console.log(`tokenResponse => ${JSON.stringify(tokenResponse, null, 2)}`);
+
+  const tntWrapper = new TnTWrapper(wallet);
+  const documentHash = `0x${crypto.randomBytes(32).toString('hex')}`;
+  console.log(documentHash);
+  const documentMetadata = 'documentMetadata';
+  const document = await tntWrapper.createDocument(
+    documentHash,
+    documentMetadata,
+  );
+  console.log(`Document hash inserted in TnT api!`);
+  await timeout(20000);
+  const documentData = await tntWrapper.getDocument('0xabd3369f0bc1d001d5b7391dfc5b0b0f756044ead2eb18fa29c5a9da3f29fb8b');
+  console.log(`Document data retrieved from TnT api: ${JSON.stringify(documentData, null, 2)}`);
 }
 
 main();

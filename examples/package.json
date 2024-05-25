@@ -10,6 +10,7 @@
   "dependencies": {
     "ts-node": "^10.9.2",
     "@trace4eu/authorisation-wrapper": "../authorisation-wrapper",
-    "@trace4eu/signature-wrapper": "../signature-wrapper"
+    "@trace4eu/signature-wrapper": "../signature-wrapper",
+    "@trace4eu/track-and-trace-wrapper": "../track-and-trace-wrapper"
   }
 }
