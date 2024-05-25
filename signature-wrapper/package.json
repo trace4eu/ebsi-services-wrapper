@@ -1,6 +1,6 @@
 {
   "name": "@trace4eu/signature-wrapper",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -25,6 +25,7 @@
     "@cef-ebsi/wallet-lib": "^4.1.0",
     "elliptic": "^6.5.4",
     "ethers": "^5.7.2",
+    "joi": "^17.11.0",
     "jose": "^5.3.0"
   },
   "devDependencies": {
