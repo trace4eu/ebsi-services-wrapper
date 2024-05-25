@@ -1,6 +1,6 @@
 {
   "name": "@trace4eu/authorisation-wrapper",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "",
   "main": "dist/index.js",
   "scripts": {
@@ -37,6 +37,7 @@
     "jest-junit": "^16.0.0",
     "prettier": "^3.0.0",
     "source-map-support": "^0.5.21",
+    "standard-version": "^9.5.0",
     "ts-jest": "^29.1.0",
     "ts-loader": "^9.4.3",
     "ts-node": "^10.9.1",
