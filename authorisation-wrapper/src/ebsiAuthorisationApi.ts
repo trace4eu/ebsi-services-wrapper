@@ -61,11 +61,17 @@ export class EbsiAuthorisationApi implements AuthorisationApi {
       }),
     );
 
-    const tokenResponse = await httpCall.post(
+    const response = await httpCall.post(
       tokenEndpoint,
       tokenPresentatationEndpointParams,
     );
-    const data = (await tokenResponse.json()) as TokenResponse;
+    if (!response.ok) {
+      const errorData = await response.text(); // parse the error response as JSON
+      throw new EbsiAuthorisationApiError(
+        `Error ${response.status}: ${errorData}`,
+      );
+    }
+    const data = (await response.json()) as TokenResponse;
     if (!data.access_token || !isJwt(data.access_token))
       throw new EbsiAuthorisationApiError(JSON.stringify(data));
     return data;

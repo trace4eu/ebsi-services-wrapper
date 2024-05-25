@@ -3,7 +3,7 @@ import { WalletFactory } from '@trace4eu/signature-wrapper';
 import * as SignatureWrapperTypes from '@trace4eu/signature-wrapper';
 import { EbsiAuthorisationApi } from '@trace4eu/authorisation-wrapper';
 import { TnTWrapper } from '../../src/wrappers/TntWrapper';
-import crypto from 'crypto';
+import * as crypto from 'crypto';
 
 const did = 'did:ebsi:zobuuYAHkAbRFCcqdcJfTgR';
 const entityKey = [
@@ -47,7 +47,27 @@ describe('Track and Trace Wrapper', () => {
         documentMetadata,
       );
       console.log(document);
-      expect(true);
+      expect(document).toBe(documentHash);
+    });
+
+    it('getDocument', async () => {
+      const documentHash =
+        '0x266eb7cd3498f6b4760cded6172178b87fd4cf7b06c99cf1b3862ada1cd3f259';
+      const documentData = await tntWrapper.getDocument(documentHash);
+      console.log(documentData);
+      expect(documentData).toHaveProperty('metadata');
+      expect(documentData).toEqual(
+        expect.objectContaining({
+          metadata: expect.any(String),
+          creator: expect.any(String),
+          events: expect.any(Array),
+          timestamp: expect.objectContaining({
+            datetime: expect.any(String),
+            source: expect.any(String),
+            proof: expect.any(String),
+          }),
+        }),
+      );
     });
   });
 });

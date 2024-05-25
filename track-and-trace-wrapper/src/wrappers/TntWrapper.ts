@@ -6,6 +6,7 @@ import {
   AuthorisationApi,
   EbsiAuthorisationApi,
 } from '@trace4eu/authorisation-wrapper';
+import { DocumentData } from '../types/types';
 
 export class TnTWrapper implements ITnTWrapper {
   private wallet: Wallet;
@@ -58,8 +59,22 @@ export class TnTWrapper implements ITnTWrapper {
   addEventToDocument() {
     throw new Error('Method not implemented.');
   }
-  getDocument() {
-    throw new Error('Method not implemented.');
+  async getDocument(documentHash: string): Promise<DocumentData> {
+    const documentData = await this.getDocumentFromApi(documentHash);
+    const dateTime = new Date(
+      parseInt(documentData.get().timestamp.datetime, 16) * 1000,
+    );
+    console.log(dateTime.toISOString());
+    return {
+      metadata: documentData.get().metadata,
+      timestamp: {
+        datetime: dateTime.toISOString(),
+        source: documentData.get().timestamp.source,
+        proof: documentData.get().timestamp.proof,
+      },
+      events: documentData.get().events,
+      creator: documentData.get().creator,
+    };
   }
   getEvent() {
     throw new Error('Method not implemented.');
@@ -106,11 +121,9 @@ export class TnTWrapper implements ITnTWrapper {
     const response = axios
       .request(config)
       .then((response) => {
-        console.log(JSON.stringify(response.data.result));
         return Optional.Some(response.data.result);
       })
       .catch((error) => {
-        console.log(error);
         return Optional.None();
       });
     return response as Promise<Optional<UnsignedTransaction>>;
@@ -151,10 +164,26 @@ export class TnTWrapper implements ITnTWrapper {
     const response = axios
       .request(config)
       .then()
-      .catch((error) => {
-        console.log(error);
+      .catch(() => {
         return Optional.None();
       });
     return response as Promise<Optional<object>>;
+  }
+
+  private async getDocumentFromApi(documentHash: string) {
+    const config = {
+      method: 'get',
+      url: `https://api-pilot.ebsi.eu/track-and-trace/v1/documents/${documentHash}`,
+    };
+
+    const response = axios
+      .request(config)
+      .then((response) => {
+        return Optional.Some(response.data);
+      })
+      .catch((error) => {
+        return Optional.None();
+      });
+    return response as Promise<Optional<DocumentData>>;
   }
 }
