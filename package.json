@@ -1,0 +1,17 @@
+{
+  "name": "ebsi-services-wrapper",
+  "version": "1.0.0",
+  "description": "trace4eu ebsi services wrapper library",
+  "main": ".eslintrc.js",
+  "directories": {
+    "example": "examples"
+  },
+  "scripts": {
+    "installAll" : "npm run build --prefix ./signature-wrapper && npm run build --prefix ./authorisation-wrapper && npm run build --prefix ./track-and-trace-wrapper", 
+    "buildAll" : "npm run build --prefix ./signature-wrapper && npm run build --prefix ./authorisation-wrapper && npm run build --prefix ./track-and-trace-wrapper",
+    "testAll" :  "npm run test --prefix ./signature-wrapper && npm run test --prefix ./authorisation-wrapper && npm run test --prefix ./track-and-trace-wrapper" 
+   
+  },
+  "author": "",
+  "license": "ISC"
+}
