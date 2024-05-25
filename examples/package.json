@@ -8,9 +8,9 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "ts-node": "^10.9.2",
-    "@trace4eu/authorisation-wrapper": "../authorisation-wrapper",
-    "@trace4eu/signature-wrapper": "../signature-wrapper",
-    "@trace4eu/track-and-trace-wrapper": "../track-and-trace-wrapper"
+    "@trace4eu/authorisation-wrapper": "^0.0.8",
+    "@trace4eu/signature-wrapper": "^0.0.9",
+    "@trace4eu/tnt-wrapper": "^0.0.10",
+    "ts-node": "^10.9.2"
   }
 }

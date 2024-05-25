@@ -1,6 +1,6 @@
 import {Algorithm, WalletFactory} from "@trace4eu/signature-wrapper";
 import {EbsiAuthorisationApi} from "@trace4eu/authorisation-wrapper";
-import {TnTWrapper} from "@trace4eu/track-and-trace-wrapper";
+import {TnTWrapper} from "@trace4eu/tnt-wrapper";
 import * as crypto from 'crypto';
 
 function timeout(ms: number): Promise<void> {
