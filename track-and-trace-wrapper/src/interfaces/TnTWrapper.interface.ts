@@ -14,8 +14,8 @@ export interface ITnTWrapper {
     documentMetadata: string,
   ): Promise<string>;
   addEventToDocument(): any;
-  getDocument(documentHash: string): Promise<DocumentData>;
-  getEvent(): any;
+  getDocumentDetails(documentHash: string): Promise<DocumentData>;
+  getEventDetails(eventId: string): any;
   listDocuments(): any;
-  listEventOfDocument(): any;
+  //listEventsOfDocument(): any;
 }

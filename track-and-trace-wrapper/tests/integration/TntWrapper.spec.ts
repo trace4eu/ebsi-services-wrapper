@@ -22,6 +22,7 @@ const entityKey = [
 const wallet = WalletFactory.createInstance(false, did, entityKey);
 const ebsiAuthorisationApi = new EbsiAuthorisationApi(wallet);
 const tntWrapper = new TnTWrapper(wallet);
+const documentHash = `0x${crypto.randomBytes(32).toString('hex')}`;
 
 describe('Track and Trace Wrapper', () => {
   describe('createDocument', () => {
@@ -39,8 +40,8 @@ describe('Track and Trace Wrapper', () => {
       expect(true);
     });
     it('createDocument', async () => {
-      const documentHash = `0x${crypto.randomBytes(32).toString('hex')}`;
-      console.log(documentHash);
+      //const documentHash = `0x${crypto.randomBytes(32).toString('hex')}`;
+      console.log('Document Hash:' + documentHash);
       const documentMetadata = 'documentMetadata';
       const document = await tntWrapper.createDocument(
         documentHash,
@@ -50,10 +51,12 @@ describe('Track and Trace Wrapper', () => {
       expect(document).toBe(documentHash);
     });
 
-    it('getDocument', async () => {
-      const documentHash =
-        '0x266eb7cd3498f6b4760cded6172178b87fd4cf7b06c99cf1b3862ada1cd3f259';
-      const documentData = await tntWrapper.getDocument(documentHash);
+    it('getDocumentDetails', async () => {
+      //const documentHash =
+      //  '0x266eb7cd3498f6b4760cded6172178b87fd4cf7b06c99cf1b3862ada1cd3f259';
+      console.log('Document Hash:' + documentHash);
+      const documentData = await tntWrapper.getDocumentDetails(documentHash);
+      console.log('Document Data');
       console.log(documentData);
       expect(documentData).toHaveProperty('metadata');
       expect(documentData).toEqual(
