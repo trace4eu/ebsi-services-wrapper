@@ -28,3 +28,12 @@ export interface TnTObjectRef {
   documentId: string;
   href: string;
 }
+
+export interface EventData {
+  eventId: string;
+  documentHash: string;
+  timestamp: Timestamp;
+  sender: string;
+  origin: string;
+  metadata: string;
+}

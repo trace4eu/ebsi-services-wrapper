@@ -6,7 +6,8 @@ import {
   AuthorisationApi,
   EbsiAuthorisationApi,
 } from '@trace4eu/authorisation-wrapper';
-import { DocumentData, TnTObjectRef } from '../types/types';
+import { DocumentData, EventData, TnTObjectRef } from '../types/types';
+import { ethers } from 'ethers';
 
 const delay = (ms) => new Promise((res) => setTimeout(res, ms));
 
@@ -85,10 +86,9 @@ export class TnTWrapper implements ITnTWrapper {
           documentHash,
           access_token,
         );
-        console.log(res2);
+        //console.log(res2);
       }
-      console.log(res2);
-      await delay(15000);
+      await delay(5000);
     }
     return documentHash;
   }
@@ -97,55 +97,55 @@ export class TnTWrapper implements ITnTWrapper {
     eventId: string,
     eventMetadata: string,
     origin: string,
-  ): Promise<Optional<string>> {
+    waitMined: boolean = true,
+  ): Promise<string> {
+    const unsignedTransaction = await this.sendCreateEventRequest(
+      documentHash,
+      eventId,
+      eventMetadata,
+      origin,
+    );
+    if (unsignedTransaction.isEmpty()) {
+      throw new Error('Error sending request to ebsi api');
+    }
+    const unsignedTransactionJson = {
+      to: unsignedTransaction.get().to,
+      from: unsignedTransaction.get().from,
+      data: unsignedTransaction.get().data,
+      nonce: unsignedTransaction.get().nonce,
+      value: unsignedTransaction.get().value,
+      chainId: unsignedTransaction.get().chainId,
+      gasLimit: unsignedTransaction.get().gasLimit,
+      gasPrice: unsignedTransaction.get().gasPrice,
+    };
+    const signatureResponseData = await this.wallet.signEthTx(
+      unsignedTransactionJson,
+    );
     const { access_token } = await this.ebsiAuthtorisationApi.getAccessToken(
       'ES256',
       'tnt_write',
       [],
     );
-    const data = JSON.stringify({
-      jsonrpc: '2.0',
-      method: 'writeEvent',
-      params: [
-        {
-          from: this.wallet.getEthAddress(),
-          eventParams: [
-            {
-              documentHash: documentHash,
-              externalHash: eventId,
-              sender: this.wallet.getDid(),
-              origin: 'origin',
-              metadata: 'test metadata',
-            },
-          ],
-        },
-      ],
-      id: Math.ceil(Math.random() * 1000),
-    });
-
-    const config = {
-      method: 'post',
-      maxBodyLength: Infinity,
-      url: 'https://api-pilot.ebsi.eu/track-and-trace/v1/jsonrpc',
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-        Authorization: 'Bearer' + access_token,
-      },
-      data: data,
-    };
-
-    return axios
-      .request(config)
-      .then((response) => {
-        console.log(JSON.stringify(response.data));
-        return Optional.Some(response.data.result);
-      })
-      .catch((error) => {
-        console.log(error);
-        return Optional.None();
-      });
+    await this.sendSendSignedTransaction(
+      unsignedTransactionJson,
+      signatureResponseData,
+      access_token,
+    );
+    if (waitMined) {
+      const res2 = await this.getTransactionReceipt(documentHash, access_token);
+      while (res2.isEmpty()) {
+        await delay(15000);
+        const res2 = await this.getTransactionReceipt(
+          documentHash,
+          access_token,
+        );
+        //console.log(res2);
+      }
+      await delay(5000);
+    }
+    return eventId;
   }
+
   async getDocumentDetails(documentHash: string): Promise<DocumentData> {
     const documentData = await this.getDocumentFromApi(documentHash);
     const dateTime = new Date(
@@ -163,7 +163,11 @@ export class TnTWrapper implements ITnTWrapper {
       creator: documentData.get().creator,
     };
   }
-  getEventDetails(documentHash: string, eventId: string) {
+
+  async getEventDetails(
+    documentHash: string,
+    eventId: string,
+  ): Promise<Optional<EventData>> {
     const config = {
       method: 'get',
       maxBodyLength: Infinity,
@@ -173,14 +177,29 @@ export class TnTWrapper implements ITnTWrapper {
       },
     };
 
-    axios
+    const response = await axios
       .request(config)
       .then((response) => {
-        console.log(JSON.stringify(response.data));
+        return Optional.Some(response.data);
       })
       .catch((error) => {
-        console.log(error);
+        return Optional.None();
       });
+    if (response.isEmpty()) {
+      const data = response.get();
+      return Optional.Some({
+        eventId: data.externalHash,
+        documentHash: data.hash,
+        timestamp: {
+          datetime: data.timestamp.datetime.toISOString(),
+          source: data.timestamp.source,
+          proof: data.timestamp.proof,
+        },
+        sender: data.sender,
+        origin: data.origin,
+        metadata: data.metadata,
+      });
+    } else return Optional.None();
   }
 
   getAllDocuments(): Promise<Optional<TnTObjectRef[]>> {
@@ -368,5 +387,63 @@ export class TnTWrapper implements ITnTWrapper {
         return Optional.None();
       });
     return response as Promise<Optional<object>>;
+  }
+
+  private async sendCreateEventRequest(
+    documentHash: string,
+    eventId: string,
+    eventMetadata: string,
+    origin: string,
+  ): Promise<Optional<UnsignedTransaction>> {
+    const { access_token } = await this.ebsiAuthtorisationApi.getAccessToken(
+      'ES256',
+      'tnt_write',
+      [],
+    );
+
+    const data = JSON.stringify({
+      jsonrpc: '2.0',
+      method: 'writeEvent',
+      params: [
+        {
+          from: this.wallet.getEthAddress(),
+          eventParams: {
+            documentHash: documentHash,
+            externalHash: eventId,
+            // TO BE REMOVED WITH DIRECT CALL TO WALLET FUNCTION
+            sender: ethers.utils.hexlify(
+              ethers.utils.toUtf8Bytes(this.wallet.getDid()),
+            ),
+            origin: 'origin',
+            metadata: 'test metadata',
+          },
+        },
+      ],
+      id: Math.ceil(Math.random() * 1000),
+    });
+
+    const config = {
+      method: 'post',
+      maxBodyLength: Infinity,
+      url: 'https://api-pilot.ebsi.eu/track-and-trace/v1/jsonrpc',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+        Authorization: 'Bearer ' + access_token,
+      },
+      data: data,
+    };
+    console.log('PPPPPPPP' + JSON.stringify(config));
+    return axios
+      .request(config)
+      .then((response) => {
+        console.log('FFFFFFFFFF');
+        console.log(JSON.stringify(response.data));
+        return Optional.Some(response.data.result);
+      })
+      .catch((error) => {
+        console.log(error.response.data);
+        return Optional.None();
+      });
   }
 }

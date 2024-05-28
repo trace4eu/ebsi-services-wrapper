@@ -24,8 +24,13 @@ export interface ITnTWrapper {
     documentHash: string,
   ): Promise<Optional<TnTObjectRef[]>>;
   isDocumentMined(documenthash: string): Promise<boolean>;
-  addEventToDocument(): any;
-  getEventDetails(eventId: string): any;
+  addEventToDocument(
+    eventId: string,
+    eventMetadata: string,
+    origin: string,
+    waitMined?: boolean,
+  ): Promise<string>;
+  getEventDetails(documentHash: string, eventId: string): any;
   listDocuments(): any;
   //listEventsOfDocument(): any;
 }
