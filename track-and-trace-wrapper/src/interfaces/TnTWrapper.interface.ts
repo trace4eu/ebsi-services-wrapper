@@ -26,6 +26,6 @@ export interface ITnTWrapper {
   isDocumentMined(documenthash: string): Promise<boolean>;
   addEventToDocument(): any;
   getEventDetails(eventId: string): any;
-
+  listDocuments(): any;
   //listEventsOfDocument(): any;
 }
