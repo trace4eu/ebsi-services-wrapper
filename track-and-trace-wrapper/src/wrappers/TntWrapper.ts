@@ -405,8 +405,6 @@ export class TnTWrapper implements ITnTWrapper {
       'tnt_write',
       [],
     );
-      ethers.utils.hexlify(ethers.utils.toUtf8Bytes(this.wallet.getDid())),
-    );
     const data = JSON.stringify({
       jsonrpc: '2.0',
       method: 'writeEvent',
