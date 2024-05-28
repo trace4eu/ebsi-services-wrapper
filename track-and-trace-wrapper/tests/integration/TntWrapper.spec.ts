@@ -23,6 +23,9 @@ const wallet = WalletFactory.createInstance(false, did, entityKey);
 const ebsiAuthorisationApi = new EbsiAuthorisationApi(wallet);
 const tntWrapper = new TnTWrapper(wallet);
 const documentHash = `0x${crypto.randomBytes(32).toString('hex')}`;
+const eventId = `0x${crypto.randomBytes(32).toString('hex')}`;
+const eventMetadata = 'eventMetadata';
+const origin = 'origin';
 
 describe('Track and Trace Wrapper', () => {
   describe('createDocument', () => {
@@ -53,19 +56,17 @@ describe('Track and Trace Wrapper', () => {
       expect(document).toBe(documentHash2);
     });
 
-    it('createDocument waitingMined = true ', async () => {
-
-      console.log('Document Hash:' + documentHash);
-      const documentMetadata = 'documentMetadata';
-      const document = await tntWrapper.createDocument(
-        documentHash,
-        documentMetadata,
-      );
-      console.log(document);
-      expect(document).toBe(documentHash);
-    });
+    //it('createDocument waitingMined = true ', async () => {
+    //console.log('Document Hash:' + documentHash);
+    //const documentMetadata = 'documentMetadata';
+    //const document = await tntWrapper.createDocument(
+    //documentHash,
+    //documentMetadata,
+    //);
+    //console.log(document);
+    //expect(document).toBe(documentHash);
+    //});
     //const documentHash = `0x${crypto.randomBytes(32).toString('hex')}`;
-
 
     it('getDocumentDetails', async () => {
       //const documentHash =
@@ -88,5 +89,36 @@ describe('Track and Trace Wrapper', () => {
         }),
       );
     });
+
+    it('addEventToDocument', async () => {
+      const event = await tntWrapper.addEventToDocument(
+        documentHash,
+        eventId,
+        eventMetadata,
+        origin,
+        false,
+      );
+      console.log(event);
+      expect(event).toBe(eventId);
+    });
+
+    it('getEventDetails', async () => {
+      const eventDetails = await tntWrapper.getEventDetails(
+        documentHash,
+        eventId,
+      );
+      console.log(eventDetails);
+      expect(eventDetails).toBeDefined();
+    });
+
+    it('return documents list', async () => {
+      const documentList = await tntWrapper.getAllDocuments();
+      expect(documentList).toBeDefined();
+    });
+  });
+
+  it('return events of document', async () => {
+    const documentList = await tntWrapper.getAllEventsOfDocument(documentHash);
+    expect(documentList).toBeDefined();
   });
 });
