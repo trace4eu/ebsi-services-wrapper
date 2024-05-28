@@ -6,7 +6,7 @@ import {
   AuthorisationApi,
   EbsiAuthorisationApi,
 } from '@trace4eu/authorisation-wrapper';
-import { DocumentData } from '../types/types';
+import { DocumentData, TnTObjectRef } from '../types/types';
 
 const delay = (ms) => new Promise((res) => setTimeout(res, ms));
 
@@ -17,6 +17,9 @@ export class TnTWrapper implements ITnTWrapper {
   constructor(wallet: Wallet) {
     this.wallet = wallet;
     this.ebsiAuthtorisationApi = new EbsiAuthorisationApi(this.wallet);
+  }
+  getAllEventsOfDocument(documentHash: string): Promise<Optional<TnTObjectRef[]>> {
+    throw new Error('Method not implemented.');
   }
   async isDocumentMined(documenthash: string): Promise<boolean> {
     const { access_token } = await this.ebsiAuthtorisationApi.getAccessToken(
@@ -81,7 +84,6 @@ export class TnTWrapper implements ITnTWrapper {
       }
       console.log(res2);
       await delay(15000);
-
     }
     return documentHash;
   }
@@ -108,9 +110,11 @@ export class TnTWrapper implements ITnTWrapper {
   getEventDetails(eventId: string) {
     throw new Error('Method not implemented.');
   }
-  listDocuments() {
-    throw new Error('Method not implemented.');
+
+  getAllDocuments(): Promise<Optional<DocumentRef[]>> {
+    return this.getDocumentsFromAPI();
   }
+
   listEventOfDocument() {
     throw new Error('Method not implemented.');
   }
@@ -215,6 +219,44 @@ export class TnTWrapper implements ITnTWrapper {
       });
     return response as Promise<Optional<DocumentData>>;
   }
+
+  private async getDocumentsFromAPI(): Promise<Optional<TnTObjectRef[]>> {
+    const config = {
+      method: 'get',
+      url: `https://api-pilot.ebsi.eu/track-and-trace/v1/documents`,
+    };
+
+    return axios
+      .request(config)
+      .then((response) => {
+        return Optional.Some(response.data);
+      })
+      .catch((error) => {
+        return Optional.None();
+      });
+  }
+
+  private async getEventsOfDocumentFromAPI(
+    documentID: string,
+  ): Promise<Optional<TnTObjectRef[]>> {
+    const config = {
+      method: 'get',
+      url:
+        'https://api-pilot.ebsi.eu/track-and-trace/v1/documents/' +
+        documentID +
+        '/events',
+    };
+
+    return axios
+      .request(config)
+      .then((response) => {
+        return Optional.Some(response.data);
+      })
+      .catch((error) => {
+        return Optional.None();
+      });
+  }
+
 
   private async getTransactionReceipt(
     txHash: string,

@@ -23,3 +23,8 @@ export interface Timestamp {
   source: string;
   proof: string;
 }
+
+export interface DocumentRef {
+  documentId: string;
+  href: string;
+}
