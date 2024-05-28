@@ -171,12 +171,17 @@ export class TnTWrapper implements ITnTWrapper {
     const config = {
       method: 'get',
       maxBodyLength: Infinity,
-      url: 'https://api-pilot.ebsi.eu/track-and-trace/v1/documents/${documentHash}/events/${eventId}',
+      url:
+        'https://api-pilot.ebsi.eu/track-and-trace/v1/documents/' +
+        documentHash +
+        '/events/' +
+        eventId,
       headers: {
         Accept: 'application/json',
       },
     };
 
+    console.log('config: ' + config);
     const response = await axios
       .request(config)
       .then((response) => {
@@ -185,7 +190,7 @@ export class TnTWrapper implements ITnTWrapper {
       .catch((error) => {
         return Optional.None();
       });
-    if (response.isEmpty()) {
+    if (response.isSome()) {
       const data = response.get();
       return Optional.Some({
         eventId: data.externalHash,
@@ -400,7 +405,8 @@ export class TnTWrapper implements ITnTWrapper {
       'tnt_write',
       [],
     );
-
+      ethers.utils.hexlify(ethers.utils.toUtf8Bytes(this.wallet.getDid())),
+    );
     const data = JSON.stringify({
       jsonrpc: '2.0',
       method: 'writeEvent',
@@ -433,11 +439,10 @@ export class TnTWrapper implements ITnTWrapper {
       },
       data: data,
     };
-    console.log('PPPPPPPP' + JSON.stringify(config));
+    console.log('config of createevent' + JSON.stringify(config));
     return axios
       .request(config)
       .then((response) => {
-        console.log('FFFFFFFFFF');
         console.log(JSON.stringify(response.data));
         return Optional.Some(response.data.result);
       })
