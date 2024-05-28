@@ -11,14 +11,17 @@ export interface ITnTWrapper {
   /** create a new document in the ledger ( it manage also the signing of the transaction )
    * @param documentHash base64 encoded document hash
    * @param documentMetadata base64 encoded document metadata
+   * @param waitMined wait document mined if true - default = true
    */
   createDocument(
     documentHash: string,
     documentMetadata: string,
+    waitMined?: boolean,
   ): Promise<string>;
-  listDocuments(): any;
-  getDocument(documentHash: string): Promise<DocumentData>;
+  getDocumentDetails(documentHash: string): Promise<DocumentData>;
+  isDocumentMined(documenthash: string): Promise<boolean>;
   addEventToDocument(): any;
-  listEventOfDocument(): any;
-  getEvent(): any;
+  getEventDetails(eventId: string): any;
+  listDocuments(): any;
+  //listEventsOfDocument(): any;
 }

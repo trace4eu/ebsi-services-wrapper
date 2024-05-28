@@ -8,6 +8,8 @@ import {
 } from '@trace4eu/authorisation-wrapper';
 import { DocumentData } from '../types/types';
 
+const delay = (ms) => new Promise((res) => setTimeout(res, ms));
+
 export class TnTWrapper implements ITnTWrapper {
   private wallet: Wallet;
   private ebsiAuthtorisationApi: AuthorisationApi;
@@ -16,9 +18,23 @@ export class TnTWrapper implements ITnTWrapper {
     this.wallet = wallet;
     this.ebsiAuthtorisationApi = new EbsiAuthorisationApi(this.wallet);
   }
+  async isDocumentMined(documenthash: string): Promise<boolean> {
+    const { access_token } = await this.ebsiAuthtorisationApi.getAccessToken(
+      'ES256',
+      'tnt_create',
+      [],
+    );
+    const response = await this.getTransactionReceipt(
+      documenthash,
+      access_token,
+    );
+
+    return response.isSome();
+  }
   async createDocument(
     documentHash: string,
     documentMetadata: string,
+    waitMined: boolean = true,
   ): Promise<string> {
     const { access_token } = await this.ebsiAuthtorisationApi.getAccessToken(
       'ES256',
@@ -30,7 +46,6 @@ export class TnTWrapper implements ITnTWrapper {
       documentMetadata,
       access_token,
     );
-    // ToDO
     if (DocumentUnsignedTx.isEmpty()) {
       // return Optional.None();
       throw new Error('Error sending request to ebsi api');
@@ -54,12 +69,26 @@ export class TnTWrapper implements ITnTWrapper {
       signatureResponseData,
       access_token,
     );
+    if (waitMined) {
+      const res2 = await this.getTransactionReceipt(documentHash, access_token);
+      while (res2.isEmpty()) {
+        await delay(15000);
+        const res2 = await this.getTransactionReceipt(
+          documentHash,
+          access_token,
+        );
+        console.log(res2);
+      }
+      console.log(res2);
+      await delay(15000);
+
+    }
     return documentHash;
   }
   addEventToDocument() {
     throw new Error('Method not implemented.');
   }
-  async getDocument(documentHash: string): Promise<DocumentData> {
+  async getDocumentDetails(documentHash: string): Promise<DocumentData> {
     const documentData = await this.getDocumentFromApi(documentHash);
     const dateTime = new Date(
       parseInt(documentData.get().timestamp.datetime, 16) * 1000,
@@ -76,7 +105,7 @@ export class TnTWrapper implements ITnTWrapper {
       creator: documentData.get().creator,
     };
   }
-  getEvent() {
+  getEventDetails(eventId: string) {
     throw new Error('Method not implemented.');
   }
   listDocuments() {
@@ -185,5 +214,44 @@ export class TnTWrapper implements ITnTWrapper {
         return Optional.None();
       });
     return response as Promise<Optional<DocumentData>>;
+  }
+
+  private async getTransactionReceipt(
+    txHash: string,
+    accessToken: string,
+  ): Promise<Optional<object>> {
+    const data = JSON.stringify({
+      jsonrpc: '2.0',
+      method: 'eth_getTransactionReceipt',
+      id: Math.ceil(Math.random() * 1000),
+      params: [txHash],
+    });
+
+    const config = {
+      method: 'post',
+      maxBodyLength: Infinity,
+      url: 'https://api-pilot.ebsi.eu/ledger/v4/blockchains/besu',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+        Authorization: 'Bearer ' + accessToken,
+      },
+      data: data,
+    };
+
+    const response = axios
+      .request(config)
+      .then((response) => {
+        console.log(response);
+        if (response.data.result === null) {
+          return Optional.None();
+        } else {
+          return Optional.Some(response.data.result);
+        }
+      })
+      .catch((error) => {
+        return Optional.None();
+      });
+    return response as Promise<Optional<object>>;
   }
 }
