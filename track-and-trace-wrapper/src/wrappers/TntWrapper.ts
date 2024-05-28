@@ -18,9 +18,8 @@ export class TnTWrapper implements ITnTWrapper {
     this.wallet = wallet;
     this.ebsiAuthtorisationApi = new EbsiAuthorisationApi(this.wallet);
   }
-  getAllEventsOfDocument(documentHash: string): Promise<Optional<TnTObjectRef[]>> {
-    throw new Error('Method not implemented.');
-  }
+  
+
   async isDocumentMined(documenthash: string): Promise<boolean> {
     const { access_token } = await this.ebsiAuthtorisationApi.getAccessToken(
       'ES256',
@@ -111,12 +110,14 @@ export class TnTWrapper implements ITnTWrapper {
     throw new Error('Method not implemented.');
   }
 
-  getAllDocuments(): Promise<Optional<DocumentRef[]>> {
+  getAllDocuments(): Promise<Optional<TnTObjectRef[]>> {
     return this.getDocumentsFromAPI();
   }
 
-  listEventOfDocument() {
-    throw new Error('Method not implemented.');
+  getAllEventsOfDocument(
+    documentHash: string,
+  ): Promise<Optional<TnTObjectRef[]>> {
+    return this.getEventsOfDocumentFromAPI(documentHash);
   }
 
   private async sendCreateDocumentRequest(
@@ -256,7 +257,6 @@ export class TnTWrapper implements ITnTWrapper {
         return Optional.None();
       });
   }
-
 
   private async getTransactionReceipt(
     txHash: string,

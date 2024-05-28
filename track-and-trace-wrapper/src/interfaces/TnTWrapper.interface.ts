@@ -1,7 +1,7 @@
 import { Wallet } from '@trace4eu/signature-wrapper';
 import { Document } from '../types/document';
 import { Optional } from '../types/optional';
-import { DocumentData, DocumentRef } from '../types/types';
+import { DocumentData, TnTObjectRef } from '../types/types';
 
 /** 
  Interface TnTWrapper  
@@ -19,8 +19,10 @@ export interface ITnTWrapper {
     waitMined?: boolean,
   ): Promise<string>;
   getDocumentDetails(documentHash: string): Promise<DocumentData>;
-  getAllDocuments(): Promise<Optional<DocumentRef[]>>;
-  getAllEventsOfDocument(documentHash: string): Promise 
+  getAllDocuments(): Promise<Optional<TnTObjectRef[]>>;
+  getAllEventsOfDocument(
+    documentHash: string,
+  ): Promise<Optional<TnTObjectRef[]>>;
   isDocumentMined(documenthash: string): Promise<boolean>;
   addEventToDocument(): any;
   getEventDetails(eventId: string): any;

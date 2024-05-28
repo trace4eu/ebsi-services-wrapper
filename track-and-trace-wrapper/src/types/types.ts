@@ -24,7 +24,7 @@ export interface Timestamp {
   proof: string;
 }
 
-export interface DocumentRef {
+export interface TnTObjectRef {
   documentId: string;
   href: string;
 }
