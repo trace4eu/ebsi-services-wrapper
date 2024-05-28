@@ -89,4 +89,10 @@ describe('Track and Trace Wrapper', () => {
       );
     });
   });
-});
+
+  describe('Document events', () => {
+    it(('addEventToDocument'), async () => {
+      const documentHash = `0x447e9c2b8d631c5296d12b9cb2c57b6ab5bc17ded80472a7f77ecfab731cde42`;
+
+    });
+  });

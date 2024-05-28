@@ -18,6 +18,12 @@ export class TnTWrapper implements ITnTWrapper {
     this.wallet = wallet;
     this.ebsiAuthtorisationApi = new EbsiAuthorisationApi(this.wallet);
   }
+  grantAccessToDocument() {
+    throw new Error('Method not implemented.');
+  }
+  revokeAccessToDocument() {
+    throw new Error('Method not implemented.');
+  }
   async isDocumentMined(documenthash: string): Promise<boolean> {
     const { access_token } = await this.ebsiAuthtorisationApi.getAccessToken(
       'ES256',
@@ -81,12 +87,62 @@ export class TnTWrapper implements ITnTWrapper {
       }
       console.log(res2);
       await delay(15000);
-
     }
     return documentHash;
   }
-  addEventToDocument() {
-    throw new Error('Method not implemented.');
+  async addEventToDocument(
+    documentHash: string,
+    eventId: string,
+    eventMetadata: string,
+    origin: string,
+  ): Promise<Optional<string>> {
+    const { access_token } = await this.ebsiAuthtorisationApi.getAccessToken(
+      'ES256',
+      'tnt_write',
+      [],
+    );
+    const data = JSON.stringify({
+      jsonrpc: '2.0',
+      method: 'writeEvent',
+      params: [
+        {
+          from: this.wallet.getEthAddress(),
+          eventParams: [
+            {
+              documentHash: documentHash,
+              externalHash: eventId,
+              sender: this.wallet.getDid(),
+              origin: 'origin',
+              metadata: 'test metadata',
+            },
+          ],
+        },
+      ],
+      id: Math.ceil(Math.random() * 1000),
+    });
+
+    const config = {
+      method: 'post',
+      maxBodyLength: Infinity,
+      url: 'https://api-pilot.ebsi.eu/track-and-trace/v1/jsonrpc',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+        Authorization: 'Bearer' + access_token,
+      },
+      data: data,
+    };
+
+    return axios
+      .request(config)
+      .then((response) => {
+        console.log(JSON.stringify(response.data));
+        return Optional.Some(response.data.result);
+      })
+      .catch((error) => {
+        console.log(error);
+        return Optional.None();
+      });
   }
   async getDocumentDetails(documentHash: string): Promise<DocumentData> {
     const documentData = await this.getDocumentFromApi(documentHash);
@@ -105,8 +161,24 @@ export class TnTWrapper implements ITnTWrapper {
       creator: documentData.get().creator,
     };
   }
-  getEventDetails(eventId: string) {
-    throw new Error('Method not implemented.');
+  getEventDetails(documentHash: string, eventId: string) {
+    const config = {
+      method: 'get',
+      maxBodyLength: Infinity,
+      url: 'https://api-pilot.ebsi.eu/track-and-trace/v1/documents/${documentHash}/events/${eventId}',
+      headers: {
+        Accept: 'application/json',
+      },
+    };
+
+    axios
+      .request(config)
+      .then((response) => {
+        console.log(JSON.stringify(response.data));
+      })
+      .catch((error) => {
+        console.log(error);
+      });
   }
   listDocuments() {
     throw new Error('Method not implemented.');
