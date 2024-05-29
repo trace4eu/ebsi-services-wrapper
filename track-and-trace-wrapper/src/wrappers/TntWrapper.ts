@@ -86,7 +86,7 @@ export class TnTWrapper implements ITnTWrapper {
           documentHash,
           access_token,
         );
-        //console.log(res2);
+        //console.log(res2)
       }
       await delay(5000);
     }
@@ -400,53 +400,60 @@ export class TnTWrapper implements ITnTWrapper {
     eventMetadata: string,
     origin: string,
   ): Promise<Optional<UnsignedTransaction>> {
-    const { access_token } = await this.ebsiAuthtorisationApi.getAccessToken(
-      'ES256',
-      'tnt_write',
-      [],
-    );
-    const data = JSON.stringify({
-      jsonrpc: '2.0',
-      method: 'writeEvent',
-      params: [
-        {
-          from: this.wallet.getEthAddress(),
-          eventParams: {
-            documentHash: documentHash,
-            externalHash: eventId,
-            // TO BE REMOVED WITH DIRECT CALL TO WALLET FUNCTION
-            sender: ethers.utils.hexlify(
-              ethers.utils.toUtf8Bytes(this.wallet.getDid()),
-            ),
-            origin: 'origin',
-            metadata: 'test metadata',
-          },
-        },
-      ],
-      id: Math.ceil(Math.random() * 1000),
-    });
+    try {
+      const { access_token } = await this.ebsiAuthtorisationApi.getAccessToken(
+        'ES256',
+        'tnt_write',
+        [],
+      );
 
-    const config = {
-      method: 'post',
-      maxBodyLength: Infinity,
-      url: 'https://api-pilot.ebsi.eu/track-and-trace/v1/jsonrpc',
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-        Authorization: 'Bearer ' + access_token,
-      },
-      data: data,
-    };
-    console.log('config of createevent' + JSON.stringify(config));
-    return axios
-      .request(config)
-      .then((response) => {
-        console.log(JSON.stringify(response.data));
-        return Optional.Some(response.data.result);
-      })
-      .catch((error) => {
-        console.log(error.response.data);
-        return Optional.None();
+
+      const data = JSON.stringify({
+        jsonrpc: '2.0',
+        method: 'writeEvent',
+        params: [
+          {
+            from: this.wallet.getEthAddress(),
+            eventParams: {
+              documentHash: documentHash,
+              externalHash: eventId,
+              // TO BE REMOVED WITH DIRECT CALL TO WALLET FUNCTION
+              sender:
+                '0x' +
+                Buffer.from(this.wallet.getDid(), 'utf8').toString('hex'),
+              origin: 'origin',
+              metadata: 'test metadata',
+            },
+          },
+        ],
+        id: Math.ceil(Math.random() * 1000),
       });
+
+      const config = {
+        method: 'post',
+        maxBodyLength: Infinity,
+        url: 'https://api-pilot.ebsi.eu/track-and-trace/v1/jsonrpc',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+          Authorization: 'Bearer ' + access_token,
+        },
+        data: data,
+      };
+      console.log('config of createevent' + JSON.stringify(config));
+      return axios
+        .request(config)
+        .then((response) => {
+          console.log(JSON.stringify(response.data));
+          return Optional.Some(response.data.result);
+        })
+        .catch((error) => {
+          console.error(error);
+          return Optional.None();
+        });
+    } catch (err) {
+      console.error(err);
+      return new Promise(Optional.None);
+    }
   }
 }
