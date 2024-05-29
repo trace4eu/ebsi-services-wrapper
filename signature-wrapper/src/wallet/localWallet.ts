@@ -1,6 +1,7 @@
 import { Wallet } from './wallet.interface';
 import {
   Algorithm,
+  DidMethod,
   KeyPairData,
   KeyPairJwk,
   SignatureResponse,
@@ -30,6 +31,7 @@ import {
 } from '../utils/ethers';
 import { ethersWrapper } from '../wrappers/ethersWrapper';
 import { UnsupportedAlgorithmError } from '../errors/UnspportedAlgorithmError';
+import { whatDidMethodIs } from '../utils/did';
 
 const supportedSignatureAlgorithms = [Algorithm.ES256K, Algorithm.ES256];
 export class LocalWallet implements Wallet {
@@ -125,6 +127,10 @@ export class LocalWallet implements Wallet {
 
   getDid(): string {
     return this.did;
+  }
+
+  getHexDid(): string {
+    return `0x${Buffer.from(this.did, 'utf8').toString('hex')}`;
   }
 
   getEthAddress(): string {

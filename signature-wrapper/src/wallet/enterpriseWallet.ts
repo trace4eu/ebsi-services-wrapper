@@ -21,6 +21,10 @@ export class EnterpriseWallet implements Wallet {
     throw new Error('Not Implemented yet');
   }
 
+  getHexDid(): string {
+    throw new Error('Not Implemented yet');
+  }
+
   getEthAddress(): string {
     throw new Error('Not Implemented yet');
   }

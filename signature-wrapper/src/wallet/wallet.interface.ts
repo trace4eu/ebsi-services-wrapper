@@ -13,6 +13,7 @@ export interface Wallet {
   signEthTx(data: UnsignedTransaction): Promise<SignatureResponse>;
 
   getDid(): string;
+  getHexDid(): string;
   getEthAddress(): string;
 
   // toPrimitives(): EntityKeyPair;

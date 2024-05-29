@@ -26,6 +26,25 @@ describe('Local Wallet should', () => {
     expect(vp).toBeDefined();
   });
 
+  it('Get did of a wallet', () => {
+    const wallet = WalletFactory.createInstance(false, did, entityKeys);
+    expect(wallet.getDid()).toBe('did:ebsi:zobuuYAHkAbRFCcqdcJfTgR');
+  });
+
+  it('Get ethereum address of an ebsi wallet', () => {
+    const wallet = WalletFactory.createInstance(false, did, entityKeys);
+    expect(wallet.getEthAddress()).toBe(
+      '0xC09b57dA0F949F666DaD6dAE3cfC6A5D977B8639',
+    );
+  });
+
+  it('Get ebsi did of an ebsi wallet encoded in hex format', () => {
+    const wallet = WalletFactory.createInstance(false, did, entityKeys);
+    expect(wallet.getHexDid()).toBe(
+      '0x6469643a656273693a7a6f6275755941486b4162524643637164634a66546752',
+    );
+  });
+
   it('Get did and the ethereum address of a wallet', () => {
     const wallet = WalletFactory.createInstance(false, did, entityKeys);
     expect(wallet.getEthAddress()).toBe(
