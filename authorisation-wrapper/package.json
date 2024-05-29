@@ -5,7 +5,7 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "release": "standard-version",
+    "release": "standard-version --skip.bump --skip.commit --skip.tag",
     "test": "jest",
     "build": "npm run clean && tsc -p tsconfig.build.json",
     "clean": "rm -rf ./dist ./coverage",
