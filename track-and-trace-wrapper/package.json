@@ -22,7 +22,7 @@
   "homepage": "https://github.com/trace4eu/ebsi-services-wrapper#readme",
   "dependencies": {
     "@trace4eu/authorisation-wrapper": "^0.0.8",
-    "@trace4eu/signature-wrapper": "^0.0.9",
+    "@trace4eu/signature-wrapper": "^0.0.10",
     "axios": "^1.7.2",
     "ethers": "^5.7.2"
   },

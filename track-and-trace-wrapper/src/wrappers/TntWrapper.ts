@@ -407,7 +407,6 @@ export class TnTWrapper implements ITnTWrapper {
         [],
       );
 
-
       const data = JSON.stringify({
         jsonrpc: '2.0',
         method: 'writeEvent',
@@ -417,10 +416,7 @@ export class TnTWrapper implements ITnTWrapper {
             eventParams: {
               documentHash: documentHash,
               externalHash: eventId,
-              // TO BE REMOVED WITH DIRECT CALL TO WALLET FUNCTION
-              sender:
-                '0x' +
-                Buffer.from(this.wallet.getDid(), 'utf8').toString('hex'),
+              sender: this.wallet.getHexDid(),
               origin: 'origin',
               metadata: 'test metadata',
             },
