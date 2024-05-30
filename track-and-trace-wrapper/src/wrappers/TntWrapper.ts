@@ -148,6 +148,12 @@ export class TnTWrapper implements ITnTWrapper {
 
   async getDocumentDetails(documentHash: string): Promise<DocumentData> {
     const documentData = await this.getDocumentFromApi(documentHash);
+    if (documentData.isEmpty()) {
+      throw new Error(
+        'getDocumentDetails method: missing document with id =  ' +
+          documentHash,
+      );
+    }
     const dateTime = new Date(
       parseInt(documentData.get().timestamp.datetime, 16) * 1000,
     );
@@ -313,6 +319,7 @@ export class TnTWrapper implements ITnTWrapper {
         return Optional.Some(response.data);
       })
       .catch((error) => {
+        console.error(error);
         return Optional.None();
       });
     return response as Promise<Optional<DocumentData>>;
