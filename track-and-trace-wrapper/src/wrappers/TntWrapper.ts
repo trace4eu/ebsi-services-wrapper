@@ -337,6 +337,7 @@ export class TnTWrapper implements ITnTWrapper {
         return Optional.Some(response.data);
       })
       .catch((error) => {
+        console.error(error);
         return Optional.None();
       });
   }

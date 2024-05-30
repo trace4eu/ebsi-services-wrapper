@@ -4,6 +4,7 @@ import * as SignatureWrapperTypes from '@trace4eu/signature-wrapper';
 import { EbsiAuthorisationApi } from '@trace4eu/authorisation-wrapper';
 import { TnTWrapper } from '../../src/wrappers/TntWrapper';
 import * as crypto from 'crypto';
+import { Optional } from '../../src/types/optional';
 
 const did = 'did:ebsi:zobuuYAHkAbRFCcqdcJfTgR';
 const entityKey = [
@@ -26,29 +27,21 @@ const documentHash = `0x${crypto.randomBytes(32).toString('hex')}`;
 const eventId = `0x${crypto.randomBytes(32).toString('hex')}`;
 const eventMetadata = 'eventMetadata';
 const origin = 'origin';
-const existingDocumentID =
-  '0xb462ab080f57cf97d6c7207bed752b2fdc325f1c3cdcf84e410cd3befdd605ad';
+const existingDocumentList = await tntWrapper.getAllDocuments();
 
-describe('Track and Trace Wrapper', () => {
+describe('Track and Trace Wrapper Get Document Details', () => {
   describe('get event of document', () => {
     it('always true', () => {
       console.log('createDocument test always true');
       expect(true);
     });
-   /* it('getBarerToken', async () => {
-      const tntCreateBarerToken = await ebsiAuthorisationApi.getAccessToken(
-        'ES256',
-        'tnt_create',
-        [],
-      );
-      console.log(tntCreateBarerToken);
-      expect(true);
-    }); */
+
     it('getDocumentDetails', async () => {
-      //const documentHash =
+      const existingDocumentID = existingDocumentList.value.items[0].documentId;
       //  '0x266eb7cd3498f6b4760cded6172178b87fd4cf7b06c99cf1b3862ada1cd3f259';
       console.log('Document Hash:' + existingDocumentID);
-      const documentData = await tntWrapper.getDocumentDetails(existingDocumentID);
+      const documentData =
+        await tntWrapper.getDocumentDetails(existingDocumentID);
       console.log('Document Data');
       console.log(documentData);
       expect(documentData).toHaveProperty('metadata');
@@ -65,36 +58,5 @@ describe('Track and Trace Wrapper', () => {
         }),
       );
     });
-
-    it('addEventToDocument', async () => {
-      const event = await tntWrapper.addEventToDocument(
-        documentHash,
-        eventId,
-        eventMetadata,
-        origin,
-        false,
-      );
-      console.log(event);
-      expect(event).toBeDefined();
-    });
-
-    it('getEventDetails', async () => {
-      const eventDetails = await tntWrapper.getEventDetails(
-        documentHash,
-        eventId,
-      );
-      console.log(eventDetails);
-      expect(eventDetails).toBeDefined();
-    });
-
-    it('return documents list', async () => {
-      const documentList = await tntWrapper.getAllDocuments();
-      expect(documentList).toBeDefined();
-    });
-  });
-
-  it('return events of document', async () => {
-    const documentList = await tntWrapper.getAllEventsOfDocument(documentHash);
-    expect(documentList).toBeDefined();
   });
 });

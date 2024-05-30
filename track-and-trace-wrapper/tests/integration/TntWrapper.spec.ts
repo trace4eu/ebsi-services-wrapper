@@ -67,7 +67,7 @@ describe('Track and Trace Wrapper', () => {
     //expect(document).toBe(documentHash);
     //});
     //const documentHash = `0x${crypto.randomBytes(32).toString('hex')}`;
-
+    /*
     it('getDocumentDetails', async () => {
       //const documentHash =
       //  '0x266eb7cd3498f6b4760cded6172178b87fd4cf7b06c99cf1b3862ada1cd3f259';
@@ -110,11 +110,12 @@ describe('Track and Trace Wrapper', () => {
       console.log(eventDetails);
       expect(eventDetails).toBeDefined();
     });
-    */
+    
     it('return documents list', async () => {
       const documentList = await tntWrapper.getAllDocuments();
       expect(documentList).toBeDefined();
     });
+    */
   });
   /*
   it('return events of document', async () => {
