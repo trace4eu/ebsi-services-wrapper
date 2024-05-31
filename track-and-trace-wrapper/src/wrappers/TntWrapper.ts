@@ -90,10 +90,6 @@ export class TnTWrapper implements ITnTWrapper {
     if (waitMined) {
       do {
         await delay(2000);
-        console.log(
-          'getTransactionReceipt callto discover if mined n: ' +
-            String(6 - tentatives),
-        );
         res2 = await this.getTransactionReceipt(txReceipt.get(), access_token);
         tentatives -= 1;
       } while (res2.isEmpty() && tentatives > 0); // res2.isEmpty() && tentatives > 0
@@ -168,7 +164,6 @@ export class TnTWrapper implements ITnTWrapper {
     const dateTime = new Date(
       parseInt(documentData.get().timestamp.datetime, 16) * 1000,
     );
-    console.log(dateTime.toISOString());
     return {
       metadata: documentData.get().metadata,
       timestamp: {
@@ -198,7 +193,6 @@ export class TnTWrapper implements ITnTWrapper {
       },
     };
 
-    console.log('config: ' + config);
     const response = await axios
       .request(config)
       .then((response) => {
@@ -432,7 +426,6 @@ export class TnTWrapper implements ITnTWrapper {
     const response = axios
       .request(config)
       .then((response) => {
-        console.log(response);
         if (response.data.result === null) {
           return Optional.None();
         } else {
@@ -487,11 +480,9 @@ export class TnTWrapper implements ITnTWrapper {
         },
         data: data,
       };
-      console.log('config of createevent' + JSON.stringify(config));
       return axios
         .request(config)
         .then((response) => {
-          console.log(JSON.stringify(response.data));
           return Optional.Some(response.data.result);
         })
         .catch((error) => {
