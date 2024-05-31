@@ -56,6 +56,8 @@ describe('Track and Trace Wrapper - create document', () => {
         true,
       );
       console.log(document);
+      const documentData = await tntWrapper.getDocumentDetails(documentHash2);
+      console.log({ documentData });
       expect(document).toBe(documentHash2);
     });
     it('check if it is mined', async () => {

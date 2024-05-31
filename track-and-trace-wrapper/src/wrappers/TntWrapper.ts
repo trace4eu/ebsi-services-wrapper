@@ -80,23 +80,23 @@ export class TnTWrapper implements ITnTWrapper {
       DocumentUnsignedTxJson,
     );
     // return Optional.None();
-    await this.sendSendSignedTransaction(
+    const txReceipt = await this.sendSendSignedTransaction(
       DocumentUnsignedTxJson,
       signatureResponseData,
       access_token,
     );
-    let res2;
+    let res2: Optional<object>;
     let tentatives = 5;
     if (waitMined) {
       do {
-        await delay(10000);
+        await delay(2000);
         console.log(
           'getTransactionReceipt callto discover if mined n: ' +
             String(6 - tentatives),
         );
-        res2 = await this.getTransactionReceipt(documentHash, access_token);
+        res2 = await this.getTransactionReceipt(txReceipt.get(), access_token);
         tentatives -= 1;
-      } while (!res2.isEmpty() || tentatives > 0);
+      } while (res2.isEmpty() && tentatives > 0); // res2.isEmpty() && tentatives > 0
       if (res2.isEmpty()) {
         throw new Error('waiting to much to mine document : ' + documentHash);
       }
@@ -293,7 +293,7 @@ export class TnTWrapper implements ITnTWrapper {
     unsignedTransaction: object,
     signedTx: object,
     accessToken: string,
-  ): Promise<object> {
+  ): Promise<Optional<string>> {
     const data = JSON.stringify({
       jsonrpc: '2.0',
       method: 'sendSignedTransaction',
@@ -323,11 +323,13 @@ export class TnTWrapper implements ITnTWrapper {
 
     const response = axios
       .request(config)
-      .then()
+      .then((response) => {
+        return Optional.Some(response.data.result);
+      })
       .catch(() => {
         return Optional.None();
       });
-    return response as Promise<Optional<object>>;
+    return response as Promise<Optional<string>>;
   }
 
   private async getDocumentFromApi(documentHash: string) {
