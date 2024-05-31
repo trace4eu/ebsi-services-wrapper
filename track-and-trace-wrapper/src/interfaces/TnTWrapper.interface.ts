@@ -1,7 +1,7 @@
 import { Wallet } from '@trace4eu/signature-wrapper';
 import { Document } from '../types/document';
 import { Optional } from '../types/optional';
-import { DocumentData, TnTObjectRef } from '../types/types';
+import { DocumentData, TnTObjectRef, TnTPagedObjectList } from '../types/types';
 
 /** 
  Interface TnTWrapper  
@@ -19,7 +19,15 @@ export interface ITnTWrapper {
     waitMined?: boolean,
   ): Promise<string>;
   getDocumentDetails(documentHash: string): Promise<DocumentData>;
-  getAllDocuments(): Promise<Optional<TnTObjectRef[]>>;
+  /**
+   * 
+   * @param pageSize  requires an integer value
+   * @param pageAfter requires an integer value
+   */
+  getAllDocuments(
+    pageSize?: number,
+    pageAfter?: number,
+  ): Promise<Optional<TnTPagedObjectList>>;
   getAllEventsOfDocument(
     documentHash: string,
   ): Promise<Optional<TnTObjectRef[]>>;

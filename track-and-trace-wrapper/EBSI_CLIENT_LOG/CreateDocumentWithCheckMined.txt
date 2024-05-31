@@ -1,0 +1,639 @@
+
+The default interactive shell is now zsh.
+To update your account to use zsh, please run `chsh -s /bin/zsh`.
+For more details, please visit https://support.apple.com/kb/HT208050.
+MacBook-Pro-di-davide:EBSI_CLI_BITBUCKET dporro$ cd test-scripts/
+MacBook-Pro-di-davide:test-scripts dporro$ git checkout upcoming
+branch 'upcoming' set up to track 'origin/upcoming'.
+Switched to a new branch 'upcoming'
+MacBook-Pro-di-davide:test-scripts dporro$ git status
+On branch upcoming
+Your branch is up to date with 'origin/upcoming'.
+
+nothing to commit, working tree clean
+MacBook-Pro-di-davide:test-scripts dporro$ yarn build
+yarn run v1.22.19
+$ rimraf dist && tsc --build && copyfiles -u 1 "src/scripts/**/*" dist
+✨  Done in 1.82s.
+MacBook-Pro-di-davide:test-scripts dporro$ yarn start
+yarn run v1.22.19
+$ node dist/cli
+==> using user ES256K did1 c5306796cb9cc41e143774e152c9e3396ba87b8caee91d618062666796483f8e did:ebsi:zfEmvX5twhXjQJiCWsukvQA
+{
+  "keys": {
+    "ES256K": {
+      "id": "B1j4_YigHlSA8COHBiIngdvmDZz-Oh2wpNzHqPvrDWs",
+      "kid": "did:ebsi:zfEmvX5twhXjQJiCWsukvQA#B1j4_YigHlSA8COHBiIngdvmDZz-Oh2wpNzHqPvrDWs",
+      "privateKeyJwk": {
+        "kty": "EC",
+        "crv": "secp256k1",
+        "x": "lz3FOKqK5fPeCtvNj8sJ7C-kyzYWR8_9-1AC55uViyk",
+        "y": "DsDdohC_-zyK7xCddFy-sczoxpOc2nJxNlN2AI812AQ",
+        "d": "xTBnlsucxB4UN3ThUsnjOWuoe4yu6R1hgGJmZ5ZIP44"
+      },
+      "publicKeyJwk": {
+        "kty": "EC",
+        "crv": "secp256k1",
+        "x": "lz3FOKqK5fPeCtvNj8sJ7C-kyzYWR8_9-1AC55uViyk",
+        "y": "DsDdohC_-zyK7xCddFy-sczoxpOc2nJxNlN2AI812AQ"
+      },
+      "privateKeyEncryptionJwk": {
+        "kty": "EC",
+        "crv": "secp256k1",
+        "x": "lz3FOKqK5fPeCtvNj8sJ7C-kyzYWR8_9-1AC55uViyk",
+        "y": "DsDdohC_-zyK7xCddFy-sczoxpOc2nJxNlN2AI812AQ",
+        "d": "xTBnlsucxB4UN3ThUsnjOWuoe4yu6R1hgGJmZ5ZIP44"
+      },
+      "publicKeyEncryptionJwk": {
+        "kty": "EC",
+        "crv": "secp256k1",
+        "x": "lz3FOKqK5fPeCtvNj8sJ7C-kyzYWR8_9-1AC55uViyk",
+        "y": "DsDdohC_-zyK7xCddFy-sczoxpOc2nJxNlN2AI812AQ"
+      }
+    }
+  },
+  "privateKeyHex": "0xc5306796cb9cc41e143774e152c9e3396ba87b8caee91d618062666796483f8e",
+  "publicKeyHex": "0x04973dc538aa8ae5f3de0adbcd8fcb09ec2fa4cb361647cffdfb5002e79b958b290ec0dda210bffb3c8aef109d745cbeb1cce8c6939cda7271365376008f35d804",
+  "address": "0xB0FD211ba85A3052a66883794B1c6a1c9042Da75",
+  "did": "did:ebsi:zfEmvX5twhXjQJiCWsukvQA",
+  "didVersion": 1
+}
+==> using user ES256 did1 869176bf92b63061b59a26eff6370d26125720844987a60537dee3bff08740fb did:ebsi:zfEmvX5twhXjQJiCWsukvQA
+{
+  "keys": {
+    "ES256K": {
+      "id": "B1j4_YigHlSA8COHBiIngdvmDZz-Oh2wpNzHqPvrDWs",
+      "kid": "did:ebsi:zfEmvX5twhXjQJiCWsukvQA#B1j4_YigHlSA8COHBiIngdvmDZz-Oh2wpNzHqPvrDWs",
+      "privateKeyJwk": {
+        "kty": "EC",
+        "crv": "secp256k1",
+        "x": "lz3FOKqK5fPeCtvNj8sJ7C-kyzYWR8_9-1AC55uViyk",
+        "y": "DsDdohC_-zyK7xCddFy-sczoxpOc2nJxNlN2AI812AQ",
+        "d": "xTBnlsucxB4UN3ThUsnjOWuoe4yu6R1hgGJmZ5ZIP44"
+      },
+      "publicKeyJwk": {
+        "kty": "EC",
+        "crv": "secp256k1",
+        "x": "lz3FOKqK5fPeCtvNj8sJ7C-kyzYWR8_9-1AC55uViyk",
+        "y": "DsDdohC_-zyK7xCddFy-sczoxpOc2nJxNlN2AI812AQ"
+      },
+      "privateKeyEncryptionJwk": {
+        "kty": "EC",
+        "crv": "secp256k1",
+        "x": "lz3FOKqK5fPeCtvNj8sJ7C-kyzYWR8_9-1AC55uViyk",
+        "y": "DsDdohC_-zyK7xCddFy-sczoxpOc2nJxNlN2AI812AQ",
+        "d": "xTBnlsucxB4UN3ThUsnjOWuoe4yu6R1hgGJmZ5ZIP44"
+      },
+      "publicKeyEncryptionJwk": {
+        "kty": "EC",
+        "crv": "secp256k1",
+        "x": "lz3FOKqK5fPeCtvNj8sJ7C-kyzYWR8_9-1AC55uViyk",
+        "y": "DsDdohC_-zyK7xCddFy-sczoxpOc2nJxNlN2AI812AQ"
+      }
+    },
+    "ES256": {
+      "id": "yzVc8uD5KS3GCtzNuVFL2A8Qzk29dHh4M-FDYtQ8tRg",
+      "kid": "did:ebsi:zfEmvX5twhXjQJiCWsukvQA#yzVc8uD5KS3GCtzNuVFL2A8Qzk29dHh4M-FDYtQ8tRg",
+      "privateKeyJwk": {
+        "kty": "EC",
+        "crv": "P-256",
+        "x": "jJXC89Sj0RRriF-5nVntJufmAQMTRHa9HwLBYef8WFY",
+        "y": "TV1Q6vHPMWgYr0O82EJMZXwPjOxA9qgagvNoPGgdI3U",
+        "d": "hpF2v5K2MGG1mibv9jcNJhJXIIRJh6YFN97jv_CHQPs"
+      },
+      "publicKeyJwk": {
+        "kty": "EC",
+        "crv": "P-256",
+        "x": "jJXC89Sj0RRriF-5nVntJufmAQMTRHa9HwLBYef8WFY",
+        "y": "TV1Q6vHPMWgYr0O82EJMZXwPjOxA9qgagvNoPGgdI3U"
+      },
+      "privateKeyEncryptionJwk": {
+        "kty": "EC",
+        "x": "HzIy0bqWyrunliERRCTWLsh1OcoePNNrjaLqGuugOu4",
+        "y": "LmJ6GbRh5b5jHvf2RFc6xwtVFJwewf06BfvW1CISJ-k",
+        "crv": "P-256",
+        "d": "Lbwjobf32Y_eTlxEEnUtdjKcFBVNoxi5zrQfUfSHje8"
+      },
+      "publicKeyEncryptionJwk": {
+        "kty": "EC",
+        "x": "HzIy0bqWyrunliERRCTWLsh1OcoePNNrjaLqGuugOu4",
+        "y": "LmJ6GbRh5b5jHvf2RFc6xwtVFJwewf06BfvW1CISJ-k",
+        "crv": "P-256"
+      }
+    }
+  },
+  "privateKeyHex": "0xc5306796cb9cc41e143774e152c9e3396ba87b8caee91d618062666796483f8e",
+  "publicKeyHex": "0x04973dc538aa8ae5f3de0adbcd8fcb09ec2fa4cb361647cffdfb5002e79b958b290ec0dda210bffb3c8aef109d745cbeb1cce8c6939cda7271365376008f35d804",
+  "address": "0xB0FD211ba85A3052a66883794B1c6a1c9042Da75",
+  "did": "did:ebsi:zfEmvX5twhXjQJiCWsukvQA",
+  "didVersion": 1
+}
+==> env pilot
+Value saved in 'domain':
+https://api-pilot.ebsi.eu
+Environment pilot loaded
+{
+  "domain": "https://api-pilot.ebsi.eu",
+  "contractAddresses": {
+    "timestamp": "0x8b7ddD28FdE20080A337Bff5badCa043163Bc3a3",
+    "did": "0x76C8190D7422e5fa2A0190Bc2313bab0b2afEC78",
+    "tar": "0x35fE6e9be02Bc93381117e6c424B5688894B0639",
+    "tir": "0x5C87455c82617579A10AD39C2DB3e60E846E7266",
+    "tsr": "0xF3aFc480b171CB8c2D89c3753FF46104d7011B07",
+    "tpr": "0x81872fccf3AEDD94C00E643bC2967Bd7aC91CFEB",
+    "tnt": "0x5a2413Aee431Fa836905EF682D851e1Ba6CedbC4"
+  },
+  "urls": [
+    "https://api-pilot.ebsi.eu/timestamp/v4",
+    "https://api-pilot.ebsi.eu/track-and-trace/v1",
+    "https://api-pilot.ebsi.eu/ledger/v4",
+    "https://api-pilot.ebsi.eu/authorisation/v4",
+    "https://api-pilot.ebsi.eu/did-registry/v5",
+    "https://api-pilot.ebsi.eu/trusted-apps-registry/v4",
+    "https://api-pilot.ebsi.eu/trusted-issuers-registry/v5",
+    "https://api-pilot.ebsi.eu/trusted-schemas-registry/v3",
+    "https://api-pilot.ebsi.eu/trusted-policies-registry/v3",
+    "https://api-pilot.ebsi.eu/conformance/v3"
+  ],
+  "env": "pilot"
+}
+==> tnt head /accesses?creator= user.did
+HEAD https://api-pilot.ebsi.eu/track-and-trace/v1/accesses?creator=did:ebsi:zfEmvX5twhXjQJiCWsukvQA 
+{
+  "headers": {}
+}
+
+210 milliseconds
+Response HTTP Status 204
+{
+  "date": "Fri, 17 May 2024 13:40:43 GMT",
+  "connection": "close",
+  "access-control-allow-origin": "*",
+  "content-security-policy": "default-src 'self';base-uri 'self';font-src 'self' https: data:;form-action 'self';frame-ancestors 'self';img-src 'self' data:;object-src 'none';script-src 'self';script-src-attr 'none';style-src 'self' https: 'unsafe-inline';upgrade-insecure-requests",
+  "cross-origin-opener-policy": "same-origin",
+  "cross-origin-resource-policy": "same-origin",
+  "ebsi-image-tag": "a39abf6835da8bb504bfabd281aba1d5cfee5c2d",
+  "origin-agent-cluster": "?1",
+  "referrer-policy": "origin-when-cross-origin",
+  "strict-transport-security": "max-age=31536000; includeSubDomains",
+  "x-content-type-options": "nosniff",
+  "x-dns-prefetch-control": "off",
+  "x-download-options": "noopen",
+  "x-frame-options": "SAMEORIGIN",
+  "x-permitted-cross-domain-policies": "none",
+  "x-xss-protection": "0"
+}
+Data:
+
+==> resAuthTNT: authorisation auth tnt_create_presentation ES256
+==> authorisation get /.well-known/openid-configuration
+GET https://api-pilot.ebsi.eu/authorisation/v4/.well-known/openid-configuration 
+{
+  "headers": {}
+}
+
+137 milliseconds
+Response HTTP Status 200
+{
+  "date": "Fri, 17 May 2024 13:41:00 GMT",
+  "content-type": "application/json; charset=utf-8",
+  "content-length": "1098",
+  "connection": "close",
+  "access-control-allow-origin": "*",
+  "content-security-policy": "default-src 'self';base-uri 'self';font-src 'self' https: data:;form-action 'self';frame-ancestors 'self';img-src 'self' data:;object-src 'none';script-src 'self';script-src-attr 'none';style-src 'self' https: 'unsafe-inline';upgrade-insecure-requests",
+  "cross-origin-opener-policy": "same-origin",
+  "cross-origin-resource-policy": "same-origin",
+  "ebsi-image-tag": "a39abf6835da8bb504bfabd281aba1d5cfee5c2d",
+  "origin-agent-cluster": "?1",
+  "referrer-policy": "origin-when-cross-origin",
+  "strict-transport-security": "max-age=31536000; includeSubDomains",
+  "x-content-type-options": "nosniff",
+  "x-dns-prefetch-control": "off",
+  "x-download-options": "noopen",
+  "x-frame-options": "SAMEORIGIN",
+  "x-permitted-cross-domain-policies": "none",
+  "x-xss-protection": "0"
+}
+Data:
+{
+  "issuer": "https://api-pilot.ebsi.eu/authorisation/v4",
+  "authorization_endpoint": "https://api-pilot.ebsi.eu/authorisation/v4/authorize",
+  "token_endpoint": "https://api-pilot.ebsi.eu/authorisation/v4/token",
+  "presentation_definition_endpoint": "https://api-pilot.ebsi.eu/authorisation/v4/presentation-definitions",
+  "jwks_uri": "https://api-pilot.ebsi.eu/authorisation/v4/jwks",
+  "scopes_supported": [
+    "openid",
+    "didr_invite",
+    "didr_write",
+    "tir_invite",
+    "tir_write",
+    "timestamp_write",
+    "tnt_authorise",
+    "tnt_create",
+    "tnt_write"
+  ],
+  "response_types_supported": [
+    "token"
+  ],
+  "subject_types_supported": [
+    "public"
+  ],
+  "id_token_signing_alg_values_supported": [
+    "none"
+  ],
+  "subject_syntax_types_supported": [
+    "did:ebsi",
+    "did:key"
+  ],
+  "token_endpoint_auth_methods_supported": [
+    "private_key_jwt"
+  ],
+  "vp_formats_supported": {
+    "jwt_vp": {
+      "alg_values_supported": [
+        "ES256"
+      ]
+    },
+    "jwt_vp_json": {
+      "alg_values_supported": [
+        "ES256"
+      ]
+    },
+    "jwt_vc": {
+      "alg_values_supported": [
+        "ES256"
+      ]
+    },
+    "jwt_vc_json": {
+      "alg_values_supported": [
+        "ES256"
+      ]
+    }
+  },
+  "grant_types_supported": [
+    "vp_token"
+  ],
+  "subject_trust_frameworks_supported": [
+    "ebsi"
+  ],
+  "id_token_types_supported": [
+    "subject_signed_id_token"
+  ]
+}
+==> compute createPresentationJwt empty ES256 https://api-pilot.ebsi.eu/authorisation/v4
+{
+  "jwtVp": "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6ImRpZDplYnNpOnpmRW12WDV0d2hYalFKaUNXc3VrdlFBI3l6VmM4dUQ1S1MzR0N0ek51VkZMMkE4UXprMjlkSGg0TS1GRFl0UTh0UmcifQ.eyJqdGkiOiJ1cm46ZGlkOjVmMjUwOWQ3LWE1M2UtNDRmYS1hNWZkLTQ4YTJjODg4NjBiOSIsInN1YiI6ImRpZDplYnNpOnpmRW12WDV0d2hYalFKaUNXc3VrdlFBIiwiaXNzIjoiZGlkOmVic2k6emZFbXZYNXR3aFhqUUppQ1dzdWt2UUEiLCJuYmYiOjE3MTU5NTMxNjAsImV4cCI6MTcxNTk1NDE2MCwiaWF0IjoxNzE1OTUzMjYwLCJhdWQiOiJodHRwczovL2FwaS1waWxvdC5lYnNpLmV1L2F1dGhvcmlzYXRpb24vdjQiLCJub25jZSI6IjVmMzQ0MTg5LTJlMWItNDU5My1hMTQ4LTJlMGU3MGVlODNiMCIsInZwIjp7ImlkIjoidXJuOmRpZDo1ZjI1MDlkNy1hNTNlLTQ0ZmEtYTVmZC00OGEyYzg4ODYwYjkiLCJAY29udGV4dCI6WyJodHRwczovL3d3dy53My5vcmcvMjAxOC9jcmVkZW50aWFscy92MSJdLCJ0eXBlIjpbIlZlcmlmaWFibGVQcmVzZW50YXRpb24iXSwiaG9sZGVyIjoiZGlkOmVic2k6emZFbXZYNXR3aFhqUUppQ1dzdWt2UUEiLCJ2ZXJpZmlhYmxlQ3JlZGVudGlhbCI6W119fQ.OiqiV4nH79vFFX6aabBUeD3Xqh7zyz1q4q3XsdT6MqK_vEzSkqXmkzvIwMbkknZPWhjNOLsypZud7dLJ6djuJA",
+  "payload": {
+    "id": "urn:did:5f2509d7-a53e-44fa-a5fd-48a2c88860b9",
+    "@context": [
+      "https://www.w3.org/2018/credentials/v1"
+    ],
+    "type": [
+      "VerifiablePresentation"
+    ],
+    "holder": "did:ebsi:zfEmvX5twhXjQJiCWsukvQA",
+    "verifiableCredential": []
+  }
+}
+==> authorisation token tnt_create_presentation eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6ImRpZDplYnNpOnpmRW12WDV0d2hYalFKaUNXc3VrdlFBI3l6VmM4dUQ1S1MzR0N0ek51VkZMMkE4UXprMjlkSGg0TS1GRFl0UTh0UmcifQ.eyJqdGkiOiJ1cm46ZGlkOjVmMjUwOWQ3LWE1M2UtNDRmYS1hNWZkLTQ4YTJjODg4NjBiOSIsInN1YiI6ImRpZDplYnNpOnpmRW12WDV0d2hYalFKaUNXc3VrdlFBIiwiaXNzIjoiZGlkOmVic2k6emZFbXZYNXR3aFhqUUppQ1dzdWt2UUEiLCJuYmYiOjE3MTU5NTMxNjAsImV4cCI6MTcxNTk1NDE2MCwiaWF0IjoxNzE1OTUzMjYwLCJhdWQiOiJodHRwczovL2FwaS1waWxvdC5lYnNpLmV1L2F1dGhvcmlzYXRpb24vdjQiLCJub25jZSI6IjVmMzQ0MTg5LTJlMWItNDU5My1hMTQ4LTJlMGU3MGVlODNiMCIsInZwIjp7ImlkIjoidXJuOmRpZDo1ZjI1MDlkNy1hNTNlLTQ0ZmEtYTVmZC00OGEyYzg4ODYwYjkiLCJAY29udGV4dCI6WyJodHRwczovL3d3dy53My5vcmcvMjAxOC9jcmVkZW50aWFscy92MSJdLCJ0eXBlIjpbIlZlcmlmaWFibGVQcmVzZW50YXRpb24iXSwiaG9sZGVyIjoiZGlkOmVic2k6emZFbXZYNXR3aFhqUUppQ1dzdWt2UUEiLCJ2ZXJpZmlhYmxlQ3JlZGVudGlhbCI6W119fQ.OiqiV4nH79vFFX6aabBUeD3Xqh7zyz1q4q3XsdT6MqK_vEzSkqXmkzvIwMbkknZPWhjNOLsypZud7dLJ6djuJA
+POST https://api-pilot.ebsi.eu/authorisation/v4/token 
+{
+  "headers": {
+    "Content-Type": "application/x-www-form-urlencoded"
+  }
+}
+Data:
+grant_type=vp_token&scope=openid+tnt_create&vp_token=eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6ImRpZDplYnNpOnpmRW12WDV0d2hYalFKaUNXc3VrdlFBI3l6VmM4dUQ1S1MzR0N0ek51VkZMMkE4UXprMjlkSGg0TS1GRFl0UTh0UmcifQ.eyJqdGkiOiJ1cm46ZGlkOjVmMjUwOWQ3LWE1M2UtNDRmYS1hNWZkLTQ4YTJjODg4NjBiOSIsInN1YiI6ImRpZDplYnNpOnpmRW12WDV0d2hYalFKaUNXc3VrdlFBIiwiaXNzIjoiZGlkOmVic2k6emZFbXZYNXR3aFhqUUppQ1dzdWt2UUEiLCJuYmYiOjE3MTU5NTMxNjAsImV4cCI6MTcxNTk1NDE2MCwiaWF0IjoxNzE1OTUzMjYwLCJhdWQiOiJodHRwczovL2FwaS1waWxvdC5lYnNpLmV1L2F1dGhvcmlzYXRpb24vdjQiLCJub25jZSI6IjVmMzQ0MTg5LTJlMWItNDU5My1hMTQ4LTJlMGU3MGVlODNiMCIsInZwIjp7ImlkIjoidXJuOmRpZDo1ZjI1MDlkNy1hNTNlLTQ0ZmEtYTVmZC00OGEyYzg4ODYwYjkiLCJAY29udGV4dCI6WyJodHRwczovL3d3dy53My5vcmcvMjAxOC9jcmVkZW50aWFscy92MSJdLCJ0eXBlIjpbIlZlcmlmaWFibGVQcmVzZW50YXRpb24iXSwiaG9sZGVyIjoiZGlkOmVic2k6emZFbXZYNXR3aFhqUUppQ1dzdWt2UUEiLCJ2ZXJpZmlhYmxlQ3JlZGVudGlhbCI6W119fQ.OiqiV4nH79vFFX6aabBUeD3Xqh7zyz1q4q3XsdT6MqK_vEzSkqXmkzvIwMbkknZPWhjNOLsypZud7dLJ6djuJA&presentation_submission=%7B%22id%22%3A%225d986893-9b76-4fc8-bd22-0c0f2f2d724e%22%2C%22definition_id%22%3A%22tnt_create_presentation%22%2C%22descriptor_map%22%3A%5B%5D%7D
+
+315 milliseconds
+Response HTTP Status 200
+{
+  "date": "Fri, 17 May 2024 13:41:01 GMT",
+  "content-type": "application/json; charset=utf-8",
+  "content-length": "1168",
+  "connection": "close",
+  "access-control-allow-origin": "*",
+  "cache-control": "no-store",
+  "content-security-policy": "default-src 'self';base-uri 'self';font-src 'self' https: data:;form-action 'self';frame-ancestors 'self';img-src 'self' data:;object-src 'none';script-src 'self';script-src-attr 'none';style-src 'self' https: 'unsafe-inline';upgrade-insecure-requests",
+  "cross-origin-opener-policy": "same-origin",
+  "cross-origin-resource-policy": "same-origin",
+  "ebsi-image-tag": "a39abf6835da8bb504bfabd281aba1d5cfee5c2d",
+  "origin-agent-cluster": "?1",
+  "pragma": "no-cache",
+  "referrer-policy": "origin-when-cross-origin",
+  "strict-transport-security": "max-age=31536000; includeSubDomains",
+  "x-content-type-options": "nosniff",
+  "x-dns-prefetch-control": "off",
+  "x-download-options": "noopen",
+  "x-frame-options": "SAMEORIGIN",
+  "x-permitted-cross-domain-policies": "none",
+  "x-xss-protection": "0"
+}
+Data:
+{
+  "access_token": "eyJhbGciOiJFUzI1NiIsImtpZCI6IldqQVB6c0RyYmtWQU0xYkhpdVh5dDlPRmdQZVRSRGpLVjNncGg1RURWUGMiLCJ0eXAiOiJKV1QifQ.eyJpYXQiOjE3MTU5NTMyNjEsImV4cCI6MTcxNTk2MDQ2MSwic3ViIjoiZGlkOmVic2k6emZFbXZYNXR3aFhqUUppQ1dzdWt2UUEiLCJhdWQiOiJodHRwczovL2FwaS1waWxvdC5lYnNpLmV1L2F1dGhvcmlzYXRpb24vdjQiLCJzY3AiOiJvcGVuaWQgdG50X2NyZWF0ZSIsImp0aSI6IjY0YzVlZDVjLTY5YTEtNDU1Ny1hYmNkLTRhMGJiODU3MmRkZCIsImlzcyI6Imh0dHBzOi8vYXBpLXBpbG90LmVic2kuZXUvYXV0aG9yaXNhdGlvbi92NCJ9.pXwnheJLWoftjzrHKjMqnIHTehYlcn-umOUKOUSOiDdiq_Db_afZzxxGIYRbb93JK9XUTXMHHsga1vRgZM7ZkA",
+  "token_type": "Bearer",
+  "expires_in": 7200,
+  "scope": "openid tnt_create",
+  "id_token": "eyJhbGciOiJFUzI1NiIsImtpZCI6IldqQVB6c0RyYmtWQU0xYkhpdVh5dDlPRmdQZVRSRGpLVjNncGg1RURWUGMiLCJ0eXAiOiJKV1QifQ.eyJpYXQiOjE3MTU5NTMyNjEsImV4cCI6MTcxNTk2MDQ2MSwic3ViIjoiZGlkOmVic2k6emZFbXZYNXR3aFhqUUppQ1dzdWt2UUEiLCJhdWQiOiJkaWQ6ZWJzaTp6ZkVtdlg1dHdoWGpRSmlDV3N1a3ZRQSIsImp0aSI6IjQ5MmY4OWFlLWJiNjUtNDlmNC05MmY0LTAwYzM4OGM1Njc2MCIsIm5vbmNlIjoiNWYzNDQxODktMmUxYi00NTkzLWExNDgtMmUwZTcwZWU4M2IwIiwiaXNzIjoiaHR0cHM6Ly9hcGktcGlsb3QuZWJzaS5ldS9hdXRob3Jpc2F0aW9uL3Y0In0.XJ2tDUnhvy-IkMK-BokPjOsoxQjLMUHjbNopoQ-b0BMSl9TUU-Q7wFIVqO-2XF20C_FTf23FetXR3AQD5cKcYg"
+}
+Value saved in 'resAuthTNT':
+{
+  "access_token": "eyJhbGciOiJFUzI1NiIsImtpZCI6IldqQVB6c0RyYmtWQU0xYkhpdVh5dDlPRmdQZVRSRGpLVjNncGg1RURWUGMiLCJ0eXAiOiJKV1QifQ.eyJpYXQiOjE3MTU5NTMyNjEsImV4cCI6MTcxNTk2MDQ2MSwic3ViIjoiZGlkOmVic2k6emZFbXZYNXR3aFhqUUppQ1dzdWt2UUEiLCJhdWQiOiJodHRwczovL2FwaS1waWxvdC5lYnNpLmV1L2F1dGhvcmlzYXRpb24vdjQiLCJzY3AiOiJvcGVuaWQgdG50X2NyZWF0ZSIsImp0aSI6IjY0YzVlZDVjLTY5YTEtNDU1Ny1hYmNkLTRhMGJiODU3MmRkZCIsImlzcyI6Imh0dHBzOi8vYXBpLXBpbG90LmVic2kuZXUvYXV0aG9yaXNhdGlvbi92NCJ9.pXwnheJLWoftjzrHKjMqnIHTehYlcn-umOUKOUSOiDdiq_Db_afZzxxGIYRbb93JK9XUTXMHHsga1vRgZM7ZkA",
+  "token_type": "Bearer",
+  "expires_in": 7200,
+  "scope": "openid tnt_create",
+  "id_token": "eyJhbGciOiJFUzI1NiIsImtpZCI6IldqQVB6c0RyYmtWQU0xYkhpdVh5dDlPRmdQZVRSRGpLVjNncGg1RURWUGMiLCJ0eXAiOiJKV1QifQ.eyJpYXQiOjE3MTU5NTMyNjEsImV4cCI6MTcxNTk2MDQ2MSwic3ViIjoiZGlkOmVic2k6emZFbXZYNXR3aFhqUUppQ1dzdWt2UUEiLCJhdWQiOiJkaWQ6ZWJzaTp6ZkVtdlg1dHdoWGpRSmlDV3N1a3ZRQSIsImp0aSI6IjQ5MmY4OWFlLWJiNjUtNDlmNC05MmY0LTAwYzM4OGM1Njc2MCIsIm5vbmNlIjoiNWYzNDQxODktMmUxYi00NTkzLWExNDgtMmUwZTcwZWU4M2IwIiwiaXNzIjoiaHR0cHM6Ly9hcGktcGlsb3QuZWJzaS5ldS9hdXRob3Jpc2F0aW9uL3Y0In0.XJ2tDUnhvy-IkMK-BokPjOsoxQjLMUHjbNopoQ-b0BMSl9TUU-Q7wFIVqO-2XF20C_FTf23FetXR3AQD5cKcYg"
+}
+==> using token resAuthTNT.access_token
+eyJhbGciOiJFUzI1NiIsImtpZCI6IldqQVB6c0RyYmtWQU0xYkhpdVh5dDlPRmdQZVRSRGpLVjNncGg1RURWUGMiLCJ0eXAiOiJKV1QifQ.eyJpYXQiOjE3MTU5NTMyNjEsImV4cCI6MTcxNTk2MDQ2MSwic3ViIjoiZGlkOmVic2k6emZFbXZYNXR3aFhqUUppQ1dzdWt2UUEiLCJhdWQiOiJodHRwczovL2FwaS1waWxvdC5lYnNpLmV1L2F1dGhvcmlzYXRpb24vdjQiLCJzY3AiOiJvcGVuaWQgdG50X2NyZWF0ZSIsImp0aSI6IjY0YzVlZDVjLTY5YTEtNDU1Ny1hYmNkLTRhMGJiODU3MmRkZCIsImlzcyI6Imh0dHBzOi8vYXBpLXBpbG90LmVic2kuZXUvYXV0aG9yaXNhdGlvbi92NCJ9.pXwnheJLWoftjzrHKjMqnIHTehYlcn-umOUKOUSOiDdiq_Db_afZzxxGIYRbb93JK9XUTXMHHsga1vRgZM7ZkA
+==> ==> tnt createDocument 0x29210da926cbf151a09e1c4f8eb9e5c55836016260f5cfa1e2c8c184c6e1943c my-metadata user.did
+Invalid method '==>'
+==> tnt createDocument 0x29210da926cbf151a09e1c4f8eb9e5c55836016260f5cfa1e2c8c184c6e1943c my-metadata user.did
+==> tnt build-createDocument 0x29210da926cbf151a09e1c4f8eb9e5c55836016260f5cfa1e2c8c184c6e1943c my-metadata user.did
+POST https://api-pilot.ebsi.eu/track-and-trace/v1/jsonrpc 
+{
+  "headers": {
+    "authorization": "Bearer eyJhbGciOiJFUzI1NiIsImtpZCI6IldqQVB6c0RyYmtWQU0xYkhpdVh5dDlPRmdQZVRSRGpLVjNncGg1RURWUGMiLCJ0eXAiOiJKV1QifQ.eyJpYXQiOjE3MTU5NTMyNjEsImV4cCI6MTcxNTk2MDQ2MSwic3ViIjoiZGlkOmVic2k6emZFbXZYNXR3aFhqUUppQ1dzdWt2UUEiLCJhdWQiOiJodHRwczovL2FwaS1waWxvdC5lYnNpLmV1L2F1dGhvcmlzYXRpb24vdjQiLCJzY3AiOiJvcGVuaWQgdG50X2NyZWF0ZSIsImp0aSI6IjY0YzVlZDVjLTY5YTEtNDU1Ny1hYmNkLTRhMGJiODU3MmRkZCIsImlzcyI6Imh0dHBzOi8vYXBpLXBpbG90LmVic2kuZXUvYXV0aG9yaXNhdGlvbi92NCJ9.pXwnheJLWoftjzrHKjMqnIHTehYlcn-umOUKOUSOiDdiq_Db_afZzxxGIYRbb93JK9XUTXMHHsga1vRgZM7ZkA"
+  }
+}
+Data:
+{
+  "jsonrpc": "2.0",
+  "method": "createDocument",
+  "params": [
+    {
+      "from": "0xB0FD211ba85A3052a66883794B1c6a1c9042Da75",
+      "documentHash": "0x29210da926cbf151a09e1c4f8eb9e5c55836016260f5cfa1e2c8c184c6e1943c",
+      "documentMetadata": "my-metadata",
+      "didEbsiCreator": "did:ebsi:zfEmvX5twhXjQJiCWsukvQA"
+    }
+  ],
+  "id": 658
+}
+
+780 milliseconds
+Response HTTP Status 200
+{
+  "date": "Fri, 17 May 2024 13:42:30 GMT",
+  "content-type": "application/json; charset=utf-8",
+  "content-length": "695",
+  "connection": "close",
+  "access-control-allow-origin": "*",
+  "content-security-policy": "default-src 'self';base-uri 'self';font-src 'self' https: data:;form-action 'self';frame-ancestors 'self';img-src 'self' data:;object-src 'none';script-src 'self';script-src-attr 'none';style-src 'self' https: 'unsafe-inline';upgrade-insecure-requests",
+  "cross-origin-opener-policy": "same-origin",
+  "cross-origin-resource-policy": "same-origin",
+  "ebsi-image-tag": "a39abf6835da8bb504bfabd281aba1d5cfee5c2d",
+  "origin-agent-cluster": "?1",
+  "referrer-policy": "origin-when-cross-origin",
+  "strict-transport-security": "max-age=31536000; includeSubDomains",
+  "x-content-type-options": "nosniff",
+  "x-dns-prefetch-control": "off",
+  "x-download-options": "noopen",
+  "x-frame-options": "SAMEORIGIN",
+  "x-permitted-cross-domain-policies": "none",
+  "x-xss-protection": "0"
+}
+Data:
+{
+  "jsonrpc": "2.0",
+  "id": 658,
+  "result": {
+    "from": "0xB0FD211ba85A3052a66883794B1c6a1c9042Da75",
+    "to": "0x5a2413Aee431Fa836905EF682D851e1Ba6CedbC4",
+    "data": "0xda62b06b29210da926cbf151a09e1c4f8eb9e5c55836016260f5cfa1e2c8c184c6e1943c000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000a0000000000000000000000000000000000000000000000000000000000000000b6d792d6d6574616461746100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000206469643a656273693a7a66456d765835747768586a514a69435773756b765141",
+    "value": "0x0",
+    "nonce": "0x06",
+    "chainId": "0x1823",
+    "gasLimit": "0x1000000",
+    "gasPrice": "0x0"
+  }
+}
+create document
+{
+  "documentHash": "0x29210da926cbf151a09e1c4f8eb9e5c55836016260f5cfa1e2c8c184c6e1943c",
+  "didEbsiCreator": "did:ebsi:zfEmvX5twhXjQJiCWsukvQA",
+  "timestamp": 0
+}
+==> compute signTransaction {"from":"0xB0FD211ba85A3052a66883794B1c6a1c9042Da75","to":"0x5a2413Aee431Fa836905EF682D851e1Ba6CedbC4","data":"0xda62b06b29210da926cbf151a09e1c4f8eb9e5c55836016260f5cfa1e2c8c184c6e1943c000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000a0000000000000000000000000000000000000000000000000000000000000000b6d792d6d6574616461746100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000206469643a656273693a7a66456d765835747768586a514a69435773756b765141","value":"0x0","nonce":"0x06","chainId":"0x1823","gasLimit":"0x1000000","gasPrice":"0x0"}
+0xf9014806808401000000945a2413aee431fa836905ef682d851e1ba6cedbc480b8e4da62b06b29210da926cbf151a09e1c4f8eb9e5c55836016260f5cfa1e2c8c184c6e1943c000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000a0000000000000000000000000000000000000000000000000000000000000000b6d792d6d6574616461746100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000206469643a656273693a7a66456d765835747768586a514a69435773756b765141823069a00f5937a5618c49fd0bc7e232f3ad176aef54784e2f5efbf25d08d132f8c92760a00e548ece76ef9238d18c1ca750cd1ba837de342540c7c75f544256213aa36967
+==> tnt sendSignedTransaction {"from":"0xB0FD211ba85A3052a66883794B1c6a1c9042Da75","to":"0x5a2413Aee431Fa836905EF682D851e1Ba6CedbC4","data":"0xda62b06b29210da926cbf151a09e1c4f8eb9e5c55836016260f5cfa1e2c8c184c6e1943c000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000a0000000000000000000000000000000000000000000000000000000000000000b6d792d6d6574616461746100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000206469643a656273693a7a66456d765835747768586a514a69435773756b765141","value":"0x0","nonce":"0x06","chainId":"0x1823","gasLimit":"0x1000000","gasPrice":"0x0"} 0xf9014806808401000000945a2413aee431fa836905ef682d851e1ba6cedbc480b8e4da62b06b29210da926cbf151a09e1c4f8eb9e5c55836016260f5cfa1e2c8c184c6e1943c000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000a0000000000000000000000000000000000000000000000000000000000000000b6d792d6d6574616461746100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000206469643a656273693a7a66456d765835747768586a514a69435773756b765141823069a00f5937a5618c49fd0bc7e232f3ad176aef54784e2f5efbf25d08d132f8c92760a00e548ece76ef9238d18c1ca750cd1ba837de342540c7c75f544256213aa36967
+POST https://api-pilot.ebsi.eu/track-and-trace/v1/jsonrpc 
+{
+  "headers": {
+    "authorization": "Bearer eyJhbGciOiJFUzI1NiIsImtpZCI6IldqQVB6c0RyYmtWQU0xYkhpdVh5dDlPRmdQZVRSRGpLVjNncGg1RURWUGMiLCJ0eXAiOiJKV1QifQ.eyJpYXQiOjE3MTU5NTMyNjEsImV4cCI6MTcxNTk2MDQ2MSwic3ViIjoiZGlkOmVic2k6emZFbXZYNXR3aFhqUUppQ1dzdWt2UUEiLCJhdWQiOiJodHRwczovL2FwaS1waWxvdC5lYnNpLmV1L2F1dGhvcmlzYXRpb24vdjQiLCJzY3AiOiJvcGVuaWQgdG50X2NyZWF0ZSIsImp0aSI6IjY0YzVlZDVjLTY5YTEtNDU1Ny1hYmNkLTRhMGJiODU3MmRkZCIsImlzcyI6Imh0dHBzOi8vYXBpLXBpbG90LmVic2kuZXUvYXV0aG9yaXNhdGlvbi92NCJ9.pXwnheJLWoftjzrHKjMqnIHTehYlcn-umOUKOUSOiDdiq_Db_afZzxxGIYRbb93JK9XUTXMHHsga1vRgZM7ZkA"
+  }
+}
+Data:
+{
+  "jsonrpc": "2.0",
+  "method": "sendSignedTransaction",
+  "params": [
+    {
+      "protocol": "eth",
+      "unsignedTransaction": {
+        "from": "0xB0FD211ba85A3052a66883794B1c6a1c9042Da75",
+        "to": "0x5a2413Aee431Fa836905EF682D851e1Ba6CedbC4",
+        "data": "0xda62b06b29210da926cbf151a09e1c4f8eb9e5c55836016260f5cfa1e2c8c184c6e1943c000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000a0000000000000000000000000000000000000000000000000000000000000000b6d792d6d6574616461746100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000206469643a656273693a7a66456d765835747768586a514a69435773756b765141",
+        "value": "0x0",
+        "nonce": "0x06",
+        "chainId": "0x1823",
+        "gasLimit": "0x1000000",
+        "gasPrice": "0x0"
+      },
+      "r": "0x0f5937a5618c49fd0bc7e232f3ad176aef54784e2f5efbf25d08d132f8c92760",
+      "s": "0x0e548ece76ef9238d18c1ca750cd1ba837de342540c7c75f544256213aa36967",
+      "v": "0x3069",
+      "signedRawTransaction": "0xf9014806808401000000945a2413aee431fa836905ef682d851e1ba6cedbc480b8e4da62b06b29210da926cbf151a09e1c4f8eb9e5c55836016260f5cfa1e2c8c184c6e1943c000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000a0000000000000000000000000000000000000000000000000000000000000000b6d792d6d6574616461746100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000206469643a656273693a7a66456d765835747768586a514a69435773756b765141823069a00f5937a5618c49fd0bc7e232f3ad176aef54784e2f5efbf25d08d132f8c92760a00e548ece76ef9238d18c1ca750cd1ba837de342540c7c75f544256213aa36967"
+    }
+  ],
+  "id": 918
+}
+
+1216 milliseconds
+Response HTTP Status 200
+{
+  "date": "Fri, 17 May 2024 13:42:31 GMT",
+  "content-type": "application/json; charset=utf-8",
+  "content-length": "104",
+  "connection": "close",
+  "access-control-allow-origin": "*",
+  "content-security-policy": "default-src 'self';base-uri 'self';font-src 'self' https: data:;form-action 'self';frame-ancestors 'self';img-src 'self' data:;object-src 'none';script-src 'self';script-src-attr 'none';style-src 'self' https: 'unsafe-inline';upgrade-insecure-requests",
+  "cross-origin-opener-policy": "same-origin",
+  "cross-origin-resource-policy": "same-origin",
+  "ebsi-image-tag": "a39abf6835da8bb504bfabd281aba1d5cfee5c2d",
+  "origin-agent-cluster": "?1",
+  "referrer-policy": "origin-when-cross-origin",
+  "strict-transport-security": "max-age=31536000; includeSubDomains",
+  "x-content-type-options": "nosniff",
+  "x-dns-prefetch-control": "off",
+  "x-download-options": "noopen",
+  "x-frame-options": "SAMEORIGIN",
+  "x-permitted-cross-domain-policies": "none",
+  "x-xss-protection": "0"
+}
+Data:
+{
+  "jsonrpc": "2.0",
+  "id": 918,
+  "result": "0xfe85a434ec1afb0cdbc08c3a530de3b97e9835438ba8abeb8328c087f00b0f61"
+}
+Waiting to be mined...
+==> ledger getTransactionReceipt 0xfe85a434ec1afb0cdbc08c3a530de3b97e9835438ba8abeb8328c087f00b0f61
+POST https://api-pilot.ebsi.eu/ledger/v4/blockchains/besu 
+{
+  "headers": {
+    "authorization": "Bearer eyJhbGciOiJFUzI1NiIsImtpZCI6IldqQVB6c0RyYmtWQU0xYkhpdVh5dDlPRmdQZVRSRGpLVjNncGg1RURWUGMiLCJ0eXAiOiJKV1QifQ.eyJpYXQiOjE3MTU5NTMyNjEsImV4cCI6MTcxNTk2MDQ2MSwic3ViIjoiZGlkOmVic2k6emZFbXZYNXR3aFhqUUppQ1dzdWt2UUEiLCJhdWQiOiJodHRwczovL2FwaS1waWxvdC5lYnNpLmV1L2F1dGhvcmlzYXRpb24vdjQiLCJzY3AiOiJvcGVuaWQgdG50X2NyZWF0ZSIsImp0aSI6IjY0YzVlZDVjLTY5YTEtNDU1Ny1hYmNkLTRhMGJiODU3MmRkZCIsImlzcyI6Imh0dHBzOi8vYXBpLXBpbG90LmVic2kuZXUvYXV0aG9yaXNhdGlvbi92NCJ9.pXwnheJLWoftjzrHKjMqnIHTehYlcn-umOUKOUSOiDdiq_Db_afZzxxGIYRbb93JK9XUTXMHHsga1vRgZM7ZkA"
+  }
+}
+Data:
+{
+  "jsonrpc": "2.0",
+  "method": "eth_getTransactionReceipt",
+  "params": [
+    "0xfe85a434ec1afb0cdbc08c3a530de3b97e9835438ba8abeb8328c087f00b0f61"
+  ],
+  "id": 429
+}
+
+210 milliseconds
+Response HTTP Status 200
+{
+  "date": "Fri, 17 May 2024 13:42:36 GMT",
+  "content-type": "application/json; charset=utf-8",
+  "content-length": "40",
+  "connection": "close",
+  "access-control-allow-origin": "*",
+  "content-security-policy": "default-src 'self';base-uri 'self';font-src 'self' https: data:;form-action 'self';frame-ancestors 'self';img-src 'self' data:;object-src 'none';script-src 'self';script-src-attr 'none';style-src 'self' https: 'unsafe-inline';upgrade-insecure-requests",
+  "cross-origin-opener-policy": "same-origin",
+  "cross-origin-resource-policy": "same-origin",
+  "origin-agent-cluster": "?1",
+  "referrer-policy": "origin-when-cross-origin",
+  "strict-transport-security": "max-age=31536000; includeSubDomains",
+  "x-content-type-options": "nosniff",
+  "x-dns-prefetch-control": "off",
+  "x-download-options": "noopen",
+  "x-frame-options": "SAMEORIGIN",
+  "x-permitted-cross-domain-policies": "none",
+  "x-xss-protection": "0"
+}
+Data:
+{
+  "jsonrpc": "2.0",
+  "id": 429,
+  "result": null
+}
+==> ledger getTransactionReceipt 0xfe85a434ec1afb0cdbc08c3a530de3b97e9835438ba8abeb8328c087f00b0f61
+POST https://api-pilot.ebsi.eu/ledger/v4/blockchains/besu 
+{
+  "headers": {
+    "authorization": "Bearer eyJhbGciOiJFUzI1NiIsImtpZCI6IldqQVB6c0RyYmtWQU0xYkhpdVh5dDlPRmdQZVRSRGpLVjNncGg1RURWUGMiLCJ0eXAiOiJKV1QifQ.eyJpYXQiOjE3MTU5NTMyNjEsImV4cCI6MTcxNTk2MDQ2MSwic3ViIjoiZGlkOmVic2k6emZFbXZYNXR3aFhqUUppQ1dzdWt2UUEiLCJhdWQiOiJodHRwczovL2FwaS1waWxvdC5lYnNpLmV1L2F1dGhvcmlzYXRpb24vdjQiLCJzY3AiOiJvcGVuaWQgdG50X2NyZWF0ZSIsImp0aSI6IjY0YzVlZDVjLTY5YTEtNDU1Ny1hYmNkLTRhMGJiODU3MmRkZCIsImlzcyI6Imh0dHBzOi8vYXBpLXBpbG90LmVic2kuZXUvYXV0aG9yaXNhdGlvbi92NCJ9.pXwnheJLWoftjzrHKjMqnIHTehYlcn-umOUKOUSOiDdiq_Db_afZzxxGIYRbb93JK9XUTXMHHsga1vRgZM7ZkA"
+  }
+}
+Data:
+{
+  "jsonrpc": "2.0",
+  "method": "eth_getTransactionReceipt",
+  "params": [
+    "0xfe85a434ec1afb0cdbc08c3a530de3b97e9835438ba8abeb8328c087f00b0f61"
+  ],
+  "id": 20
+}
+
+210 milliseconds
+Response HTTP Status 200
+{
+  "date": "Fri, 17 May 2024 13:42:41 GMT",
+  "content-type": "application/json; charset=utf-8",
+  "content-length": "1048",
+  "connection": "close",
+  "access-control-allow-origin": "*",
+  "content-security-policy": "default-src 'self';base-uri 'self';font-src 'self' https: data:;form-action 'self';frame-ancestors 'self';img-src 'self' data:;object-src 'none';script-src 'self';script-src-attr 'none';style-src 'self' https: 'unsafe-inline';upgrade-insecure-requests",
+  "cross-origin-opener-policy": "same-origin",
+  "cross-origin-resource-policy": "same-origin",
+  "origin-agent-cluster": "?1",
+  "referrer-policy": "origin-when-cross-origin",
+  "strict-transport-security": "max-age=31536000; includeSubDomains",
+  "x-content-type-options": "nosniff",
+  "x-dns-prefetch-control": "off",
+  "x-download-options": "noopen",
+  "x-frame-options": "SAMEORIGIN",
+  "x-permitted-cross-domain-policies": "none",
+  "x-xss-protection": "0"
+}
+Data:
+{
+  "jsonrpc": "2.0",
+  "id": 20,
+  "result": {
+    "blockHash": "0xd98b85b07d2a2f884b256a40ceacbad593c328955de26dd536cdb2330a45a7d1",
+    "blockNumber": "0x55674f",
+    "contractAddress": null,
+    "cumulativeGasUsed": "0xd2b5",
+    "from": "0xb0fd211ba85a3052a66883794b1c6a1c9042da75",
+    "gasUsed": "0xd2b5",
+    "effectiveGasPrice": "0x0",
+    "logs": [],
+    "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "status": "0x0",
+    "to": "0x5a2413aee431fa836905ef682d851e1ba6cedbc4",
+    "transactionHash": "0xfe85a434ec1afb0cdbc08c3a530de3b97e9835438ba8abeb8328c087f00b0f61",
+    "transactionIndex": "0x0",
+    "revertReason": "0x7832da82",
+    "type": "0x0"
+  }
+}
+Transaction failed: Status 0x0. Revert reason: DocumentExists()
+Error: Transaction failed: Status 0x0. Revert reason: DocumentExists()
+    at ledgerGetTransactionReceipt (file:///Users/dporro/EBSI_CLI_BITBUCKET/test-scripts/dist/commands/ledger-v4.js:97:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async waitToBeMined (file:///Users/dporro/EBSI_CLI_BITBUCKET/test-scripts/dist/commands/ledger-v4.js:112:19)
+    at async smartContractApi (file:///Users/dporro/EBSI_CLI_BITBUCKET/test-scripts/dist/app.js:250:35)
+    at async execCommand (file:///Users/dporro/EBSI_CLI_BITBUCKET/test-scripts/dist/app.js:384:26)
+    at async smartContractApi (file:///Users/dporro/EBSI_CLI_BITBUCKET/test-scripts/dist/app.js:259:25)
+    at async execCommand (file:///Users/dporro/EBSI_CLI_BITBUCKET/test-scripts/dist/app.js:384:26)
+    at async main (file:///Users/dporro/EBSI_CLI_BITBUCKET/test-scripts/dist/app.js:525:13)
+==> tnt get /documents/0x29210da926cbf151a09e1c4f8eb9e5c55836016260f5cfa1e2c8c184c6e1943c
+GET https://api-pilot.ebsi.eu/track-and-trace/v1/documents/0x29210da926cbf151a09e1c4f8eb9e5c55836016260f5cfa1e2c8c184c6e1943c 
+{
+  "headers": {
+    "authorization": "Bearer eyJhbGciOiJFUzI1NiIsImtpZCI6IldqQVB6c0RyYmtWQU0xYkhpdVh5dDlPRmdQZVRSRGpLVjNncGg1RURWUGMiLCJ0eXAiOiJKV1QifQ.eyJpYXQiOjE3MTU5NTMyNjEsImV4cCI6MTcxNTk2MDQ2MSwic3ViIjoiZGlkOmVic2k6emZFbXZYNXR3aFhqUUppQ1dzdWt2UUEiLCJhdWQiOiJodHRwczovL2FwaS1waWxvdC5lYnNpLmV1L2F1dGhvcmlzYXRpb24vdjQiLCJzY3AiOiJvcGVuaWQgdG50X2NyZWF0ZSIsImp0aSI6IjY0YzVlZDVjLTY5YTEtNDU1Ny1hYmNkLTRhMGJiODU3MmRkZCIsImlzcyI6Imh0dHBzOi8vYXBpLXBpbG90LmVic2kuZXUvYXV0aG9yaXNhdGlvbi92NCJ9.pXwnheJLWoftjzrHKjMqnIHTehYlcn-umOUKOUSOiDdiq_Db_afZzxxGIYRbb93JK9XUTXMHHsga1vRgZM7ZkA"
+  }
+}
+
+153 milliseconds
+Response HTTP Status 200
+{
+  "date": "Fri, 17 May 2024 13:43:00 GMT",
+  "content-type": "application/json; charset=utf-8",
+  "content-length": "2416",
+  "connection": "close",
+  "access-control-allow-origin": "*",
+  "content-security-policy": "default-src 'self';base-uri 'self';font-src 'self' https: data:;form-action 'self';frame-ancestors 'self';img-src 'self' data:;object-src 'none';script-src 'self';script-src-attr 'none';style-src 'self' https: 'unsafe-inline';upgrade-insecure-requests",
+  "cross-origin-opener-policy": "same-origin",
+  "cross-origin-resource-policy": "same-origin",
+  "ebsi-image-tag": "a39abf6835da8bb504bfabd281aba1d5cfee5c2d",
+  "origin-agent-cluster": "?1",
+  "referrer-policy": "origin-when-cross-origin",
+  "strict-transport-security": "max-age=31536000; includeSubDomains",
+  "x-content-type-options": "nosniff",
+  "x-dns-prefetch-control": "off",
+  "x-download-options": "noopen",
+  "x-frame-options": "SAMEORIGIN",
+  "x-permitted-cross-domain-policies": "none",
+  "x-xss-protection": "0"
+}
+Data:
+{
+  "metadata": "'{\"batchid\":\"123456\",\"vc\":\"eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6ImRpZDplYnNpOnp2V0JuTkZzOWp3V2lSYmhyUjZSVloyI2tleXMtMyJ9.eyJqdGkiOiJ2YzplYnNpOmN5ZWJzaSNmNzU1N2ExNy05NTJlLTQ5NTUtOTljMC0yYTM2MWM4MjAzYzgiLCJzdWIiOiJkaWQ6a2V5OnoyZG16RDgxY2dQeDhWa2k3SmJ1dU1tRllyV1BnWW95dHlrVVozZXlxaHQxajlLYnNyN0NmY0RqOGl5bXhyWUJTcEVhQmM4ZUVSVUNIek1ydUJaeWFuNzJqeXRXeVVQWG1naEw5Q2JxN0UyQ3VYNzhYeWNIS05iUEp2d2lXS2Fja3pDQ3FVcm9pSm9ETDhlWkN4WXhMTVZRM3FKcGY0YVR1QzVCRHB0TlpKMk1wQkd5cFkiLCJpc3MiOiJkaWQ6ZWJzaTp6dldCbk5Gczlqd1dpUmJoclI2UlZaMiIsIm5iZiI6MTcwNTIzMDMxNSwiZXhwIjoxODYyOTEwMzE1LCJpYXQiOjE3MDUyMzAzMTUsInZjIjp7IkBjb250ZXh0IjpbImh0dHBzOi8vd3d3LnczLm9yZy8yMDE4L2NyZWRlbnRpYWxzL3YxIl0sImlkIjoidmM6ZWJzaTpjeWVic2kjZjc1NTdhMTctOTUyZS00OTU1LTk5YzAtMmEzNjFjODIwM2M4IiwidHlwZSI6WyJWZXJpZmlhYmxlQ3JlZGVudGlhbCIsIlZlcmlmaWFibGVBdHRlc3RhdGlvbiIsIkNpdGl6ZW5JZCJdLCJpc3N1ZXIiOiJkaWQ6ZWJzaTp6dldCbk5Gczlqd1dpUmJoclI2UlZaMiIsImlzc3VhbmNlRGF0ZSI6IjIwMjQtMDEtMTRUMTM6MDU6MTUiLCJpc3N1ZWQiOiIyMDI0LTAxLTE0VDEzOjA1OjE1IiwidmFsaWRGcm9tIjoiMjAyNC0wMS0xNFQxMzowNToxNSIsImV4cGlyYXRpb25EYXRlIjoiMjAyOS0wMS0xMlQxMzowNToxNSIsImNyZWRlbnRpYWxTdWJqZWN0Ijp7ImlkIjoiZGlkOmtleTp6MmRtekQ4MWNnUHg4VmtpN0pidXVNbUZZcldQZ1lveXR5a1VaM2V5cWh0MWo5S2JzcjdDZmNEajhpeW14cllCU3BFYUJjOGVFUlVDSHpNcnVCWnlhbjcyanl0V3lVUFhtZ2hMOUNicTdFMkN1WDc4WHljSEtOYlBKdndpV0thY2t6Q0NxVXJvaUpvREw4ZVpDeFl4TE1WUTNxSnBmNGFUdUM1QkRwdE5aSjJNcEJHeXBZIiwicGVyc29uYWxJZGVudGlmaWVyIjoiNjA5NDQ0IiwiZmFtaWx5TmFtZSI6IkNvbnN0YW50aW5vdSIsImZpcnN0TmFtZSI6Ikdlb3JnZSIsImRhdGVPZkJpcnRoIjoiMTk2NS0xMC0wMSJ9LCJjcmVkZW50aWFsU2NoZW1hIjp7ImlkIjoiaHR0cHM6Ly9hcGktcGlsb3QuZWJzaS5ldS90cnVzdGVkLXNjaGVtYXMtcmVnaXN0cnkvdjIvc2NoZW1hcy96M01nVUZVa2I3MjJ1cTR4M2R2NXlBSm1uTm16REZlSzVVQzh4ODNRb2VMSk0iLCJ0eXBlIjoiRnVsbEpzb25TY2hlbWFWYWxpZGF0b3IyMDIxIn0sInRlcm1zT2ZVc2UiOnsiaWQiOiJodHRwczovL2FwaS1waWxvdC5lYnNpLmV1L3RydXN0ZWQtaXNzdWVycy1yZWdpc3RyeS92NC9pc3N1ZXJzL2RpZDplYnNpOnp2V0JuTkZzOWp3V2lSYmhyUjZSVloyL2F0dHJpYnV0ZXMvMmFmMTNmYzg3NmJhM2I1MDUyNjQ5OTgwNTk2MTdjN2JlODQ3ZmUyYjk1ZmY4Mjk0NjQyZDFjNDBjYzhlOTU2NiIsInR5cGUiOiJJc3N1YW5jZUNlcnRpZmljYXRlIn19fQ.el45Eq3k2C4liIYtuqYXGNkgl54L4nLvTonb2w7aYfInCldU_SRtPJJfOpVdSszo7twsb0xDnRGAGrO7XIFNAg\"}'",
+  "timestamp": {
+    "datetime": "0x661df460",
+    "source": "block",
+    "proof": "0x0000000000000000000000000000000000000000000000000000000000508d49"
+  },
+  "events": [
+    "0xf0f6de0fe2f951c35fb2c001d031d94f481c1543dbe1d8976fdf2d2031301042"
+  ],
+  "creator": "did:ebsi:zoL7mBHHQo2gWDVz1XJPgP3"
+}
+==> 

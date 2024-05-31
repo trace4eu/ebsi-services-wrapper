@@ -6,7 +6,12 @@ import {
   AuthorisationApi,
   EbsiAuthorisationApi,
 } from '@trace4eu/authorisation-wrapper';
-import { DocumentData, EventData, TnTObjectRef } from '../types/types';
+import {
+  DocumentData,
+  EventData,
+  TnTObjectRef,
+  TnTPagedObjectList,
+} from '../types/types';
 import { ethers } from 'ethers';
 
 const delay = (ms) => new Promise((res) => setTimeout(res, ms));
@@ -57,7 +62,9 @@ export class TnTWrapper implements ITnTWrapper {
     );
     if (DocumentUnsignedTx.isEmpty()) {
       // return Optional.None();
-      throw new Error('Error sending request to ebsi api');
+      throw new Error(
+        'Error sending request to ebsi api: empty DocumentUnsignedTransaction',
+      );
     }
     const DocumentUnsignedTxJson = {
       to: DocumentUnsignedTx.get().to,
@@ -78,17 +85,21 @@ export class TnTWrapper implements ITnTWrapper {
       signatureResponseData,
       access_token,
     );
+    let res2;
+    let tentatives = 5;
     if (waitMined) {
-      const res2 = await this.getTransactionReceipt(documentHash, access_token);
-      while (res2.isEmpty()) {
-        await delay(15000);
-        const res2 = await this.getTransactionReceipt(
-          documentHash,
-          access_token,
+      do {
+        await delay(10000);
+        console.log(
+          'getTransactionReceipt callto discover if mined n: ' +
+            String(6 - tentatives),
         );
-        //console.log(res2)
+        res2 = await this.getTransactionReceipt(documentHash, access_token);
+        tentatives -= 1;
+      } while (!res2.isEmpty() || tentatives > 0);
+      if (res2.isEmpty()) {
+        throw new Error('waiting to much to mine document : ' + documentHash);
       }
-      await delay(5000);
     }
     return documentHash;
   }
@@ -213,11 +224,23 @@ export class TnTWrapper implements ITnTWrapper {
     } else return Optional.None();
   }
 
-  getAllDocuments(): Promise<Optional<TnTObjectRef[]>> {
+  async getAllDocuments(
+    pageSize?: number,
+    pageAfter?: number,
+  ): Promise<Optional<TnTPagedObjectList>> {
+    if (typeof pageAfter !== 'undefined' && typeof pageSize !== 'undefined') {
+      // both undefined
+      return this.getDocumentsFromAPI(pageSize, pageAfter);
+    } else {
+      // pageAfter without pageSize makes no sense
+      if (typeof pageSize !== 'undefined') {
+        return this.getDocumentsFromAPI(pageSize);
+      }
+    }
     return this.getDocumentsFromAPI();
   }
 
-  getAllEventsOfDocument(
+  async getAllEventsOfDocument(
     documentHash: string,
   ): Promise<Optional<TnTObjectRef[]>> {
     return this.getEventsOfDocumentFromAPI(documentHash);
@@ -325,10 +348,28 @@ export class TnTWrapper implements ITnTWrapper {
     return response as Promise<Optional<DocumentData>>;
   }
 
-  private async getDocumentsFromAPI(): Promise<Optional<TnTObjectRef[]>> {
+  private async getDocumentsFromAPI(
+    pageSize?: number,
+    pageAfter?: number,
+  ): Promise<Optional<TnTPagedObjectList>> {
+    let url = `https://api-pilot.ebsi.eu/track-and-trace/v1/documents`;
+    if (typeof pageAfter !== 'undefined' && typeof pageSize !== 'undefined') {
+      // both undefined
+      url +=
+        '?page[size]=' +
+        pageSize.toString() +
+        '&page[after]=' +
+        pageAfter.toString();
+    } else {
+      // pageAfter without pageSize makes no sense
+      if (typeof pageSize !== 'undefined') {
+        url += '?page[size]=' + pageSize.toString();
+      }
+    }
+
     const config = {
       method: 'get',
-      url: `https://api-pilot.ebsi.eu/track-and-trace/v1/documents`,
+      url: url,
     };
 
     return axios
@@ -370,7 +411,7 @@ export class TnTWrapper implements ITnTWrapper {
     const data = JSON.stringify({
       jsonrpc: '2.0',
       method: 'eth_getTransactionReceipt',
-      id: Math.ceil(Math.random() * 1000),
+      id: 1, // Math.ceil(Math.random() * 1000), SE non serve a nulla lasciamolo fisso
       params: [txHash],
     });
 

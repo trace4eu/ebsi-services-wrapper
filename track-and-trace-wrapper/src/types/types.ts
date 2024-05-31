@@ -29,6 +29,20 @@ export interface TnTObjectRef {
   href: string;
 }
 
+export interface TnTPageLinks {
+  first: string;
+  prev: string;
+  next: string;
+  last: string;
+}
+
+export interface TnTPagedObjectList {
+  items: TnTObjectRef[];
+  pageSize: number;
+  links: TnTPageLinks;
+  total: number;
+}
+
 export interface EventData {
   eventId: string;
   documentHash: string;

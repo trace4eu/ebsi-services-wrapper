@@ -3,6 +3,7 @@ import { WalletFactory } from '@trace4eu/signature-wrapper';
 import * as SignatureWrapperTypes from '@trace4eu/signature-wrapper';
 import { EbsiAuthorisationApi } from '@trace4eu/authorisation-wrapper';
 import { TnTWrapper } from '../../src/wrappers/TntWrapper';
+import { TnTPagedObjectList } from '../../src/types/types';
 import * as crypto from 'crypto';
 import { Optional } from '../../src/types/optional';
 
@@ -27,21 +28,43 @@ const documentHash = `0x${crypto.randomBytes(32).toString('hex')}`;
 const eventId = `0x${crypto.randomBytes(32).toString('hex')}`;
 const eventMetadata = 'eventMetadata';
 const origin = 'origin';
-const existingDocumentList = await tntWrapper.getAllDocuments();
 
-describe('Track and Trace Wrapper Get Document Details', () => {
-  describe('get event of document', () => {
-    it('always true', () => {
-      console.log('createDocument test always true');
-      expect(true);
+
+
+
+describe('Track and Trace Wrapper Get Documents and getDocuments detail', () => {
+  let existingDocumentsPage: Optional<TnTPagedObjectList>;
+  let firstDocumentID;
+  let lastDocumentID;
+  let totalDocuments: number;
+  describe('GetDocuments without parameters', () => {
+    it('getDocumentsFistPage', async () => {
+      existingDocumentsPage = await tntWrapper.getAllDocuments();
+      firstDocumentID = existingDocumentsPage.value?.items[0].documentId;
+      expect(existingDocumentsPage).not.toBe(Optional.None);
     });
-
-    it('getDocumentDetails', async () => {
-      const existingDocumentID = existingDocumentList.value.items[0].documentId;
-      //  '0x266eb7cd3498f6b4760cded6172178b87fd4cf7b06c99cf1b3862ada1cd3f259';
-      console.log('Document Hash:' + existingDocumentID);
+    it('getDocumentsLastPage', async () => {
+      totalDocuments = existingDocumentsPage.value?.total;
+      const lastPage = Math.trunc(totalDocuments / 30); // I'll use a pageSize of 30
+      if (totalDocuments % 30 > 0) {
+        // true the last page is the next one
+        existingDocumentsPage = await tntWrapper.getAllDocuments(
+          30,
+          lastPage + 1,
+        );
+      } else {
+        existingDocumentsPage = await tntWrapper.getAllDocuments(30, lastPage);
+      }
+      expect(existingDocumentsPage).not.toBe(Optional.None);
+    });
+    it('getDocumentDetails of the last document inserted', async () => {
+      const indexOfLastDocumentInPage =
+        existingDocumentsPage.value?.items.length - 1;
+      lastDocumentID =
+        existingDocumentsPage.value?.items[indexOfLastDocumentInPage].documentId;
+      console.log('Document Hash:' + lastDocumentID);
       const documentData =
-        await tntWrapper.getDocumentDetails(existingDocumentID);
+        await tntWrapper.getDocumentDetails(lastDocumentID);
       console.log('Document Data');
       console.log(documentData);
       expect(documentData).toHaveProperty('metadata');
@@ -58,5 +81,24 @@ describe('Track and Trace Wrapper Get Document Details', () => {
         }),
       );
     });
+
+    it('check if the last document is mined for our isDocumentMined function', async () => {
+      const risp = await tntWrapper.isDocumentMined(lastDocumentID);
+      expect(risp).toBe(true);
+    });
+
+    it('check if the first document is mined for our isDocumentMined function', async () => {
+      const risp = await tntWrapper.isDocumentMined(firstDocumentID);
+      expect(risp).toBe(true);
+    });
+
+    it('check if the the document inserted and mined by the EBSI client is mined also for our isDocumentMined function', async () => {
+      // idDocument from the log of the EBSI-client createCocument
+      const risp = await tntWrapper.isDocumentMined(
+        '0x29210da926cbf151a09e1c4f8eb9e5c55836016260f5cfa1e2c8c184c6e1943c',
+      );
+      expect(risp).toBe(true);
+    });
+    
   });
 });

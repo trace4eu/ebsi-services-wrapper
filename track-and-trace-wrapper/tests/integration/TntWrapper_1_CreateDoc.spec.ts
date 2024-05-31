@@ -4,6 +4,7 @@ import * as SignatureWrapperTypes from '@trace4eu/signature-wrapper';
 import { EbsiAuthorisationApi } from '@trace4eu/authorisation-wrapper';
 import { TnTWrapper } from '../../src/wrappers/TntWrapper';
 import * as crypto from 'crypto';
+import { trace } from 'console';
 
 const did = 'did:ebsi:zobuuYAHkAbRFCcqdcJfTgR';
 const entityKey = [
@@ -22,38 +23,44 @@ const entityKey = [
 const wallet = WalletFactory.createInstance(false, did, entityKey);
 const ebsiAuthorisationApi = new EbsiAuthorisationApi(wallet);
 const tntWrapper = new TnTWrapper(wallet);
-const documentHash = `0x${crypto.randomBytes(32).toString('hex')}`;
+
 const eventId = `0x${crypto.randomBytes(32).toString('hex')}`;
 const eventMetadata = 'eventMetadata';
 const origin = 'origin';
 
-describe('Track and Trace Wrapper', () => {
+describe('Track and Trace Wrapper - create document', () => {
+  const documentHash1 = `0x${crypto.randomBytes(32).toString('hex')}`;
+  const documentHash2 = `0x${crypto.randomBytes(32).toString('hex')}`;
   describe('createDocument', () => {
     it('always true', () => {
       console.log('createDocument test always true');
       expect(true);
     });
-    it('getBarerToken', async () => {
-      const tntCreateBarerToken = await ebsiAuthorisationApi.getAccessToken(
-        'ES256',
-        'tnt_create',
-        [],
+    it('createDocument doc1 with wait to be Mined "false" ', async () => {
+      console.log('Document Hash:' + documentHash1);
+      const documentMetadata = 'documentMetadata';
+      const document = await tntWrapper.createDocument(
+        documentHash1,
+        documentMetadata,
+        false,
       );
-      console.log(tntCreateBarerToken);
-      expect(true);
+      console.log(document);
+      expect(document).toBe(documentHash1);
     });
-    it('createDocument waitingMined false', async () => {
-      const documentHash2 = `0x${crypto.randomBytes(32).toString('hex')}`;
-
+    it('createDocument doc2 wait to be Mined "true"', async () => {
       console.log('Document Hash:' + documentHash2);
       const documentMetadata = 'documentMetadata';
       const document = await tntWrapper.createDocument(
         documentHash2,
         documentMetadata,
-        false,
+        true,
       );
       console.log(document);
       expect(document).toBe(documentHash2);
+    });
+    it('check if it is mined', async () => {
+      const risp = await tntWrapper.isDocumentMined(documentHash2);
+      expect(risp).toBe(true);
     });
   });
 });
