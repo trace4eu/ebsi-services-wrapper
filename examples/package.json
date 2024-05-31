@@ -10,8 +10,8 @@
   "dependencies": {
     "@ethersproject/bytes": "^5.7.0",
     "@trace4eu/authorisation-wrapper": "^0.0.8",
-    "@trace4eu/signature-wrapper": "^0.0.9",
-    "@trace4eu/tnt-wrapper": "^0.0.10",
+    "@trace4eu/signature-wrapper": "^0.0.10",
+    "@trace4eu/tnt-wrapper": "^0.0.12",
     "ts-node": "^10.9.2"
   }
 }

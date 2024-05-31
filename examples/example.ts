@@ -45,10 +45,10 @@ async function main() {
   const document = await tntWrapper.createDocument(
     documentHash,
     documentMetadata,
+    true
   );
   console.log(`Document hash inserted in TnT api!`);
-  await timeout(20000);
-  const documentData = await tntWrapper.getDocument('0xabd3369f0bc1d001d5b7391dfc5b0b0f756044ead2eb18fa29c5a9da3f29fb8b');
+  const documentData = await tntWrapper.getDocumentDetails('0xabd3369f0bc1d001d5b7391dfc5b0b0f756044ead2eb18fa29c5a9da3f29fb8b');
   console.log(`Document data retrieved from TnT api: ${JSON.stringify(documentData, null, 2)}`);
 }
 
