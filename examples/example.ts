@@ -28,13 +28,6 @@ async function main() {
     },
   ];
   const wallet = WalletFactory.createInstance(false, did, entityKeys);
-  const ebsiAuthorisationApi = new EbsiAuthorisationApi(wallet);
-  const tokenResponse = await ebsiAuthorisationApi.getAccessToken(
-    'ES256',
-    'tnt_create',
-    [],
-  );
-  console.log({tokenResponse});
 
   const tntWrapper = new TnTWrapper(wallet);
 
