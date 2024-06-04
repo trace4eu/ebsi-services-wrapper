@@ -85,18 +85,11 @@ export class TnTWrapper implements ITnTWrapper {
       signatureResponseData,
       access_token,
     );
-    let res2: Optional<object>;
-    let tentatives = 5;
+
     if (waitMined) {
-      do {
-        await delay(2000);
-        res2 = await this.getTransactionReceipt(txReceipt.get(), access_token);
-        tentatives -= 1;
-      } while (res2.isEmpty() && tentatives > 0); // res2.isEmpty() && tentatives > 0
-      if (res2.isEmpty()) {
-        throw new Error('waiting to much to mine document : ' + documentHash);
-      }
+      await this.waitTxToBeMined(txReceipt.get(), access_token);
     }
+
     return documentHash;
   }
   async addEventToDocument(
@@ -133,22 +126,13 @@ export class TnTWrapper implements ITnTWrapper {
       'tnt_write',
       [],
     );
-    await this.sendSendSignedTransaction(
+    const txReceipt = await this.sendSendSignedTransaction(
       unsignedTransactionJson,
       signatureResponseData,
       access_token,
     );
     if (waitMined) {
-      const res2 = await this.getTransactionReceipt(documentHash, access_token);
-      while (res2.isEmpty()) {
-        await delay(15000);
-        const res2 = await this.getTransactionReceipt(
-          documentHash,
-          access_token,
-        );
-        //console.log(res2);
-      }
-      await delay(5000);
+      await this.waitTxToBeMined(txReceipt.get(), access_token);
     }
     return eventId;
   }
@@ -203,11 +187,12 @@ export class TnTWrapper implements ITnTWrapper {
       });
     if (response.isSome()) {
       const data = response.get();
+      const dateTime = new Date(parseInt(data.timestamp.datetime, 16) * 1000);
       return Optional.Some({
         eventId: data.externalHash,
         documentHash: data.hash,
         timestamp: {
-          datetime: data.timestamp.datetime.toISOString(),
+          datetime: dateTime.toISOString(),
           source: data.timestamp.source,
           proof: data.timestamp.proof,
         },
@@ -461,8 +446,8 @@ export class TnTWrapper implements ITnTWrapper {
               documentHash: documentHash,
               externalHash: eventId,
               sender: this.wallet.getHexDid(),
-              origin: 'origin',
-              metadata: 'test metadata',
+              origin: origin,
+              metadata: eventMetadata,
             },
           },
         ],
@@ -492,6 +477,19 @@ export class TnTWrapper implements ITnTWrapper {
     } catch (err) {
       console.error(err);
       return new Promise(Optional.None);
+    }
+  }
+
+  private async waitTxToBeMined(txReceipt: string, ebsiAccessToken: string) {
+    let res2: Optional<object>;
+    let tentatives = 5;
+    do {
+      await delay(2000);
+      res2 = await this.getTransactionReceipt(txReceipt, ebsiAccessToken);
+      tentatives -= 1;
+    } while (res2.isEmpty() && tentatives > 0); // res2.isEmpty() && tentatives > 0
+    if (res2.isEmpty()) {
+      throw new Error('waiting to much to mine the Transaction : ' + txReceipt);
     }
   }
 }

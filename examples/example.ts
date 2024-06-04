@@ -22,7 +22,7 @@ async function main() {
         'c4877a6d51c382b25a57684b5ac0a70398ab77b0eda0fcece0ca14ed00737e57',
     },
     {
-      alg: Algorithm.ES256,
+      alg: 'ES256',
       privateKeyHex:
         'fa50bbba9feade27ea61dd9973abfd7c04e72366b607558cd0b423b75d067a86 ',
     },
@@ -37,7 +37,7 @@ async function main() {
   console.log(`String hashed: ${documentHash}`);
 
   const documentMetadata = '';
-  const document = await tntWrapper.createDocument(
+  await tntWrapper.createDocument(
     documentHash,
     documentMetadata,
     true
@@ -46,6 +46,25 @@ async function main() {
   const documentData = await tntWrapper.getDocumentDetails(documentHash);
   console.log(`Document data retrieved from TnT api:`);
   console.log({documentData});
+
+  const eventExternalHash = `0x${crypto.randomBytes(32).toString('hex')}`;
+  const eventMetadata = 'eventMetadata';
+  const origin = 'origin';
+
+  await tntWrapper.addEventToDocument(
+    documentHash,
+    eventExternalHash,
+    eventMetadata,
+    origin,
+    true,
+  );
+
+  const documentDetails = await tntWrapper.getDocumentDetails(documentHash);
+  console.log({ documentDetails });
+
+  const eventId = documentDetails.events[0];
+  const eventData = await tntWrapper.getEventDetails(documentHash, eventId);
+  console.log({ eventData });
 }
 
 main();
