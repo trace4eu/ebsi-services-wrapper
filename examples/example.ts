@@ -34,22 +34,25 @@ async function main() {
     'tnt_create',
     [],
   );
-  console.log(`tokenResponse => ${JSON.stringify(tokenResponse, null, 2)}`);
+  console.log({tokenResponse});
 
   const tntWrapper = new TnTWrapper(wallet);
+
   const stringToHash = crypto.randomUUID();
   console.log(`String to hash: ${stringToHash}`);
   const documentHash = sha256(Buffer.from(stringToHash));
   console.log(`String hashed: ${documentHash}`);
-  const documentMetadata = 'documentMetadata';
+
+  const documentMetadata = '';
   const document = await tntWrapper.createDocument(
     documentHash,
     documentMetadata,
     true
   );
   console.log(`Document hash inserted in TnT api!`);
-  const documentData = await tntWrapper.getDocumentDetails('0xabd3369f0bc1d001d5b7391dfc5b0b0f756044ead2eb18fa29c5a9da3f29fb8b');
-  console.log(`Document data retrieved from TnT api: ${JSON.stringify(documentData, null, 2)}`);
+  const documentData = await tntWrapper.getDocumentDetails(documentHash);
+  console.log(`Document data retrieved from TnT api:`);
+  console.log({documentData});
 }
 
 main();
