@@ -77,16 +77,21 @@ describe('Track and Trace Wrapper', () => {
       console.log({ eventData });
       expect(eventData).toBeDefined();
     });
-    /*
     it('getEventDetails', async () => {
-      const eventDetails = await tntWrapper.getEventDetails(
-        documentHash,
-        '0x3c88977dc8dfb5e51615cfc40c39b4b756d42dfe92bdf9b6eba5e8539990c139',
+      const documentDetails = await tntWrapper.getDocumentDetails(
+        '0x88df2180efac18dba72747e4204977b88d781eac9b5051b15bd0c997f432f82c',
       );
-      console.log(eventDetails);
-      expect(eventDetails).toBeDefined();
-    });
+      console.log({ documentDetails });
 
+      const eventId = documentDetails.events[0];
+      const eventData = await tntWrapper.getEventDetails(
+        '0x88df2180efac18dba72747e4204977b88d781eac9b5051b15bd0c997f432f82c',
+        '0x1c062d1699ecc5e8e62335da3136844634d3d83643bf32bc443e1cb8a24f2a5e',
+      );
+      console.log({ eventData });
+      expect(eventData).toBeDefined();
+    });
+    /*
     it('return documents list', async () => {
       const documentList = await tntWrapper.getAllDocuments();
       expect(documentList).toBeDefined();

@@ -60,7 +60,7 @@ describe('Track and Trace Wrapper - create document', () => {
       console.log({ documentData });
       expect(document).toBe(documentHash2);
     });
-    it('check if it is mined', async () => {
+    it.skip('check if it is mined', async () => {
       const risp = await tntWrapper.isDocumentMined(documentHash2);
       expect(risp).toBe(true);
     });

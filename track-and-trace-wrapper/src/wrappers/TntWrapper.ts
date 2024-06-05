@@ -189,8 +189,8 @@ export class TnTWrapper implements ITnTWrapper {
       const data = response.get();
       const dateTime = new Date(parseInt(data.timestamp.datetime, 16) * 1000);
       return Optional.Some({
-        eventId: data.externalHash,
-        documentHash: data.hash,
+        eventHash: data.externalHash,
+        eventId: data.hash,
         timestamp: {
           datetime: dateTime.toISOString(),
           source: data.timestamp.source,
@@ -482,9 +482,9 @@ export class TnTWrapper implements ITnTWrapper {
 
   private async waitTxToBeMined(txReceipt: string, ebsiAccessToken: string) {
     let res2: Optional<object>;
-    let tentatives = 5;
+    let tentatives = 10;
     do {
-      await delay(2000);
+      await delay(5000);
       res2 = await this.getTransactionReceipt(txReceipt, ebsiAccessToken);
       tentatives -= 1;
     } while (res2.isEmpty() && tentatives > 0); // res2.isEmpty() && tentatives > 0

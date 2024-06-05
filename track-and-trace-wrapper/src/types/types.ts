@@ -44,8 +44,8 @@ export interface TnTPagedObjectList {
 }
 
 export interface EventData {
+  eventHash: string;
   eventId: string;
-  documentHash: string;
   timestamp: Timestamp;
   sender: string;
   origin: string;

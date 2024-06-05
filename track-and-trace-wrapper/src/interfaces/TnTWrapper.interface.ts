@@ -20,7 +20,7 @@ export interface ITnTWrapper {
   ): Promise<string>;
   getDocumentDetails(documentHash: string): Promise<DocumentData>;
   /**
-   * 
+   *
    * @param pageSize  requires an integer value
    * @param pageAfter requires an integer value
    */
@@ -31,7 +31,7 @@ export interface ITnTWrapper {
   getAllEventsOfDocument(
     documentHash: string,
   ): Promise<Optional<TnTObjectRef[]>>;
-  isDocumentMined(documenthash: string): Promise<boolean>;
+  // isDocumentMined(trx: string): Promise<boolean>;
   addEventToDocument(
     documentHash: string,
     eventId: string,
