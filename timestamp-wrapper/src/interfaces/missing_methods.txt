@@ -1,0 +1,43 @@
+ // builds an unsigned transaction to timestamp data and create a record of it with some info. It's possible to insert up to 3 hashes in a single transaction.
+  timestampRecordHashes( //aka create record
+    hashAlgorithmIds: number[],
+    hashValues: string[],
+  ): Promise<string>;
+
+  // builds an unsigned transaction to timestamp hashes and store them under the given record. It's possible to insert up to 3 hashes in a single transaction.
+  timestampVersionHashes( // aka create version of record
+    versionHash: string, //TODO: find out if this is the version ID of the current version of an existing record?
+    hashAlgorithmIds: number[],
+    hashValues: string[],
+  ): Promise<string>;
+
+  /**
+   * https://hub.ebsi.eu/apis/pilot/timestamp/v3/get-timestamps
+   * @param pageSize  requires an integer value
+   * @param pageAfter requires an integer value
+   */
+  getAllTimestamps( 
+    pageSize?: number,
+    pageAfter?: number, //TODO: discuss: should actually be string according to EBSI api?? also in the case of TnT APi
+  ): Promise<Optional<TnTPagedObjectList>>; //TODO: change return type
+  //createRecord: TODO: find out how?
+  //getAllRecords: https://hub.ebsi.eu/apis/pilot/timestamp/v3/get-records
+  //getRecordDetails: https://hub.ebsi.eu/apis/pilot/timestamp/v3/get-record
+  
+  //https://hub.ebsi.eu/apis/pilot/timestamp/v3/get-record-versions
+  getAllVersionsOfRecord(  
+    recordId: string,
+  ): Promise<Optional<TnTObjectRef[]>>;
+
+
+  addVersionToRecord( //TODO: find out how?
+    documentHash: string,
+    eventId: string,
+    eventMetadata: string,
+    origin: string,
+    waitMined?: boolean,
+  ): Promise<string>;
+
+  //https://hub.ebsi.eu/apis/pilot/timestamp/v3/get-record-version
+  //note in TnT: version = event, record = document
+  getVersionDetails(recordId: string, versionId: string): any;

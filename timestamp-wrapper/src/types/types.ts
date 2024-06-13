@@ -1,0 +1,57 @@
+/* import { JWK } from 'jose';
+
+export enum DidMethod {
+  DidKey = 'key',
+  Ebsi = 'ebsi',
+}
+
+export enum Algorithm {
+  ES256K = 'ES256K',
+  ES256 = 'ES256',
+} */
+/** Interface TnTWrapper */
+
+export interface TimestampData {
+  hash: string;
+  timestampedBy: string;
+  blockNumber: number;
+  timestamp: string;
+  transactionHash: string;
+  data: string;
+}
+
+
+//TnT Types
+export interface Timestamp {
+  datetime: string;
+  source: string;
+  proof: string;
+}
+
+export interface TnTObjectRef {
+  documentId: string;
+  href: string;
+}
+
+export interface TnTPageLinks {
+  first: string;
+  prev: string;
+  next: string;
+  last: string;
+}
+
+export interface TnTPagedObjectList {
+  items: TnTObjectRef[];
+  pageSize: number;
+  links: TnTPageLinks;
+  total: number;
+}
+
+export interface EventData {
+  eventId: string;
+  documentHash: string;
+  timestamp: Timestamp;
+  sender: string;
+  origin: string;
+  metadata: string;
+}
