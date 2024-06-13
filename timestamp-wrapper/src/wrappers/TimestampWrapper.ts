@@ -6,9 +6,7 @@ import {
   AuthorisationApi,
   EbsiAuthorisationApi,
 } from '@trace4eu/authorisation-wrapper';
-import {
-  TimestampData
-} from '../types/types';
+import { TimestampData } from '../types/types';
 import { ethers } from 'ethers';
 import { hash } from 'crypto';
 import { time } from 'console';
@@ -16,7 +14,6 @@ import { time } from 'console';
 const delay = (ms) => new Promise((res) => setTimeout(res, ms));
 
 export class TimestampWrapper implements ITimestampWrapper {
-
   // atttributes
   private wallet: Wallet;
   private ebsiAuthtorisationApi: AuthorisationApi;
@@ -28,7 +25,8 @@ export class TimestampWrapper implements ITimestampWrapper {
   }
 
   // methods
-  async timestampHashes( //aka createTimestamp
+  async timestampHashes(
+    //aka createTimestamp
     hashAlgorithmIds: number[],
     hashValues: string[],
     waitMined: boolean = true,
@@ -59,7 +57,7 @@ export class TimestampWrapper implements ITimestampWrapper {
       gasLimit: TimestampUnsignedTx.get().gasLimit,
       gasPrice: TimestampUnsignedTx.get().gasPrice,
     };
-    console.log(TimestampUnsignedTxJson)
+    console.log(TimestampUnsignedTxJson);
     const signatureResponseData = await this.wallet.signEthTx(
       TimestampUnsignedTxJson,
     );
@@ -98,9 +96,7 @@ export class TimestampWrapper implements ITimestampWrapper {
     return response.isSome();
   }
 
-  async getTimestampDetails(
-    timestampId: string
-  ): Promise<TimestampData> {
+  async getTimestampDetails(timestampId: string): Promise<TimestampData> {
     const timestampData = await this.getTimestampFromApi(timestampId);
     if (timestampData.isEmpty()) {
       throw new Error(
@@ -114,17 +110,16 @@ export class TimestampWrapper implements ITimestampWrapper {
       blockNumber: timestampData.get().blockNumber,
       timestamp: timestampData.get().timestamp,
       transactionHash: timestampData.get().transactionHash,
-      data: timestampData.get().data
+      data: timestampData.get().data,
     };
   }
 
   // private helper methods
   private async sendTimestampHashesRequest(
-    hashAlgorithmIds: number[], 
+    hashAlgorithmIds: number[],
     hashValues: string[], //TODO: adapt type to array of hashes=string?
     accesToken: string,
   ): Promise<Optional<UnsignedTransaction>> {
-
     const data = JSON.stringify({
       jsonrpc: '2.0',
       method: 'timestampHashes',
@@ -243,14 +238,13 @@ export class TimestampWrapper implements ITimestampWrapper {
   }
 
   private async getTimestampFromApi(timestampId: string) {
-
-    let config = {
+    const config = {
       method: 'get',
       maxBodyLength: Infinity,
       url: `https://api-pilot.ebsi.eu/timestamp/v3/timestamps/${timestampId}`,
-      headers: { 
-        'Accept': 'application/json'
-      }
+      headers: {
+        Accept: 'application/json',
+      },
     };
 
     const response = axios
@@ -265,5 +259,3 @@ export class TimestampWrapper implements ITimestampWrapper {
     return response as Promise<Optional<TimestampData>>;
   }
 }
-
-

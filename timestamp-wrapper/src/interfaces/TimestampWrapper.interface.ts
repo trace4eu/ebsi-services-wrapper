@@ -1,6 +1,6 @@
 import { Wallet } from '@trace4eu/signature-wrapper';
 import { Optional } from '../types/optional';
-import { TimestampData} from '../types/types';
+import { TimestampData } from '../types/types';
 
 /** 
  Interface TimestampWrapper
@@ -12,10 +12,10 @@ export interface ITimestampWrapper {
    * @param hashAlgorithmIds array of numbers representing the used hash algorithms
    * @param hashValues array of hash values --> different to this guide: https://hub.ebsi.eu/tools/cli/upcoming-apis/create-timestamp
    */
-  timestampHashes( 
+  timestampHashes(
     hashAlgorithmIds: number[],
     hashValues: string[],
-    waitMined: boolean
+    waitMined: boolean,
   ): Promise<string>;
 
   isTimestampMined(timestampId: string): Promise<boolean>;

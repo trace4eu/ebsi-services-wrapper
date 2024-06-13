@@ -29,15 +29,15 @@ const eventMetadata = 'eventMetadata';
 const origin = 'origin';
 
 describe('Timestamp Wrapper - create timestamp', () => {
-  const hashValue1 = `0x${crypto.randomBytes(32).toString('hex')}`;
-  const hashValue2 = `0x${crypto.randomBytes(32).toString('hex')}`;
+  const hashValue1 = crypto.createHash('sha256').update("this is a test 1").digest('hex');;
+  const hashValue2 = crypto.createHash('sha256').update("this is a test 2").digest('hex');;
   describe('createTimestamp', () => {
     it('always true', () => {
       console.log('createTimestamp test always true');
       expect(true);
     });
     it('hashValue1 with wait to be Mined "false" ', async () => {
-      console.log('Hashvalue1:' + hashValue1);
+      console.log('hashValue1: ' + hashValue1);
       const timestamp = await timestampWrapper.timestampHashes(
         [0], // sha2-256, check if hash value is hashed as sha2-256
         [hashValue1],
@@ -46,16 +46,15 @@ describe('Timestamp Wrapper - create timestamp', () => {
       console.log(timestamp);
       expect(timestamp).toBe(hashValue1);
     });
-    it('createDocument doc2 wait to be Mined "true"', async () => {
-      console.log('Document Hash:' + hashValue2);
-      const documentMetadata = 'documentMetadata';
+    it('createTimestamp with wait to be Mined "true"', async () => {
+      console.log('hashValue2: ' + hashValue2);
       const timestamp = await timestampWrapper.timestampHashes(
         [0],
         [hashValue2],
         true,
       );
       console.log(timestamp);
-      const timestampData = await timestampWrapper.getTimestampDetails(hashValue1);
+      const timestampData = await timestampWrapper.getTimestampDetails(hashValue2);
       console.log({ timestampData });
       expect(timestamp).toBe(hashValue2);
     });
