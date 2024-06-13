@@ -1,7 +1,6 @@
 import { Wallet } from '@trace4eu/signature-wrapper';
-import { Document } from '../types/document';
 import { Optional } from '../types/optional';
-import { TimestampData, TnTObjectRef, TnTPagedObjectList } from '../types/types';
+import { TimestampData} from '../types/types';
 
 /** 
  Interface TimestampWrapper
@@ -18,6 +17,8 @@ export interface ITimestampWrapper {
     hashValues: string[],
     waitMined: boolean
   ): Promise<string>;
+
+  isTimestampMined(timestampId: string): Promise<boolean>;
 
   //https://hub.ebsi.eu/apis/pilot/timestamp/v3/get-timestamp
   getTimestampDetails(timestampId: string): Promise<TimestampData>;

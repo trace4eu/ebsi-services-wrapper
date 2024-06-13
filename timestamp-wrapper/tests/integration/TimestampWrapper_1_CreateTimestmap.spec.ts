@@ -2,9 +2,9 @@ import { describe, it, expect, vi, beforeAll } from 'vitest';
 import { WalletFactory } from '@trace4eu/signature-wrapper';
 import * as SignatureWrapperTypes from '@trace4eu/signature-wrapper';
 import { EbsiAuthorisationApi } from '@trace4eu/authorisation-wrapper';
-import { TnTWrapper } from '../../src/wrappers/TntWrapper';
+import { TimestampWrapper } from '../../src/wrappers/TimestampWrapper';
 import * as crypto from 'crypto';
-import { trace } from 'console';
+import { time, trace } from 'console';
 
 const did = 'did:ebsi:zobuuYAHkAbRFCcqdcJfTgR';
 const entityKey = [
@@ -22,46 +22,45 @@ const entityKey = [
 
 const wallet = WalletFactory.createInstance(false, did, entityKey);
 const ebsiAuthorisationApi = new EbsiAuthorisationApi(wallet);
-const tntWrapper = new TnTWrapper(wallet);
+const timestampWrapper = new TimestampWrapper(wallet);
 
 const eventId = `0x${crypto.randomBytes(32).toString('hex')}`;
 const eventMetadata = 'eventMetadata';
 const origin = 'origin';
 
-describe('Track and Trace Wrapper - create document', () => {
-  const documentHash1 = `0x${crypto.randomBytes(32).toString('hex')}`;
-  const documentHash2 = `0x${crypto.randomBytes(32).toString('hex')}`;
-  describe('createDocument', () => {
+describe('Timestamp Wrapper - create timestamp', () => {
+  const hashValue1 = `0x${crypto.randomBytes(32).toString('hex')}`;
+  const hashValue2 = `0x${crypto.randomBytes(32).toString('hex')}`;
+  describe('createTimestamp', () => {
     it('always true', () => {
-      console.log('createDocument test always true');
+      console.log('createTimestamp test always true');
       expect(true);
     });
-    it('createDocument doc1 with wait to be Mined "false" ', async () => {
-      console.log('Document Hash:' + documentHash1);
-      const documentMetadata = 'documentMetadata';
-      const document = await tntWrapper.createDocument(
-        documentHash1,
-        documentMetadata,
-        false,
+    it('hashValue1 with wait to be Mined "false" ', async () => {
+      console.log('Hashvalue1:' + hashValue1);
+      const timestamp = await timestampWrapper.timestampHashes(
+        [0], // sha2-256, check if hash value is hashed as sha2-256
+        [hashValue1],
+        false
       );
-      console.log(document);
-      expect(document).toBe(documentHash1);
+      console.log(timestamp);
+      expect(timestamp).toBe(hashValue1);
     });
     it('createDocument doc2 wait to be Mined "true"', async () => {
-      console.log('Document Hash:' + documentHash2);
+      console.log('Document Hash:' + hashValue2);
       const documentMetadata = 'documentMetadata';
-      const document = await tntWrapper.createDocument(
-        documentHash2,
-        documentMetadata,
+      const timestamp = await timestampWrapper.timestampHashes(
+        [0],
+        [hashValue2],
         true,
       );
-      console.log(document);
-      const documentData = await tntWrapper.getDocumentDetails(documentHash2);
-      console.log({ documentData });
-      expect(document).toBe(documentHash2);
+      console.log(timestamp);
+      const timestampData = await timestampWrapper.getTimestampDetails(hashValue1);
+      console.log({ timestampData });
+      expect(timestamp).toBe(hashValue2);
     });
     it('check if it is mined', async () => {
-      const risp = await tntWrapper.isDocumentMined(documentHash2);
+      const risp = await timestampWrapper.isTimestampMined(hashValue2);
       expect(risp).toBe(true);
     });
   });

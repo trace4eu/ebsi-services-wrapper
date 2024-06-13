@@ -7,10 +7,7 @@ import {
   EbsiAuthorisationApi,
 } from '@trace4eu/authorisation-wrapper';
 import {
-  TimestampData,
-  EventData,
-  TnTObjectRef,
-  TnTPagedObjectList,
+  TimestampData
 } from '../types/types';
 import { ethers } from 'ethers';
 import { hash } from 'crypto';
@@ -85,6 +82,20 @@ export class TimestampWrapper implements ITimestampWrapper {
       }
     }
     return JSON.stringify(hashValues);
+  }
+
+  async isTimestampMined(timestampId: string): Promise<boolean> {
+    const { access_token } = await this.ebsiAuthtorisationApi.getAccessToken(
+      'ES256',
+      'timestamp_write',
+      [],
+    );
+    const response = await this.getTransactionReceipt(
+      timestampId,
+      access_token,
+    );
+
+    return response.isSome();
   }
 
   async getTimestampDetails(

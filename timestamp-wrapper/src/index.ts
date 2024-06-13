@@ -1,2 +1,2 @@
 export * from './types/types';
-export * from './wrappers/TntWrapper';
+export * from './wrappers/TimestampWrapper';
