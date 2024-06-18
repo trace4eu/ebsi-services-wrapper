@@ -1,6 +1,7 @@
 import { UnsignedTransaction, Wallet } from '@trace4eu/signature-wrapper';
 import { ITnTWrapper } from '../interfaces/TnTWrapper.interface';
-import { Optional } from '../types/optional';
+import { Optional } from '@trace4eu/error-wrapper';
+import { Result } from '@trace4eu/error-wrapper';
 import axios from 'axios';
 import {
   AuthorisationApi,
@@ -142,7 +143,7 @@ export class TnTWrapper implements ITnTWrapper {
     if (documentData.isEmpty()) {
       throw new Error(
         'getDocumentDetails method: missing document with id =  ' +
-          documentHash,
+        documentHash,
       );
     }
     const dateTime = new Date(
@@ -479,6 +480,12 @@ export class TnTWrapper implements ITnTWrapper {
       return new Promise(Optional.None);
     }
   }
+
+  //
+  //
+  //  UTILS METHODS
+  //
+  //
 
   private async waitTxToBeMined(txReceipt: string, ebsiAccessToken: string) {
     let res2: Optional<object>;

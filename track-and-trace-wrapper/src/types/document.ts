@@ -1,4 +1,4 @@
-import { Optional } from './optional';
+import { Optional } from '@trace4eu/error-wrapper';
 
 export class Document {
   private filetype: DocumentType;
