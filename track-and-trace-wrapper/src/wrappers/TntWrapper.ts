@@ -88,7 +88,13 @@ export class TnTWrapper implements ITnTWrapper {
     );
 
     if (waitMined) {
-      await this.waitTxToBeMined(txReceipt.get(), access_token);
+      const is_mined = await this.waitTxToBeMined(
+        txReceipt.get(),
+        access_token,
+      );
+      if (is_mined.isErr()) {
+        throw new Error('Error waiting to mine the transaction');
+      }
     }
 
     return documentHash;
@@ -133,7 +139,13 @@ export class TnTWrapper implements ITnTWrapper {
       access_token,
     );
     if (waitMined) {
-      await this.waitTxToBeMined(txReceipt.get(), access_token);
+      const is_mined = await this.waitTxToBeMined(
+        txReceipt.get(),
+        access_token,
+      );
+      if (is_mined.isErr()) {
+        throw new Error('Error waiting to mine the transaction');
+      }
     }
     return eventId;
   }
@@ -487,7 +499,10 @@ export class TnTWrapper implements ITnTWrapper {
   //
   //
 
-  private async waitTxToBeMined(txReceipt: string, ebsiAccessToken: string) {
+  private async waitTxToBeMined(
+    txReceipt: string,
+    ebsiAccessToken: string,
+  ): Promise<Result<any, Error>> {
     let res2: Optional<object>;
     let tentatives = 10;
     do {
@@ -496,7 +511,11 @@ export class TnTWrapper implements ITnTWrapper {
       tentatives -= 1;
     } while (res2.isEmpty() && tentatives > 0); // res2.isEmpty() && tentatives > 0
     if (res2.isEmpty()) {
-      throw new Error('waiting to much to mine the Transaction : ' + txReceipt);
+      Result.err(
+        new Error('waiting to much to mine the Transaction : ' + txReceipt),
+      );
+    } else {
+      return Result.ok(res2.get());
     }
   }
 }
