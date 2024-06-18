@@ -44,7 +44,7 @@ export class TnTWrapper implements ITnTWrapper {
       access_token,
     );
 
-    return response.isSome();
+    return response.isOk();
   }
   async createDocument(
     documentHash: string,
@@ -112,18 +112,19 @@ export class TnTWrapper implements ITnTWrapper {
       eventMetadata,
       origin,
     );
-    if (unsignedTransaction.isEmpty()) {
+    if (unsignedTransaction.isErr()) {
       throw new Error('Error sending request to ebsi api');
     }
+    const unsignedTransactionValue = unsignedTransaction.unwrap();
     const unsignedTransactionJson = {
-      to: unsignedTransaction.get().to,
-      from: unsignedTransaction.get().from,
-      data: unsignedTransaction.get().data,
-      nonce: unsignedTransaction.get().nonce,
-      value: unsignedTransaction.get().value,
-      chainId: unsignedTransaction.get().chainId,
-      gasLimit: unsignedTransaction.get().gasLimit,
-      gasPrice: unsignedTransaction.get().gasPrice,
+      to: unsignedTransactionValue.to,
+      from: unsignedTransactionValue.from,
+      data: unsignedTransactionValue.data,
+      nonce: unsignedTransactionValue.nonce,
+      value: unsignedTransactionValue.value,
+      chainId: unsignedTransactionValue.chainId,
+      gasLimit: unsignedTransactionValue.gasLimit,
+      gasPrice: unsignedTransactionValue.gasPrice,
     };
     const signatureResponseData = await this.wallet.signEthTx(
       unsignedTransactionJson,
@@ -398,42 +399,30 @@ export class TnTWrapper implements ITnTWrapper {
       });
   }
 
-  private async getTransactionReceipt(
-    txHash: string,
-    accessToken: string,
-  ): Promise<Optional<object>> {
-    const data = JSON.stringify({
-      jsonrpc: '2.0',
-      method: 'eth_getTransactionReceipt',
-      id: 1, // Math.ceil(Math.random() * 1000), SE non serve a nulla lasciamolo fisso
-      params: [txHash],
-    });
+  //
+  //
+  //  UTILS METHODS
+  //
+  //
 
-    const config = {
-      method: 'post',
-      maxBodyLength: Infinity,
-      url: 'https://api-pilot.ebsi.eu/ledger/v4/blockchains/besu',
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-        Authorization: 'Bearer ' + accessToken,
-      },
-      data: data,
-    };
-
-    const response = axios
-      .request(config)
-      .then((response) => {
-        if (response.data.result === null) {
-          return Optional.None();
-        } else {
-          return Optional.Some(response.data.result);
-        }
-      })
-      .catch((error) => {
-        return Optional.None();
-      });
-    return response as Promise<Optional<object>>;
+  private async waitTxToBeMined(
+    txReceipt: string,
+    ebsiAccessToken: string,
+  ): Promise<Result<any, Error>> {
+    let res2: Result<object, Error>;
+    let tentatives = 10;
+    do {
+      await delay(5000);
+      res2 = await this.getTransactionReceipt(txReceipt, ebsiAccessToken);
+      tentatives -= 1;
+    } while (res2.isErr() && tentatives > 0); // res2.isEmpty() && tentatives > 0
+    if (res2.isErr()) {
+      Result.err(
+        new Error('waiting to much to mine the Transaction : ' + txReceipt),
+      );
+    } else {
+      return Result.ok(res2.unwrap());
+    }
   }
 
   private async sendCreateEventRequest(
@@ -441,7 +430,7 @@ export class TnTWrapper implements ITnTWrapper {
     eventId: string,
     eventMetadata: string,
     origin: string,
-  ): Promise<Optional<UnsignedTransaction>> {
+  ): Promise<Result<UnsignedTransaction, Error>> {
     try {
       const { access_token } = await this.ebsiAuthtorisationApi.getAccessToken(
         'ES256',
@@ -481,41 +470,53 @@ export class TnTWrapper implements ITnTWrapper {
       return axios
         .request(config)
         .then((response) => {
-          return Optional.Some(response.data.result);
+          return Result.ok(response.data.result);
         })
         .catch((error) => {
           console.error(error);
-          return Optional.None();
+          return Result.err(error);
         });
     } catch (err) {
       console.error(err);
-      return new Promise(Optional.None);
+      return Result.err(err);
     }
   }
 
-  //
-  //
-  //  UTILS METHODS
-  //
-  //
+  private async getTransactionReceipt(
+    txHash: string,
+    accessToken: string,
+  ): Promise<Result<object, Error>> {
+    const data = JSON.stringify({
+      jsonrpc: '2.0',
+      method: 'eth_getTransactionReceipt',
+      id: 1, // Math.ceil(Math.random() * 1000), SE non serve a nulla lasciamolo fisso
+      params: [txHash],
+    });
 
-  private async waitTxToBeMined(
-    txReceipt: string,
-    ebsiAccessToken: string,
-  ): Promise<Result<any, Error>> {
-    let res2: Optional<object>;
-    let tentatives = 10;
-    do {
-      await delay(5000);
-      res2 = await this.getTransactionReceipt(txReceipt, ebsiAccessToken);
-      tentatives -= 1;
-    } while (res2.isEmpty() && tentatives > 0); // res2.isEmpty() && tentatives > 0
-    if (res2.isEmpty()) {
-      Result.err(
-        new Error('waiting to much to mine the Transaction : ' + txReceipt),
-      );
-    } else {
-      return Result.ok(res2.get());
-    }
+    const config = {
+      method: 'post',
+      maxBodyLength: Infinity,
+      url: 'https://api-pilot.ebsi.eu/ledger/v4/blockchains/besu',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+        Authorization: 'Bearer ' + accessToken,
+      },
+      data: data,
+    };
+
+    const response = axios
+      .request(config)
+      .then((response) => {
+        if (response.data.result === null) {
+          return Result.err(new Error('Empty transaction receipt')); // MT empty object
+        } else {
+          return Result.ok(response.data.result);
+        }
+      })
+      .catch((error) => {
+        return Result.err(error);
+      });
+    return response as Promise<Result<object, Error>>;
   }
 }
