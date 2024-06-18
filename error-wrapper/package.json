@@ -1,6 +1,6 @@
 {
   "name": "@trace4eu/error-wrapper",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -20,8 +20,7 @@
     "url": "https://github.com/trace4eu/ebsi-services-wrapper/issues"
   },
   "homepage": "https://github.com/trace4eu/ebsi-services-wrapper#readme",
-  "dependencies": {
-  },
+  "dependencies": {},
   "devDependencies": {
     "@tsconfig/node20": "^20.1.4",
     "@types/jest": "^29.5.12",

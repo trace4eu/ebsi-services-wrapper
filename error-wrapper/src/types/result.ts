@@ -1,3 +1,5 @@
+/** Main objective differentiate between Errors and normal responses,
+ * letting the possibility to throw the error */
 export class Result<T, E extends Error> {
   value: T | null;
   error: E | null;
