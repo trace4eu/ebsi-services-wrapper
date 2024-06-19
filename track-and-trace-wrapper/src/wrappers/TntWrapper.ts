@@ -1,5 +1,6 @@
 import { UnsignedTransaction, Wallet } from '@trace4eu/signature-wrapper';
 import { ITnTWrapper } from '../interfaces/TnTWrapper.interface';
+import { NotYetMinedError } from '../errors/NotYetMined';
 import { Optional } from '@trace4eu/error-wrapper';
 import { Result } from '@trace4eu/error-wrapper';
 import axios from 'axios';
@@ -63,11 +64,7 @@ export class TnTWrapper implements ITnTWrapper {
       access_token,
     );
     if (DocumentUnsignedTx.isErr()) {
-      return Result.err(
-        new Error(
-          'Error sending request to ebsi api: empty DocumentUnsignedTransaction',
-        ),
-      );
+      return Result.err(DocumentUnsignedTx.unwrapErr());
     }
     const DocumentUnsignedTxValue = DocumentUnsignedTx.unwrap();
     const DocumentUnsignedTxJson = {
@@ -90,18 +87,19 @@ export class TnTWrapper implements ITnTWrapper {
       access_token,
     );
 
-    if (waitMined && txReceipt.isOk()) {
-      const is_mined = await this.waitTxToBeMined(
-        txReceipt.unwrap(),
-        access_token,
-      );
-      if (is_mined.isErr()) {
-        return Result.err(Error('Error waiting to mine the transaction'));
-      }
-    } else if (txReceipt.isErr()) {
+    if (txReceipt.isErr()) {
       return Result.err(txReceipt.unwrapErr());
     }
 
+    if (waitMined) {
+      const resp_mined = await this.waitTxToBeMined(
+        txReceipt.unwrap(),
+        access_token,
+      );
+      if (resp_mined.isErr()) {
+        return Result.err(resp_mined.unwrapErr());
+      }
+    }
     return Result.ok(documentHash);
   }
 
@@ -262,14 +260,13 @@ export class TnTWrapper implements ITnTWrapper {
       await delay(5000);
       res2 = await this.getTransactionReceipt(txReceipt, ebsiAccessToken);
       tentatives -= 1;
-    } while (res2.isErr() && tentatives > 0); // res2.isEmpty() && tentatives > 0
-    if (res2.isErr()) {
-      Result.err(
-        new Error('waiting to much to mine the Transaction : ' + txReceipt),
-      );
-    } else {
-      return Result.ok(res2.unwrap());
-    }
+    } while (
+      res2.isErr() &&
+      res2.unwrapErr() instanceof NotYetMinedError &&
+      tentatives > 0
+    ); // res2.isEmpty() && tentatives > 0
+
+    return res2;
   }
 
   private async sendCreateEventRequest(
@@ -328,7 +325,13 @@ export class TnTWrapper implements ITnTWrapper {
       return Result.err(err);
     }
   }
-
+  /**
+   *  return data if eth_getTransactionReceipt returns data <> null
+   *  otherwise: return error 'empty transaction receipt
+   * @param txHash
+   * @param accessToken
+   * @returns data
+   */
   private async getTransactionReceipt(
     txHash: string,
     accessToken: string,
@@ -356,7 +359,7 @@ export class TnTWrapper implements ITnTWrapper {
       .request(config)
       .then((response) => {
         if (response.data.result === null) {
-          return Result.err(new Error('Empty transaction receipt')); // TODO check if this empty object is ok
+          return Result.err(new NotYetMinedError());
         } else {
           return Result.ok(response.data.result);
         }
