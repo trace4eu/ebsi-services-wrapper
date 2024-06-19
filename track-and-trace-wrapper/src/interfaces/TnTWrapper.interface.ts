@@ -1,7 +1,13 @@
 import { Wallet } from '@trace4eu/signature-wrapper';
 import { Document } from '../types/document';
-import { Optional } from '../types/optional';
-import { DocumentData, TnTObjectRef, TnTPagedObjectList } from '../types/types';
+import { Optional } from '@trace4eu/error-wrapper';
+import { Result } from '@trace4eu/error-wrapper';
+import {
+  EventData,
+  DocumentData,
+  TnTObjectRef,
+  TnTPagedObjectList,
+} from '../types/types';
 
 /** 
  Interface TnTWrapper  
@@ -17,8 +23,10 @@ export interface ITnTWrapper {
     documentHash: string,
     documentMetadata: string,
     waitMined?: boolean,
-  ): Promise<string>;
-  getDocumentDetails(documentHash: string): Promise<DocumentData>;
+  ): Promise<Result<string, Error>>;
+  getDocumentDetails(
+    documentHash: string,
+  ): Promise<Result<DocumentData, Error>>;
   /**
    *
    * @param pageSize  requires an integer value
@@ -27,10 +35,10 @@ export interface ITnTWrapper {
   getAllDocuments(
     pageSize?: number,
     pageAfter?: number,
-  ): Promise<Optional<TnTPagedObjectList>>;
+  ): Promise<Result<TnTPagedObjectList, Error>>;
   getAllEventsOfDocument(
     documentHash: string,
-  ): Promise<Optional<TnTObjectRef[]>>;
+  ): Promise<Result<TnTObjectRef[], Error>>;
   // isDocumentMined(trx: string): Promise<boolean>;
   addEventToDocument(
     documentHash: string,
@@ -38,7 +46,10 @@ export interface ITnTWrapper {
     eventMetadata: string,
     origin: string,
     waitMined?: boolean,
-  ): Promise<string>;
-  getEventDetails(documentHash: string, eventId: string): any;
+  ): Promise<Result<string, Error>>;
+  getEventDetails(
+    documentHash: string,
+    eventId: string,
+  ): Promise<Result<EventData, Error>>;
   //listEventsOfDocument(): any;
 }
