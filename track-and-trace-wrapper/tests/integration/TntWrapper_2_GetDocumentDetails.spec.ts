@@ -5,7 +5,8 @@ import { EbsiAuthorisationApi } from '@trace4eu/authorisation-wrapper';
 import { TnTWrapper } from '../../src/wrappers/TntWrapper';
 import { TnTPagedObjectList } from '../../src/types/types';
 import * as crypto from 'crypto';
-import { Optional } from '../../src/types/optional';
+import { Optional } from '@trace4eu/error-wrapper';
+import { Result } from '@trace4eu/error-wrapper';
 
 const did = 'did:ebsi:zobuuYAHkAbRFCcqdcJfTgR';
 const entityKey = [
@@ -29,11 +30,8 @@ const eventId = `0x${crypto.randomBytes(32).toString('hex')}`;
 const eventMetadata = 'eventMetadata';
 const origin = 'origin';
 
-
-
-
 describe('Track and Trace Wrapper Get Documents and getDocuments detail', () => {
-  let existingDocumentsPage: Optional<TnTPagedObjectList>;
+  let existingDocumentsPage: Result<TnTPagedObjectList, Error>;
   let firstDocumentID;
   let lastDocumentID;
   let totalDocuments: number;
@@ -41,10 +39,10 @@ describe('Track and Trace Wrapper Get Documents and getDocuments detail', () => 
     it('getDocumentsFistPage', async () => {
       existingDocumentsPage = await tntWrapper.getAllDocuments();
       firstDocumentID = existingDocumentsPage.value?.items[0].documentId;
-      expect(existingDocumentsPage).not.toBe(Optional.None);
+      expect(existingDocumentsPage).not.toBe(Result.err);
     });
     it('getDocumentsLastPage', async () => {
-      totalDocuments = existingDocumentsPage.value?.total;
+      totalDocuments = existingDocumentsPage.value?.total ?? 0;
       const lastPage = Math.trunc(totalDocuments / 30); // I'll use a pageSize of 30
       if (totalDocuments % 30 > 0) {
         // true the last page is the next one
@@ -59,12 +57,12 @@ describe('Track and Trace Wrapper Get Documents and getDocuments detail', () => 
     });
     it('getDocumentDetails of the last document inserted', async () => {
       const indexOfLastDocumentInPage =
-        existingDocumentsPage.value?.items.length - 1;
+        existingDocumentsPage.value?.items.length ?? 0;
       lastDocumentID =
-        existingDocumentsPage.value?.items[indexOfLastDocumentInPage].documentId;
+        existingDocumentsPage.value?.items[indexOfLastDocumentInPage]
+          .documentId;
       console.log('Document Hash:' + lastDocumentID);
-      const documentData =
-        await tntWrapper.getDocumentDetails(lastDocumentID);
+      const documentData = await tntWrapper.getDocumentDetails(lastDocumentID);
       console.log('Document Data');
       console.log(documentData);
       expect(documentData).toHaveProperty('metadata');
@@ -99,6 +97,5 @@ describe('Track and Trace Wrapper Get Documents and getDocuments detail', () => 
       );
       expect(risp).toBe(true);
     });
-    
   });
 });

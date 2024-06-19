@@ -41,8 +41,8 @@ describe('Track and Trace Wrapper', () => {
       const documentData = await tntWrapper.getDocumentDetails(documentHash);
       console.log('Document Data');
       console.log(documentData);
-      expect(documentData).toHaveProperty('metadata');
-      expect(documentData).toEqual(
+      expect(documentData.unwrap()).toHaveProperty('metadata');
+      expect(documentData.unwrap()).toEqual(
         expect.objectContaining({
           metadata: expect.any(String),
           creator: expect.any(String),
@@ -72,7 +72,7 @@ describe('Track and Trace Wrapper', () => {
       const documentDetails = await tntWrapper.getDocumentDetails(documentHash);
       console.log({ documentDetails });
 
-      const eventId = documentDetails.events[0];
+      const eventId = documentDetails.unwrap().events[0];
       const eventData = await tntWrapper.getEventDetails(documentHash, eventId);
       console.log({ eventData });
       expect(eventData).toBeDefined();
@@ -83,7 +83,7 @@ describe('Track and Trace Wrapper', () => {
       );
       console.log({ documentDetails });
 
-      const eventId = documentDetails.events[0];
+      const eventId = documentDetails.unwrap().events[0];
       const eventData = await tntWrapper.getEventDetails(
         '0x88df2180efac18dba72747e4204977b88d781eac9b5051b15bd0c997f432f82c',
         '0x1c062d1699ecc5e8e62335da3136844634d3d83643bf32bc443e1cb8a24f2a5e',

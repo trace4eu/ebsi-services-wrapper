@@ -90,7 +90,7 @@ export class TnTWrapper implements ITnTWrapper {
       access_token,
     );
 
-    if (waitMined) {
+    if (waitMined && txReceipt.isOk()) {
       const is_mined = await this.waitTxToBeMined(
         txReceipt.unwrap(),
         access_token,
@@ -98,6 +98,8 @@ export class TnTWrapper implements ITnTWrapper {
       if (is_mined.isErr()) {
         return Result.err(Error('Error waiting to mine the transaction'));
       }
+    } else if (txReceipt.isErr()) {
+      return Result.err(txReceipt.unwrapErr());
     }
 
     return Result.ok(documentHash);
