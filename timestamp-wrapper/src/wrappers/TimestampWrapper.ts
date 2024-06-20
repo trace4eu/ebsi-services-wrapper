@@ -29,18 +29,22 @@ export class TimestampWrapper implements ITimestampWrapper {
     //aka createTimestamp
     hashAlgorithmIds: number[],
     hashValues: string[],
+    timestampData: string = "", //TODO: why keep this parameter... for qtsp?
     waitMined: boolean = true,
-  ): Promise<string> {
+  ): Promise<string[]> {
     const { access_token } = await this.ebsiAuthtorisationApi.getAccessToken(
       'ES256',
       'timestamp_write',
       [],
     );
+
+   
     const TimestampUnsignedTx = await this.sendTimestampHashesRequest(
       hashAlgorithmIds,
       hashValues,
       access_token,
     );
+
     if (TimestampUnsignedTx.isEmpty()) {
       // return Optional.None();
       throw new Error(
@@ -57,12 +61,11 @@ export class TimestampWrapper implements ITimestampWrapper {
       gasLimit: TimestampUnsignedTx.get().gasLimit,
       gasPrice: TimestampUnsignedTx.get().gasPrice,
     };
-    console.log(TimestampUnsignedTxJson);
     const signatureResponseData = await this.wallet.signEthTx(
       TimestampUnsignedTxJson,
     );
     // return Optional.None();
-    const txReceipt = await this.sendSendSignedTransaction(
+    const txReceipt = await this.sendSignedTransaction(
       TimestampUnsignedTxJson,
       signatureResponseData,
       access_token,
@@ -79,7 +82,7 @@ export class TimestampWrapper implements ITimestampWrapper {
         throw new Error('waiting to much to mine document : ' + hashValues);
       }
     }
-    return JSON.stringify(hashValues);
+    return hashValues;
   }
 
   async isTimestampMined(timestampId: string): Promise<boolean> {
@@ -127,7 +130,7 @@ export class TimestampWrapper implements ITimestampWrapper {
         {
           from: this.wallet.getEthAddress(),
           hashAlgorithmIds: hashAlgorithmIds,
-          hashValues: hashValues,
+          hashValues: hashValues
         },
       ],
       id: Math.ceil(Math.random() * 1000),
@@ -136,7 +139,7 @@ export class TimestampWrapper implements ITimestampWrapper {
     const config = {
       method: 'post',
       maxBodyLength: Infinity,
-      url: 'https://api-pilot.ebsi.eu/timestamp/v3/jsonrpc',
+      url: 'https://api-pilot.ebsi.eu/timestamp/v4/jsonrpc',
       headers: {
         'Content-Type': 'application/json',
         Accept: 'application/json',
@@ -144,6 +147,8 @@ export class TimestampWrapper implements ITimestampWrapper {
       },
       data: data,
     };
+
+    console.log("access token:", accesToken)
 
     const response = axios
       .request(config)
@@ -153,10 +158,11 @@ export class TimestampWrapper implements ITimestampWrapper {
       .catch((error) => {
         return Optional.None();
       });
+    
     return response as Promise<Optional<UnsignedTransaction>>;
   }
 
-  private async sendSendSignedTransaction(
+  private async sendSignedTransaction(
     unsignedTransaction: object,
     signedTx: object,
     accessToken: string,
@@ -179,7 +185,7 @@ export class TimestampWrapper implements ITimestampWrapper {
     const config = {
       method: 'post',
       maxBodyLength: Infinity,
-      url: 'https://api-pilot.ebsi.eu/timestamp/v3/jsonrpc',
+      url: 'https://api-pilot.ebsi.eu/timestamp/v4/jsonrpc',
       headers: {
         'Content-Type': 'application/json',
         Accept: 'application/json',
@@ -241,7 +247,7 @@ export class TimestampWrapper implements ITimestampWrapper {
     const config = {
       method: 'get',
       maxBodyLength: Infinity,
-      url: `https://api-pilot.ebsi.eu/timestamp/v3/timestamps/${timestampId}`,
+      url: `https://api-pilot.ebsi.eu/timestamp/v4/timestamps/${timestampId}`,
       headers: {
         Accept: 'application/json',
       },

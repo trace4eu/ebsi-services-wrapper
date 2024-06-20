@@ -15,8 +15,9 @@ export interface ITimestampWrapper {
   timestampHashes(
     hashAlgorithmIds: number[],
     hashValues: string[],
-    waitMined: boolean,
-  ): Promise<string>;
+    timestampData?: string, //This field must be a JSON stringified and converted into hex string
+    waitMined?: boolean,
+  ): Promise<string[]>;
 
   isTimestampMined(timestampId: string): Promise<boolean>;
 

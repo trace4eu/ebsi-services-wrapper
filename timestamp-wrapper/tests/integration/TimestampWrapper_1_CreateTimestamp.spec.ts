@@ -29,34 +29,35 @@ const eventMetadata = 'eventMetadata';
 const origin = 'origin';
 
 describe('Timestamp Wrapper - create timestamp', () => {
-  const hashValue1 = crypto.createHash('sha256').update("this is a test 1").digest('hex');;
-  const hashValue2 = crypto.createHash('sha256').update("this is a test 2").digest('hex');;
-  describe('createTimestamp', () => {
+  const hashValue1 = "0x"+crypto.createHash('sha256').update("this is a test 1").digest('hex');;
+  const hashValue2 = "0x"+crypto.createHash('sha256').update("this is a test 2").digest('hex');;
+  describe('create timestamp', () => {
     it('always true', () => {
-      console.log('createTimestamp test always true');
+      console.log('create timestamp test always true');
       expect(true);
     });
     it('hashValue1 with wait to be Mined "false" ', async () => {
       console.log('hashValue1: ' + hashValue1);
-      const timestamp = await timestampWrapper.timestampHashes(
+      const timestamps = await timestampWrapper.timestampHashes(
         [0], // sha2-256, check if hash value is hashed as sha2-256
         [hashValue1],
+        "",
         false
       );
-      console.log(timestamp);
-      expect(timestamp).toBe(hashValue1);
+      console.log(timestamps)
+      expect(timestamps[0]).toBe(hashValue1);
     });
-    it('createTimestamp with wait to be Mined "true"', async () => {
+    it('create timestamp with wait to be Mined "true"', async () => {
       console.log('hashValue2: ' + hashValue2);
-      const timestamp = await timestampWrapper.timestampHashes(
+      const timestamps = await timestampWrapper.timestampHashes(
         [0],
         [hashValue2],
+        "",
         true,
       );
-      console.log(timestamp);
       const timestampData = await timestampWrapper.getTimestampDetails(hashValue2);
       console.log({ timestampData });
-      expect(timestamp).toBe(hashValue2);
+      expect(timestamps[0]).toBe(hashValue2);
     });
     it('check if it is mined', async () => {
       const risp = await timestampWrapper.isTimestampMined(hashValue2);
