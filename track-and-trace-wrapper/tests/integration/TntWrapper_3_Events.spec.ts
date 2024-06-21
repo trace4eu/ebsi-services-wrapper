@@ -28,19 +28,18 @@ const eventMetadata = 'eventMetadata';
 const origin = 'origin';
 
 describe('Track and Trace Wrapper', () => {
-  describe('createDocument', () => {
-    it('always true', () => {
-      console.log('createDocument test always true');
-      expect(true);
-    });
-
-    it('getDocumentDetails', async () => {
-      //const documentHash =
-      //  '0x266eb7cd3498f6b4760cded6172178b87fd4cf7b06c99cf1b3862ada1cd3f259';
-      console.log('Document Hash:' + documentHash);
-      const documentData = await tntWrapper.getDocumentDetails(documentHash);
+  let firstDocumentHash;
+  describe('manageEvents', () => {
+    it('getFirstDocumentWrittenInLedger to be sure it exists and it is mined', async () => {
+      const existingDocumentsPage = await tntWrapper.getAllDocuments();
+      firstDocumentHash = existingDocumentsPage.value?.items[0].documentId;
+      console.log('Document Hash:' + firstDocumentHash);
+      const documentData =
+        await tntWrapper.getDocumentDetails(firstDocumentHash);
       console.log('Document Data');
-      console.log(documentData);
+      console.log(
+        'Document Data before adding new event' + JSON.stringify(documentData),
+      );
       expect(documentData.unwrap()).toHaveProperty('metadata');
       expect(documentData.unwrap()).toEqual(
         expect.objectContaining({
@@ -56,39 +55,36 @@ describe('Track and Trace Wrapper', () => {
       );
     });
 
-    it('addEventToDocument', async () => {
-      console.log(`documentHash: ${documentHash}`);
+    it('addEventToDocument with waiting mined = false', async () => {
+      console.log(`first insterted document Hash: ${firstDocumentHash}`);
       const documentMetadata = 'documentMetadata';
-      await tntWrapper.createDocument(documentHash, documentMetadata, true);
       console.log(`eventExternalHash: ${eventExternalHash}`);
-      await tntWrapper.addEventToDocument(
-        documentHash,
+      const event = await tntWrapper.addEventToDocument(
+        firstDocumentHash,
         eventExternalHash,
         eventMetadata,
         origin,
-        true,
+        false,
       );
 
-      const documentDetails = await tntWrapper.getDocumentDetails(documentHash);
-      console.log({ documentDetails });
-
-      const eventId = documentDetails.unwrap().events[0];
-      const eventData = await tntWrapper.getEventDetails(documentHash, eventId);
-      console.log({ eventData });
-      expect(eventData).toBeDefined();
+      expect(event.unwrap()).toBe(eventExternalHash);
     });
-    it('getEventDetails', async () => {
-      const documentDetails = await tntWrapper.getDocumentDetails(
-        '0x88df2180efac18dba72747e4204977b88d781eac9b5051b15bd0c997f432f82c',
+    it('getEventDetails of the first event of the first inserted document in the ledger', async () => {
+      const documentDetails =
+        await tntWrapper.getDocumentDetails(firstDocumentHash);
+      console.log(
+        'documentDetails after addEvent ' +
+          eventExternalHash +
+          ' : ' +
+          JSON.stringify(documentDetails),
       );
-      console.log({ documentDetails });
 
       const eventId = documentDetails.unwrap().events[0];
       const eventData = await tntWrapper.getEventDetails(
-        '0x88df2180efac18dba72747e4204977b88d781eac9b5051b15bd0c997f432f82c',
-        '0x1c062d1699ecc5e8e62335da3136844634d3d83643bf32bc443e1cb8a24f2a5e',
+        firstDocumentHash,
+        eventId,
       );
-      console.log({ eventData });
+      console.log('returned event data:' + { eventData });
       expect(eventData).toBeDefined();
     });
     /*

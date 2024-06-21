@@ -143,13 +143,18 @@ export class TnTWrapper implements ITnTWrapper {
       signatureResponseData,
       access_token,
     );
+
+    if (txReceipt.isErr()) {
+      return Result.err(txReceipt.unwrapErr());
+    }
+
     if (waitMined) {
-      const is_mined = await this.waitTxToBeMined(
+      const resp_mined = await this.waitTxToBeMined(
         txReceipt.unwrap(),
         access_token,
       );
-      if (is_mined.isErr()) {
-        return Result.err(new Error('Error waiting to mine the transaction'));
+      if (resp_mined.isErr()) {
+        return Result.err(resp_mined.unwrapErr());
       }
     }
     return Result.ok(eventId);

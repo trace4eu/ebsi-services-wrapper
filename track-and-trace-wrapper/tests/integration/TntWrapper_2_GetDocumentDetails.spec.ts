@@ -30,7 +30,7 @@ const eventId = `0x${crypto.randomBytes(32).toString('hex')}`;
 const eventMetadata = 'eventMetadata';
 const origin = 'origin';
 
-describe('Track and Trace Wrapper Get Documents and getDocuments detail', () => {
+describe('Track and Trace Wrapper Get Documents and getDocuments details', () => {
   let existingDocumentsPage: Result<TnTPagedObjectList, Error>;
   let firstDocumentID;
   let lastDocumentID;
