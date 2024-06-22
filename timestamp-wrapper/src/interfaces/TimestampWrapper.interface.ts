@@ -7,20 +7,46 @@ import { TimestampData } from '../types/types';
  main responsibility: ???
 */
 export interface ITimestampWrapper {
-  /** create a timestamp: builds an unsigned transaction to timestamp hashes. It's possible to insert up to 3 hashes in a single transaction.
-   * https://hub.ebsi.eu/apis/pilot/timestamp/v3/post-jsonrpc#timestamphashes
-   * @param hashAlgorithmIds array of numbers representing the used hash algorithms
-   * @param hashValues array of hash values --> different to this guide: https://hub.ebsi.eu/tools/cli/upcoming-apis/create-timestamp
-   */
-  timestampHashes(
+
+  // builds a signed transaction to timestamp data and create a record of it with some info. It's possible to insert up to 3 hashes in a single transaction.
+  timestampRecordHashes( //aka create record
     hashAlgorithmIds: number[],
     hashValues: string[],
-    timestampData?: string, //This field must be a JSON stringified and converted into hex string
-    waitMined?: boolean,
+    versionInfo: string, //This field must be a JSON stringified and converted into hex string
+    timestampData?: string[], //This field must be a JSON stringified and converted into hex string
   ): Promise<string[]>;
 
-  isTimestampMined(timestampId: string): Promise<boolean>;
+  // builds a signed transaction to timestamp hashes and store them under the given record. It's possible to insert up to 3 hashes in a single transaction.
+  timestampRecordVersionHashes( // aka create version of record
+    recordId: string, //TODO: find out how to get recordId after running timestampRecordHashes
+    hashAlgorithmIds: number[],
+    hashValues: string[],
+    versionInfo: string, //This field must be a JSON stringified and converted into hex string	
+    timestampData?: string[] //This field must be a JSON stringified and converted into hex string
+  ): Promise<string[]>;
 
-  //https://hub.ebsi.eu/apis/pilot/timestamp/v3/get-timestamp
-  getTimestampDetails(timestampId: string): Promise<TimestampData>;
+  //builds a signed transaction to insert a record owner. This method can be called only by record owners.
+  insertRecordOwner(
+    recordId: string,
+    ownerId: string, //Ethereum address of new owner
+    notBefore: string, //Point in time when the owner becomes valid. It should be defined in epoch time.
+    notAfter: string, //Point in time when the owner becomes invalid. It should be defined in epoch time. For indefinite time set 0.
+  ): Promise<string>;
+
+  //builds a signed transaction to revoke a record owner. This method can be called only by record owners.
+  revokeRecordOwner(
+    recordId: string,
+    ownerId: string, //Ethereum address of owner to be revoked
+  ): Promise<string>;
+
+  //get all versions of a record
+  getRecordVersions(
+    recordId: string //multibase base64url encoded
+  ): Promise<Optional<string>>;
+
+  //get the details of one version of a record
+  getRecordVersionDetails(
+    recordId: string, //multibase base64url encoded
+    versionId: string
+  ): Promise<Optional<string>>;
 }
