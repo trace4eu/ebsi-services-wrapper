@@ -24,7 +24,7 @@ const tntWrapper = new TnTWrapper(wallet);
 // document already inserted
 const documentHash = `0x${crypto.randomBytes(32).toString('hex')}`;
 const eventExternalHash = `0x${crypto.randomBytes(32).toString('hex')}`;
-const eventMetadata = 'eventMetadata';
+const eventMetadata = 'eventMetadata_' + new Date();
 const origin = 'origin';
 
 describe('Track and Trace Wrapper', () => {
@@ -79,12 +79,17 @@ describe('Track and Trace Wrapper', () => {
           JSON.stringify(documentDetails),
       );
 
+      console.log(
+        'first document number of events: ' +
+          documentDetails.unwrap().events.length,
+      );
+
       const eventId = documentDetails.unwrap().events[0];
       const eventData = await tntWrapper.getEventDetails(
         firstDocumentHash,
         eventId,
       );
-      console.log('returned event data:' + { eventData });
+      console.log('returned event data: ' + JSON.stringify(eventData));
       expect(eventData).toBeDefined();
     });
     /*
