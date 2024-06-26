@@ -373,8 +373,7 @@ export class TimestampWrapper implements ITimestampWrapper {
   }
     
   
-  /*
-
+  /* LEGACY CODE
   async timestampHashes(
     //aka createTimestamp
     hashAlgorithmIds: number[],

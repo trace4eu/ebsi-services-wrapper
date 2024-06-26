@@ -82,6 +82,7 @@ describe('Timestamp Wrapper', () => {
     });
   });
 
+  //TODO: make work by getting the recordId from a record created by timestampRecordHashes
   describe('Create record with multiple versions', async () => {
     const record = await timestampWrapper.timestampRecordHashes(
       [0], // sha2-256
@@ -108,7 +109,7 @@ describe('Timestamp Wrapper', () => {
 });
 
 
-/* OLD TESTS:
+/* LEGACY TESTS:
 describe('Timestamp Wrapper - create timestamp', () => {
   const hashValue1 = "0x"+crypto.createHash('sha256').update("this is a test 1").digest('hex');;
   const hashValue2 = "0x"+crypto.createHash('sha256').update("this is a test 2").digest('hex');;
