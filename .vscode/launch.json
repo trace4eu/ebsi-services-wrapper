@@ -13,7 +13,7 @@
             "program": "${workspaceRoot}/track-and-trace-wrapper/node_modules/vitest/vitest.mjs",
             "args": ["run", "${relativeFile}"],
             "smartStep": true,
-            "console": "integratedTerminal"
+            "console": "integratedTerminal",
           }
     ]
 }

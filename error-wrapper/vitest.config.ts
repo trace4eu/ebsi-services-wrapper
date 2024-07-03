@@ -5,13 +5,8 @@ export default defineConfig({
   test: {
     include: ['tests/**/*.{test,spec}.ts'],
     environment: 'node',
-    testTimeout: 300000,
-    hookTimeout: 300000,
-    slowTestThreshold: 300000,
-    poolOptions: {
-      threads: {
-        singleThread: true,
-      },
-    },
+    testTimeout: 300_000,
+    hookTimeout: 300_000,
+    threads: false, // With this option, Vite will not run tests in parallel, avoiding "SIGSEGV" errors
   },
 });
