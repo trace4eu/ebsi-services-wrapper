@@ -1,6 +1,7 @@
 import { Wallet } from '@trace4eu/signature-wrapper';
 import { Optional } from '../types/optional';
 import { TimestampData } from '../types/types';
+import {Result} from "@trace4eu/error-wrapper";
 
 /** 
  Interface TimestampWrapper
@@ -14,7 +15,8 @@ export interface ITimestampWrapper {
     hashValues: string[],
     versionInfo: string, //This field must be a JSON stringified and converted into hex string
     timestampData?: string[], //This field must be a JSON stringified and converted into hex string
-  ): Promise<string[]>;
+    waitMined?: boolean,
+  ): Promise<Result<string, Error>>;
 
   // builds a signed transaction to timestamp hashes and store them under the given record. It's possible to insert up to 3 hashes in a single transaction.
   timestampRecordVersionHashes( // aka create version of record

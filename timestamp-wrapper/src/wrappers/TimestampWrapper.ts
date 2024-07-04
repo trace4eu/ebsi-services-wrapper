@@ -8,10 +8,17 @@ import {
 } from '@trace4eu/authorisation-wrapper';
 import { TimestampData } from '../types/types';
 import { ethers } from 'ethers';
+import Multihash from 'multihashes';
 import { hash } from 'crypto';
-import { time } from 'console';
+import { Result } from '@trace4eu/error-wrapper';
+import {
+  sendSignedTransaction,
+  sendUnsignedTransaction,
+  waitTxToBeMined,
+} from '../utils/ledger-v4';
+import { fromHexString, multibaseEncode } from '../utils/utils';
 
-const delay = (ms) => new Promise((res) => setTimeout(res, ms));
+const { sha256 } = ethers.utils;
 
 export class TimestampWrapper implements ITimestampWrapper {
   // atttributes
@@ -29,17 +36,16 @@ export class TimestampWrapper implements ITimestampWrapper {
     hashAlgorithmIds: number[],
     hashValues: string[],
     versionInfo: string,
-    timestampData: string[] = [""], //TODO: why keep this parameter... for qtsp?
-  ): Promise<string[]> {
+    timestampData: string[] = [''], //TODO: why keep this parameter... for qtsp?
+    waitMined: boolean = true,
+  ): Promise<Result<string, Error>> {
     const { access_token } = await this.ebsiAuthtorisationApi.getAccessToken(
       'ES256',
       'timestamp_write',
       [],
     );
 
-    console.log("access token:", access_token)
-
-    const UnsignedTx = await this.sendUnsignedTransaction(
+    const unsignedTx = await sendUnsignedTransaction(
       access_token,
       'timestampRecordHashes',
       [
@@ -53,38 +59,43 @@ export class TimestampWrapper implements ITimestampWrapper {
       ],
     );
 
-    console.log("UnsignedTx of timestampRecordHashes:", UnsignedTx)
-
-    if (UnsignedTx.isEmpty()) {
-      throw new Error(
-        'Error sending request to ebsi api: empty DocumentUnsignedTransaction',
-      );
+    if (unsignedTx.isErr()) {
+      return Result.err(unsignedTx.unwrapErr());
     }
-    const UnsignedTxJson = {
-      to: UnsignedTx.get().to,
-      from: UnsignedTx.get().from,
-      data: UnsignedTx.get().data,
-      nonce: UnsignedTx.get().nonce,
-      value: UnsignedTx.get().value,
-      chainId: UnsignedTx.get().chainId,
-      gasLimit: UnsignedTx.get().gasLimit,
-      gasPrice: UnsignedTx.get().gasPrice,
-    };
-    const signatureResponseData = await this.wallet.signEthTx(
-      UnsignedTxJson
-    );
 
-    const txReceipt = await this.sendSignedTransaction(
-      UnsignedTxJson,
+    const unsignedTxJson = unsignedTx.unwrap();
+
+    const signatureResponseData = await this.wallet.signEthTx(unsignedTxJson);
+
+    const txReceipt = await sendSignedTransaction(
+      unsignedTxJson,
       signatureResponseData,
       access_token,
+      waitMined,
     );
 
-    console.log("SignedTxReceipt of timestampRecordHashes:", txReceipt)
+    if (txReceipt.isErr()) {
+      return Result.err(txReceipt.unwrapErr());
+    }
+
+    console.log('SignedTxReceipt of timestampRecordHashes:', txReceipt);
+
+    // get recordId
+    /* const hashBuffer = fromHexString(sha256(hashValues[0]));
+    const multihash = Multihash.encode(hashBuffer, 'sha2-256', 32);
+    const recordId = multibaseEncode('base64url', multihash);
+    */
+    const recordId = ethers.utils.sha256(
+      ethers.utils.defaultAbiCoder.encode(
+        ['address', 'uint256', 'bytes'],
+        [unsignedTxJson.from, txReceipt.value.blockNumber, hashValues[0]],
+      ),
+    );
+    const multibase64urlRecordId = multibaseEncode("base64url", recordId);
 
     //how recordId is created: https://ec.europa.eu/digital-building-blocks/code/projects/EBSI/repos/test-scripts/browse/src/buildParam/timestamp.ts?at=c69c8b52d697c50e98dffac8bcca3f7e8c6fcc1d
     //shows that there are no tests for timestamRecordHashes, only for timestampHashes:https://ec.europa.eu/digital-building-blocks/code/projects/EBSI/repos/test-scripts/browse/tests/timestamp.spec.ts?at=c69c8b52d697c50e98dffac8bcca3f7e8c6fcc1d
-    return [...hashValues, UnsignedTx.get().data]; //TODO: return recordId, according to EBSI the record Id must be 0x, hexadecimal:https://hub.ebsi.eu/tools/cli/upcoming-apis/create-timestamp#records
+    return Result.ok(multibase64urlRecordId); //TODO: return recordId, according to EBSI the record Id must be 0x, hexadecimal:https://hub.ebsi.eu/tools/cli/upcoming-apis/create-timestamp#records
   }
 
   async timestampRecordVersionHashes(
@@ -92,7 +103,7 @@ export class TimestampWrapper implements ITimestampWrapper {
     hashAlgorithmIds: number[],
     hashValues: string[],
     versionInfo: string,
-    timestampData: string[] = [""], //TODO: why keep this parameter... for qtsp?
+    timestampData: string[] = [''], //TODO: why keep this parameter... for qtsp?
   ): Promise<string[]> {
     const { access_token } = await this.ebsiAuthtorisationApi.getAccessToken(
       'ES256',
@@ -130,9 +141,7 @@ export class TimestampWrapper implements ITimestampWrapper {
       gasLimit: UnsignedTx.get().gasLimit,
       gasPrice: UnsignedTx.get().gasPrice,
     };
-    const signatureResponseData = await this.wallet.signEthTx(
-      UnsignedTxJson
-    );
+    const signatureResponseData = await this.wallet.signEthTx(UnsignedTxJson);
 
     const txReceipt = await this.sendSignedTransaction(
       UnsignedTxJson,
@@ -184,9 +193,7 @@ export class TimestampWrapper implements ITimestampWrapper {
       gasLimit: UnsignedTx.get().gasLimit,
       gasPrice: UnsignedTx.get().gasPrice,
     };
-    const signatureResponseData = await this.wallet.signEthTx(
-      UnsignedTxJson
-    );
+    const signatureResponseData = await this.wallet.signEthTx(UnsignedTxJson);
 
     const txReceipt = await this.sendSignedTransaction(
       UnsignedTxJson,
@@ -214,7 +221,7 @@ export class TimestampWrapper implements ITimestampWrapper {
           ownerId: ownerId,
         },
       ],
-    ); 
+    );
 
     if (UnsignedTx.isEmpty()) {
       throw new Error(
@@ -233,9 +240,7 @@ export class TimestampWrapper implements ITimestampWrapper {
       gasPrice: UnsignedTx.get().gasPrice,
     };
 
-    const signatureResponseData = await this.wallet.signEthTx(
-      UnsignedTxJson
-    );
+    const signatureResponseData = await this.wallet.signEthTx(UnsignedTxJson);
 
     const txReceipt = await this.sendSignedTransaction(
       UnsignedTxJson,
@@ -251,114 +256,9 @@ export class TimestampWrapper implements ITimestampWrapper {
       method: 'get',
       maxBodyLength: Infinity,
       url: `https://api-pilot.ebsi.eu/timestamp/v4/records/${recordId}/versions`,
-      headers: { 
-        'Accept': 'application/json'
-      }
-    };
-    
-    const response = axios.request(config)
-    .then((response) => {
-      return Optional.Some(response.data.result);
-    })
-    .catch((error) => {
-      console.log(error);
-      return Optional.None();
-    });
-    return response as Promise<Optional<string>>;
-  }
-
-  async getRecordVersionDetails(
-    recordId: string,
-    versionId: string
-  ): Promise<Optional<string>> {
-    const config = {
-      method: 'get',
-      maxBodyLength: Infinity,
-      url: `https://api-pilot.ebsi.eu/timestamp/v4/records/${recordId}/versions/${versionId}`,
-      headers: { 
-        'Accept': 'application/json'
-      }
-    };
-    
-    const response = axios.request(config)
-    .then((response) => {
-      return Optional.Some(response.data.result);
-    })
-    .catch((error) => {
-      console.log(error);
-      return Optional.None();
-    });
-    return response as Promise<Optional<string>>;
-  }
-    
-
-
-  private async sendUnsignedTransaction(
-    access_token: string,
-    method: string,
-    params:object[]
-  ): Promise<Optional<UnsignedTransaction>> {
-    const data = JSON.stringify({
-      "jsonrpc": "2.0",
-      "method": method,
-      "params": params,
-      "id": Math.ceil(Math.random() * 1000)
-    });
-
-    const config = {
-      method: 'post',
-      maxBodyLength: Infinity,
-      url: 'https://api-pilot.ebsi.eu/timestamp/v4/jsonrpc',
-      headers: { 
-        'Content-Type': 'application/json', 
-        'Accept': 'application/json', 
-        'Authorization': 'Bearer '+access_token
-      },
-      data : data
-    };
-
-    const response = axios
-    .request(config)
-    .then((response) => {
-      return Optional.Some(response.data.result);
-    })
-    .catch((error) => {
-      console.log("sendUnsignedTransaction error:", error)
-      return Optional.None();
-    });
-    return response as Promise<Optional<UnsignedTransaction>>;
-  }
-
-  private async sendSignedTransaction(
-    unsignedTransaction: object,
-    signedTx: object,
-    accessToken: string,
-  ): Promise<Optional<string>> {
-    const data = JSON.stringify({
-      jsonrpc: '2.0',
-      method: 'sendSignedTransaction',
-      id: Math.ceil(Math.random() * 1000),
-      params: [
-        {
-          protocol: 'eth',
-          unsignedTransaction: {
-            ...unsignedTransaction,
-          },
-          ...signedTx,
-        },
-      ],
-    });
-
-    const config = {
-      method: 'post',
-      maxBodyLength: Infinity,
-      url: 'https://api-pilot.ebsi.eu/timestamp/v4/jsonrpc',
       headers: {
-        'Content-Type': 'application/json',
         Accept: 'application/json',
-        Authorization: 'Bearer ' + accessToken,
       },
-      data: data,
     };
 
     const response = axios
@@ -366,13 +266,38 @@ export class TimestampWrapper implements ITimestampWrapper {
       .then((response) => {
         return Optional.Some(response.data.result);
       })
-      .catch(() => {
+      .catch((error) => {
+        console.log(error);
         return Optional.None();
       });
     return response as Promise<Optional<string>>;
   }
-    
-  
+
+  async getRecordVersionDetails(
+    recordId: string,
+    versionId: string,
+  ): Promise<Optional<string>> {
+    const config = {
+      method: 'get',
+      maxBodyLength: Infinity,
+      url: `https://api-pilot.ebsi.eu/timestamp/v4/records/${recordId}/versions/${versionId}`,
+      headers: {
+        Accept: 'application/json',
+      },
+    };
+
+    const response = axios
+      .request(config)
+      .then((response) => {
+        return Optional.Some(response.data.result);
+      })
+      .catch((error) => {
+        console.log(error);
+        return Optional.None();
+      });
+    return response as Promise<Optional<string>>;
+  }
+
   /* LEGACY CODE
   async timestampHashes(
     //aka createTimestamp
@@ -513,45 +438,6 @@ export class TimestampWrapper implements ITimestampWrapper {
     return response as Promise<Optional<UnsignedTransaction>>;
   }
 
-  
-
-  private async getTransactionReceipt(
-    txHash: string,
-    accessToken: string,
-  ): Promise<Optional<object>> {
-    const data = JSON.stringify({
-      jsonrpc: '2.0',
-      method: 'eth_getTransactionByReceiptl', //TODO: check if this is the right method since it should be eth_getTransactionByHash
-      id: 1, // Math.ceil(Math.random() * 1000), SE non serve a nulla lasciamolo fisso
-      params: [txHash],
-    });
-
-    const config = {
-      method: 'post',
-      maxBodyLength: Infinity,
-      url: 'https://api-pilot.ebsi.eu/ledger/v4/blockchains/besu',
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-        Authorization: 'Bearer ' + accessToken,
-      },
-      data: data,
-    };
-
-    const response = axios
-      .request(config)
-      .then((response) => {
-        if (response.data.result === null) {
-          return Optional.None();
-        } else {
-          return Optional.Some(response.data.result);
-        }
-      })
-      .catch((error) => {
-        return Optional.None();
-      });
-    return response as Promise<Optional<object>>;
-  }
 
   private async getTimestampFromApi(timestampId: string) {
     const config = {
