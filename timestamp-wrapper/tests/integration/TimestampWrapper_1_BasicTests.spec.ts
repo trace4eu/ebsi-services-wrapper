@@ -26,87 +26,75 @@ const wallet = WalletFactory.createInstance(false, did, entityKey);
 const ebsiAuthorisationApi = new EbsiAuthorisationApi(wallet);
 const timestampWrapper = new TimestampWrapper(wallet);
 
-const eventId = `0x${crypto.randomBytes(32).toString('hex')}`;
-const eventMetadata = 'eventMetadata';
-const origin = 'origin';
-
-
-
-function encodeSHA256EncodedHexStringToMultihashAndThenToBase64url(hexString) {
-  // Remove '0x' prefix if present
-  if (hexString.startsWith('0x')) {
-    hexString = hexString.slice(2);
-  }
-
-  // Convert hex string to buffer
-  const buffer = Buffer.from(hexString, 'hex');
-
-  // Multihash prefix for SHA-256 (0x12) and length (0x20)
-  const prefix = Buffer.from([12, 20]);
-
-  // Combine prefix and buffer
-  const multihashBuffer = Buffer.concat([prefix, buffer]);
-
-  // Convert to base64url string
-  const base64urlString = "u"+base64url(multihashBuffer);
-
-  return base64urlString;
-}
-
 describe('Timestamp Wrapper', () => {
-  const hashValue1 = "0x"+crypto.createHash('sha256').update("this is hash value 1").digest('hex');;
-  const hashValue2 = "0x"+crypto.createHash('sha256').update("this is hash value 2").digest('hex');;
-  const timestampData1 = "0x"+Buffer.from(JSON.stringify({timestamp:"example_timestamp"}), "utf-8").toString("hex");;
-  const versionInfo1 = "0x"+Buffer.from(JSON.stringify({ipfs_cid: "example"}), "utf-8").toString("hex");;
-  const versionInfo2 = "0x"+Buffer.from(JSON.stringify({ipfs_cid: "new example"}), "utf-8").toString("hex");;
 
+  const randomId = Math.trunc(Math.random()*1000000)
+  const hashValue1 = "0x"+crypto.createHash('sha256').update(`thash value =${randomId}`).digest('hex');;
+  const timestampData1 = "0x"+Buffer.from(JSON.stringify({timestamp:`timestampData=${randomId}`}), "utf-8").toString("hex");;
+  const versionInfo1 = "0x"+Buffer.from(JSON.stringify({ipfs_cid: `ipfs version 1 of ${randomId}`}), "utf-8").toString("hex");;
+  const versionInfo2 = "0x"+Buffer.from(JSON.stringify({ipfs_cid: `ipfs version 2 of ${randomId}`}), "utf-8").toString("hex");;
+
+  // create a record wich correspons to the documentation of the first event of a supply chain item: producing or manufacturing
   describe('Create record', () => {
     it('always true', () => {
       console.log('create record test always true');
       expect(true);
     });
-    it('record with hashValue1', async () => {
+    it('create record with one hash value', async () => {
       console.log('hashValue1: ' + hashValue1);
-      const record = await timestampWrapper.timestampRecordHashes(
+
+      // create record with hashValue1
+      const recordCreationResponse = await timestampWrapper.timestampRecordHashes(
         [0], // sha2-256
         [hashValue1],
         versionInfo1,
         [timestampData1] //send as timestampData
       );
-      console.log("record:", record)
+      console.log("versionInfo1:", versionInfo1, "--> original string:", JSON.stringify({ipfs_cid: `ipfs version 1 of ${randomId}`}))
 
-      const base64urlResult = encodeSHA256EncodedHexStringToMultihashAndThenToBase64url(record[1]);
-      console.log("potential recordId:", base64urlResult);
+      // get recordId
+      const recordId = recordCreationResponse.unwrap();
+      console.log("recordId:", recordId)
 
-      expect(record[0]).toBe(hashValue1);
+      // get list of record versions
+      const recordVersionResponse = await timestampWrapper.getRecordVersions(recordId);
+
+      //get versions of record
+      const recordVersions = recordVersionResponse.get().items
+
+      // record must only have one version
+      expect(recordVersions.length, `record with id ${recordId} should have only 1 version`).toBe(1);
+
+      //get details of first version of record
+      const recordVersionDetailsResponse = await timestampWrapper.getRecordVersionDetails(recordId, "0");
+      console.log("first version of record:", recordVersionDetailsResponse.get())
+
+      // hash value of record must be the same as the hash value of the first version
+      expect(recordVersionDetailsResponse.get().hashes[0], `first version of record with id ${recordId} should have one hash value, namely: ${hashValue1}`).toBe(hashValue1);
+
+      //check if hash value is correctly the first version of the record
+      expect(JSON.stringify(recordVersionDetailsResponse.get().info[0]), "info of first version incorrect").toBe(JSON.stringify({ipfs_cid: `ipfs version 1 of ${randomId}`}));
     });
   });
 
-  //TODO: make work by getting the recordId from a record created by timestampRecordHashes
+  //TODO: documenting the supply chain events of a supply chain item means adding new versions to a record
   describe('Create record with multiple versions', async () => {
-    const record = await timestampWrapper.timestampRecordHashes(
-      [0], // sha2-256
-      [hashValue1],
-      versionInfo1,
-      [timestampData1] //send as timestampData
-    );
-
-    const recordId = record.id //TODO get
-    it('record with hashValue2', async () => {
-      console.log('hashValue2: ' + hashValue2);
-      const record = await timestampWrapper.timestampRecordVersionHashes(
-        recordId, 
-        [0], // sha2-256
-        [hashValue2],
-        versionInfo2,
-        [timestampData1] //send as timestampData
-      );
-      console.log("record:", record)
-
-      expect(record[0]).toBe(hashValue1);
-    });
   });
+
+
+  //TODO: change owner, reflecting change in ownership of supply chain item represented by the record
+  describe('Change owner of record', async () => {
+    
+  });
+
+  //TODO: tracing, i. e. simply call getRecordVersions and for each version getRecordVersionDetails
+  describe('Tracing record', async () => {
+    
+  });
+
+
 });
+
 
 
 /* LEGACY TESTS:

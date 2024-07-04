@@ -1,6 +1,6 @@
 import { Wallet } from '@trace4eu/signature-wrapper';
 import { Optional } from '../types/optional';
-import { TimestampData } from '../types/types';
+import { RecordVersionDetails, RecordVersions, TimestampData } from '../types/types';
 import {Result} from "@trace4eu/error-wrapper";
 
 /** 
@@ -44,11 +44,11 @@ export interface ITimestampWrapper {
   //get all versions of a record
   getRecordVersions(
     recordId: string //multibase base64url encoded
-  ): Promise<Optional<string>>;
+  ): Promise<Optional<RecordVersions>>;
 
   //get the details of one version of a record
   getRecordVersionDetails(
     recordId: string, //multibase base64url encoded
     versionId: string
-  ): Promise<Optional<string>>;
+  ): Promise<Optional<RecordVersionDetails>>;
 }

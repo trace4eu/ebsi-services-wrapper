@@ -6,7 +6,7 @@ import {
   AuthorisationApi,
   EbsiAuthorisationApi,
 } from '@trace4eu/authorisation-wrapper';
-import { TimestampData } from '../types/types';
+import { TimestampData, RecordVersions, RecordVersionDetails } from '../types/types';
 import { ethers } from 'ethers';
 import Multihash from 'multihashes';
 import { hash } from 'crypto';
@@ -78,24 +78,34 @@ export class TimestampWrapper implements ITimestampWrapper {
       return Result.err(txReceipt.unwrapErr());
     }
 
-    console.log('SignedTxReceipt of timestampRecordHashes:', txReceipt);
+    //if wait for transaction to be mined
+    if (waitMined) {
+      //wait for transaction to be mined
+      const resp_mined = await waitTxToBeMined(
+        txReceipt.unwrap().transactionHash,
+        access_token,
+      );
+
+      //check if mining was successful
+      if (resp_mined.isErr()) {
+        return Result.err(resp_mined.unwrapErr());
+      }
+    }
 
     // get recordId
-    /* const hashBuffer = fromHexString(sha256(hashValues[0]));
-    const multihash = Multihash.encode(hashBuffer, 'sha2-256', 32);
-    const recordId = multibaseEncode('base64url', multihash);
-    */
     const recordId = ethers.utils.sha256(
       ethers.utils.defaultAbiCoder.encode(
         ['address', 'uint256', 'bytes'],
-        [unsignedTxJson.from, txReceipt.value.blockNumber, hashValues[0]],
+        [unsignedTxJson.from, txReceipt.value.blockNumber, hashValues[0]], //TODO: generalize so that it works with multiple hashValues (max. 3 are allowd according to EBSI documentation)
       ),
     );
-    const multibase64urlRecordId = multibaseEncode("base64url", recordId);
+    const multibase64urlRecordId = multibaseEncode("base64url", recordId); //format recordId for simple further use 
 
     //how recordId is created: https://ec.europa.eu/digital-building-blocks/code/projects/EBSI/repos/test-scripts/browse/src/buildParam/timestamp.ts?at=c69c8b52d697c50e98dffac8bcca3f7e8c6fcc1d
-    //shows that there are no tests for timestamRecordHashes, only for timestampHashes:https://ec.europa.eu/digital-building-blocks/code/projects/EBSI/repos/test-scripts/browse/tests/timestamp.spec.ts?at=c69c8b52d697c50e98dffac8bcca3f7e8c6fcc1d
-    return Result.ok(multibase64urlRecordId); //TODO: return recordId, according to EBSI the record Id must be 0x, hexadecimal:https://hub.ebsi.eu/tools/cli/upcoming-apis/create-timestamp#records
+    //shows that there are no tests for timestamRecordHashes, only for timestampHashes:
+      //https://ec.europa.eu/digital-building-blocks/code/projects/EBSI/repos/test-scripts/browse/tests/timestamp.spec.ts?at=c69c8b52d697c50e98dffac8bcca3f7e8c6fcc1d
+      //https://hub.ebsi.eu/tools/cli/upcoming-apis/create-timestamp#records
+    return Result.ok(multibase64urlRecordId); 
   }
 
   async timestampRecordVersionHashes(
@@ -111,7 +121,7 @@ export class TimestampWrapper implements ITimestampWrapper {
       [],
     );
 
-    const UnsignedTx = await this.sendUnsignedTransaction(
+    const UnsignedTx = await sendUnsignedTransaction(
       access_token,
       'timestampRecordVersionHashes',
       [
@@ -126,7 +136,7 @@ export class TimestampWrapper implements ITimestampWrapper {
       ],
     );
 
-    if (UnsignedTx.isEmpty()) {
+    if (UnsignedTx.isEmpty()) { //TODO: unwrap first as it is of type Result see error-wrapper
       throw new Error(
         'Error sending request to ebsi api: empty DocumentUnsignedTransaction',
       );
@@ -164,7 +174,7 @@ export class TimestampWrapper implements ITimestampWrapper {
       [],
     );
 
-    const UnsignedTx = await this.sendUnsignedTransaction(
+    const UnsignedTx = await sendUnsignedTransaction(
       access_token,
       'insertRecordOwner',
       [
@@ -211,7 +221,7 @@ export class TimestampWrapper implements ITimestampWrapper {
       [],
     );
 
-    const UnsignedTx = await this.sendUnsignedTransaction(
+    const UnsignedTx = await sendUnsignedTransaction(
       access_token,
       'revokeRecordOwner',
       [
@@ -251,7 +261,7 @@ export class TimestampWrapper implements ITimestampWrapper {
     return ownerId; // ETH address of revoked owner
   }
 
-  async getRecordVersions(recordId: string): Promise<Optional<string>> {
+  async getRecordVersions(recordId: string): Promise<Optional<RecordVersions>> {
     const config = {
       method: 'get',
       maxBodyLength: Infinity,
@@ -264,19 +274,19 @@ export class TimestampWrapper implements ITimestampWrapper {
     const response = axios
       .request(config)
       .then((response) => {
-        return Optional.Some(response.data.result);
+        return Optional.Some(response.data);
       })
       .catch((error) => {
         console.log(error);
         return Optional.None();
       });
-    return response as Promise<Optional<string>>;
+    return response as Promise<Optional<RecordVersions>>;
   }
 
   async getRecordVersionDetails(
     recordId: string,
     versionId: string,
-  ): Promise<Optional<string>> {
+  ): Promise<Optional<RecordVersionDetails>> {
     const config = {
       method: 'get',
       maxBodyLength: Infinity,
@@ -289,13 +299,13 @@ export class TimestampWrapper implements ITimestampWrapper {
     const response = axios
       .request(config)
       .then((response) => {
-        return Optional.Some(response.data.result);
+        return Optional.Some(response.data);
       })
       .catch((error) => {
         console.log(error);
         return Optional.None();
       });
-    return response as Promise<Optional<string>>;
+    return response as Promise<Optional<RecordVersionDetails>>;
   }
 
   /* LEGACY CODE

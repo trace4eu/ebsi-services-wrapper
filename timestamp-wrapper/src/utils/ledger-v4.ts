@@ -8,7 +8,7 @@ import { RevertedTransactionError } from '../errors/RevertedTransaction';
 const delay = (ms) => new Promise((res) => setTimeout(res, ms));
 
 export async function waitTxToBeMined(
-  txReceipt: string,
+  txReceipt: string, //TODO: call transactionHash
   ebsiAccessToken: string,
 ): Promise<Result<TransactionReceipt, Error>> {
   let transactionReceipt: Result<TransactionReceipt, Error>;

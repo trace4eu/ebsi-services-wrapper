@@ -19,3 +19,21 @@ export interface TimestampData {
   transactionHash: string;
   data: string;
 }
+
+export interface RecordVersions {
+  self: string;
+  items: {}[];
+  total: number;
+  pageSize: string;
+  links: {
+    first: string;
+    last: string;
+    prev: string;
+    next: string;
+  };
+}
+
+export interface RecordVersionDetails {
+  hashes: string[];
+  info: {}[];
+}
