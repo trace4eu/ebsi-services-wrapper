@@ -1,4 +1,4 @@
-export class RevertedTransaction extends Error {
+export class RevertedTransactionError extends Error {
     constructor() {
       super();
       this.message = 'transaction has been reverted';

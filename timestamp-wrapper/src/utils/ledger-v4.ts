@@ -3,6 +3,7 @@ import axios from 'axios';
 import { UnsignedTransaction } from '@trace4eu/signature-wrapper';
 import { NotYetMinedError } from '../errors/NotYetMined';
 import { TransactionReceipt } from '@ethersproject/abstract-provider';
+import { RevertedTransactionError } from '../errors/RevertedTransaction';
 
 const delay = (ms) => new Promise((res) => setTimeout(res, ms));
 
@@ -10,19 +11,19 @@ export async function waitTxToBeMined(
   txReceipt: string,
   ebsiAccessToken: string,
 ): Promise<Result<TransactionReceipt, Error>> {
-  let res2: Result<TransactionReceipt, Error>;
+  let transactionReceipt: Result<TransactionReceipt, Error>;
   let tentatives = 10;
   do {
     await delay(5000);
-    res2 = await getTransactionReceipt(txReceipt, ebsiAccessToken);
+    transactionReceipt = await getTransactionReceipt(txReceipt, ebsiAccessToken);
     tentatives -= 1;
   } while (
-    res2.isErr() &&
-    res2.unwrapErr() instanceof NotYetMinedError &&
+    transactionReceipt.isErr() &&
+    !(transactionReceipt.unwrapErr() instanceof RevertedTransactionError) &&
+    transactionReceipt.unwrapErr() instanceof NotYetMinedError &&
     tentatives > 0
   ); // res2.isEmpty() && tentatives > 0
-
-  return Result.ok(res2.unwrap());
+  return transactionReceipt;
 }
 
 /**
@@ -58,11 +59,13 @@ export async function getTransactionReceipt(
   const response = axios
     .request(config)
     .then((response) => {
-      if (response.data.result === null) {
+      if (!response.data.result) {
         return Result.err(new NotYetMinedError());
-      } else {
-        return Result.ok(response.data.result);
       }
+      if (response.data.result.revertReason) {
+        return Result.err(new RevertedTransactionError());
+      }
+      return Result.ok(response.data.result);
     })
     .catch((error) => {
       return Result.err(error);
