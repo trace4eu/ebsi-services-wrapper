@@ -1,7 +1,7 @@
 import { UnsignedTransaction, Wallet } from '@trace4eu/signature-wrapper';
 import { ITnTWrapper } from '../interfaces/TnTWrapper.interface';
-import { NotYetMinedError } from '../errors/NotYetMined';
-import { Optional } from '@trace4eu/error-wrapper';
+import { NotYetMinedError, RevertedTransactionError } from '../errors';
+import { TransactionReceipt } from '@ethersproject/abstract-provider';
 import { Result } from '@trace4eu/error-wrapper';
 import axios from 'axios';
 import {
@@ -40,6 +40,7 @@ export class TnTWrapper implements ITnTWrapper {
       'tnt_create',
       [],
     );
+    // ToDo, not working, we need to use the normal getDocument api call
     const response = await this.getTransactionReceipt(
       documenthash,
       access_token,
@@ -259,19 +260,22 @@ export class TnTWrapper implements ITnTWrapper {
     txReceipt: string,
     ebsiAccessToken: string,
   ): Promise<Result<any, Error>> {
-    let res2: Result<object, Error>;
+    let transactionReceipt: Result<TransactionReceipt, Error>;
     let tentatives = 10;
     do {
       await delay(5000);
-      res2 = await this.getTransactionReceipt(txReceipt, ebsiAccessToken);
+      transactionReceipt = await this.getTransactionReceipt(
+        txReceipt,
+        ebsiAccessToken,
+      );
       tentatives -= 1;
     } while (
-      res2.isErr() &&
-      res2.unwrapErr() instanceof NotYetMinedError &&
+      transactionReceipt.isErr() &&
+      !(transactionReceipt.unwrapErr() instanceof RevertedTransactionError) &&
+      transactionReceipt.unwrapErr() instanceof NotYetMinedError &&
       tentatives > 0
     ); // res2.isEmpty() && tentatives > 0
-
-    return res2;
+    return transactionReceipt;
   }
 
   private async sendCreateEventRequest(
@@ -340,7 +344,7 @@ export class TnTWrapper implements ITnTWrapper {
   private async getTransactionReceipt(
     txHash: string,
     accessToken: string,
-  ): Promise<Result<object, Error>> {
+  ): Promise<Result<TransactionReceipt, Error>> {
     const data = JSON.stringify({
       jsonrpc: '2.0',
       method: 'eth_getTransactionReceipt',
@@ -363,11 +367,13 @@ export class TnTWrapper implements ITnTWrapper {
     const response = axios
       .request(config)
       .then((response) => {
-        if (response.data.result === null) {
+        if (!response.data.result) {
           return Result.err(new NotYetMinedError());
-        } else {
-          return Result.ok(response.data.result);
         }
+        if (response.data.result['revertReason']) {
+          return Result.err(new RevertedTransactionError());
+        }
+        return Result.ok(response.data.result);
       })
       .catch((error) => {
         return Result.err(error);

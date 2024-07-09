@@ -25,6 +25,8 @@ const tntWrapper = new TnTWrapper(wallet);
 const documentHash = `0x${crypto.randomBytes(32).toString('hex')}`;
 const eventExternalHash = `0x${crypto.randomBytes(32).toString('hex')}`;
 const eventMetadata = 'eventMetadata_' + new Date();
+const eventMetadata1 = 'AAAAAAAAAAAAA';
+const eventMetadata2 = 'BBBBBBBBBBBBB';
 const origin = 'origin';
 
 describe('Track and Trace Wrapper', () => {
@@ -55,7 +57,8 @@ describe('Track and Trace Wrapper', () => {
       );
     });
 
-    it('addEventToDocument with waiting mined = false', async () => {
+    // ToDo the transaction is reverted
+    it('addEventToDocument with waiting mined = true', async () => {
       console.log(`first insterted document Hash: ${firstDocumentHash}`);
       const documentMetadata = 'documentMetadata';
       console.log(`eventExternalHash: ${eventExternalHash}`);
@@ -64,11 +67,49 @@ describe('Track and Trace Wrapper', () => {
         eventExternalHash,
         eventMetadata,
         origin,
-        false,
+        true,
       );
 
       expect(event.unwrap()).toBe(eventExternalHash);
     });
+
+    it('add existing Event to the same document', async () => {
+      const documentMetadata = 'documentMetadata';
+      const documentHash = `0x${crypto.randomBytes(32).toString('hex')}`;
+      console.log(`DocumentHash: ${documentHash}`);
+      const eventExternalHash = `0x${crypto.randomBytes(32).toString('hex')}`;
+
+      await tntWrapper.createDocument(
+        documentHash,
+        documentMetadata,
+        true,
+      );
+      await tntWrapper.addEventToDocument(
+        documentHash,
+        eventExternalHash,
+        eventMetadata1,
+        origin,
+        true,
+      );
+      const documentDetails = await tntWrapper.getDocumentDetails(documentHash);
+      console.log(documentDetails.unwrap());
+      expect(documentDetails.value.events.length).eq(1);
+      const eventDetails = await tntWrapper.getEventDetails(
+        documentHash,
+        documentDetails.value.events[0],
+      );
+      console.log(eventDetails.unwrap());
+
+      const result = await tntWrapper.addEventToDocument(
+        documentHash,
+        eventExternalHash,
+        eventMetadata2,
+        origin,
+        true,
+      );
+      expect(result.isErr()).eq(true);
+    });
+
     it('getEventDetails of the first event of the first inserted document in the ledger', async () => {
       const documentDetails =
         await tntWrapper.getDocumentDetails(firstDocumentHash);
@@ -91,6 +132,7 @@ describe('Track and Trace Wrapper', () => {
       );
       console.log('returned event data: ' + JSON.stringify(eventData));
       expect(eventData).toBeDefined();
+      //ToDo, exactly check we had the right event, checking the event hash
     });
     /*
     it('return documents list', async () => {
