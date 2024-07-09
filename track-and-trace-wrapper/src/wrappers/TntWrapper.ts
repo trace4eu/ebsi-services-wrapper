@@ -378,7 +378,7 @@ export class TnTWrapper implements ITnTWrapper {
       .catch((error) => {
         return Result.err(error);
       });
-    return response as Promise<Result<object, Error>>;
+    return response as Promise<Result<TransactionReceipt, Error>>;
   }
 
   private async getEventsOfDocumentFromAPI(
