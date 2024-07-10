@@ -15,8 +15,8 @@ export interface ITimestampWrapper {
     hashValues: string[],
     versionInfo: string, //This field must be a JSON stringified and converted into hex string
     timestampData?: string[], //This field must be a JSON stringified and converted into hex string
-    waitMined?: boolean,
-  ): Promise<Result<string, Error>>;
+    waitMined?: boolean
+  ): Promise<Result<{"hex": string, "multibase": string}, Error>>;
 
   // builds a signed transaction to timestamp hashes and store them under the given record. It's possible to insert up to 3 hashes in a single transaction.
   timestampRecordVersionHashes( // aka create version of record
@@ -24,8 +24,9 @@ export interface ITimestampWrapper {
     hashAlgorithmIds: number[],
     hashValues: string[],
     versionInfo: string, //This field must be a JSON stringified and converted into hex string	
-    timestampData?: string[] //This field must be a JSON stringified and converted into hex string
-  ): Promise<string[]>;
+    timestampData?: string[], //This field must be a JSON stringified and converted into hex string
+    waitMined?: boolean
+  ): Promise<Result<string, Error>>;
 
   //builds a signed transaction to insert a record owner. This method can be called only by record owners.
   insertRecordOwner(

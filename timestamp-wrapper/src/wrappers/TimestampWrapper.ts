@@ -32,13 +32,15 @@ export class TimestampWrapper implements ITimestampWrapper {
   }
 
   // methods
+
+  //create record
   async timestampRecordHashes(
     hashAlgorithmIds: number[],
     hashValues: string[],
     versionInfo: string,
     timestampData: string[] = [''], //TODO: why keep this parameter... for qtsp?
     waitMined: boolean = true,
-  ): Promise<Result<string, Error>> {
+  ): Promise<Result<{"hex": string, "multibase": string}, Error>> {
     const { access_token } = await this.ebsiAuthtorisationApi.getAccessToken(
       'ES256',
       'timestamp_write',
@@ -99,29 +101,38 @@ export class TimestampWrapper implements ITimestampWrapper {
         [unsignedTxJson.from, txReceipt.value.blockNumber, hashValues[0]], //TODO: generalize so that it works with multiple hashValues (max. 3 are allowd according to EBSI documentation)
       ),
     );
+    console.log("recordId raw", recordId)
+
+    // format recordId in multibase
     const multibase64urlRecordId = multibaseEncode("base64url", recordId); //format recordId for simple further use 
+
+    // format recordId in hex
+    const hexRecordId = "ajas"; //format recordId for simple further use
+
 
     //how recordId is created: https://ec.europa.eu/digital-building-blocks/code/projects/EBSI/repos/test-scripts/browse/src/buildParam/timestamp.ts?at=c69c8b52d697c50e98dffac8bcca3f7e8c6fcc1d
     //shows that there are no tests for timestamRecordHashes, only for timestampHashes:
       //https://ec.europa.eu/digital-building-blocks/code/projects/EBSI/repos/test-scripts/browse/tests/timestamp.spec.ts?at=c69c8b52d697c50e98dffac8bcca3f7e8c6fcc1d
       //https://hub.ebsi.eu/tools/cli/upcoming-apis/create-timestamp#records
-    return Result.ok(multibase64urlRecordId); 
+    return Result.ok({"hex":recordId, "multibase":multibase64urlRecordId}); 
   }
 
+  // create version for a specific record
   async timestampRecordVersionHashes(
     recordId: string,
     hashAlgorithmIds: number[],
     hashValues: string[],
     versionInfo: string,
     timestampData: string[] = [''], //TODO: why keep this parameter... for qtsp?
-  ): Promise<string[]> {
+    waitMined: boolean = true
+  ): Promise<Result<string, Error>> {
     const { access_token } = await this.ebsiAuthtorisationApi.getAccessToken(
       'ES256',
       'timestamp_write',
       [],
     );
 
-    const UnsignedTx = await sendUnsignedTransaction(
+    const unsignedTx = await sendUnsignedTransaction(
       access_token,
       'timestampRecordVersionHashes',
       [
@@ -136,31 +147,46 @@ export class TimestampWrapper implements ITimestampWrapper {
       ],
     );
 
-    if (UnsignedTx.isEmpty()) { //TODO: unwrap first as it is of type Result see error-wrapper
-      throw new Error(
-        'Error sending request to ebsi api: empty DocumentUnsignedTransaction',
-      );
+    if (unsignedTx.isErr()) {
+      return Result.err(unsignedTx.unwrapErr());
     }
-    const UnsignedTxJson = {
-      to: UnsignedTx.get().to,
-      from: UnsignedTx.get().from,
-      data: UnsignedTx.get().data,
-      nonce: UnsignedTx.get().nonce,
-      value: UnsignedTx.get().value,
-      chainId: UnsignedTx.get().chainId,
-      gasLimit: UnsignedTx.get().gasLimit,
-      gasPrice: UnsignedTx.get().gasPrice,
-    };
-    const signatureResponseData = await this.wallet.signEthTx(UnsignedTxJson);
 
-    const txReceipt = await this.sendSignedTransaction(
-      UnsignedTxJson,
+    const unsignedTxJson = unsignedTx.unwrap();
+    console.log("unsignedTxJson", unsignedTxJson)
+
+    const signatureResponseData = await this.wallet.signEthTx(unsignedTxJson);
+
+    const txReceipt = await sendSignedTransaction(
+      unsignedTxJson,
       signatureResponseData,
       access_token,
+      waitMined,
     );
 
-    return hashValues; //TODO: return versionId
-  }
+    if (txReceipt.isErr()) {
+      return Result.err(txReceipt.unwrapErr());
+    }
+
+    //if wait for transaction to be mined
+    if (waitMined) {
+      //wait for transaction to be mined
+      const resp_mined = await waitTxToBeMined(
+        txReceipt.unwrap().transactionHash,
+        access_token,
+      );
+
+      //check if mining was successful
+      if (resp_mined.isErr()) {
+        return Result.err(resp_mined.unwrapErr());
+      }
+    }
+
+    // TODO: return... what?
+    // get new versionId
+       //option 1: getRecordVersions(recordId) and then get increment the versionId
+       //option 2: deduce versionId from txReceipt
+    return Result.ok("1")
+ }
 
   async insertRecordOwner(
     recordId: string,
@@ -260,7 +286,8 @@ export class TimestampWrapper implements ITimestampWrapper {
 
     return ownerId; // ETH address of revoked owner
   }
-
+  
+  // get list of all versions of a record
   async getRecordVersions(recordId: string): Promise<Optional<RecordVersions>> {
     const config = {
       method: 'get',
@@ -283,6 +310,7 @@ export class TimestampWrapper implements ITimestampWrapper {
     return response as Promise<Optional<RecordVersions>>;
   }
 
+  // get details of a specific version of a specific record
   async getRecordVersionDetails(
     recordId: string,
     versionId: string,
