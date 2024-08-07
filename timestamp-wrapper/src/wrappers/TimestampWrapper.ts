@@ -17,6 +17,7 @@ import {
   waitTxToBeMined,
 } from '../utils/ledger-v4';
 import { fromHexString, multibaseEncode } from '../utils/utils';
+import { version } from 'os';
 
 const { sha256 } = ethers.utils;
 
@@ -35,7 +36,7 @@ export class TimestampWrapper implements ITimestampWrapper {
 
   //create record
   async timestampRecordHashes(
-    hashAlgorithmId: number,
+    hashAlgorithmId: number, // note: unlike EBSI's Timestamp API we only allow for 1 hash value instead of 3
     hashValue: string, // note: unlike EBSI's Timestamp API we only allow for 1 hash value instead of 3
     versionInfo: string,
     timestampData: string[] = [''], //TODO: why keep this parameter... for qtsp?
@@ -236,7 +237,10 @@ export class TimestampWrapper implements ITimestampWrapper {
     return ownerId;
   }
 
-  async revokeRecordOwner(recordId: string, ownerId: string): Promise<string> {
+  async revokeRecordOwner(
+    recordId: string, 
+    ownerId: string
+  ): Promise<string> {
     const { access_token } = await this.ebsiAuthtorisationApi.getAccessToken(
       'ES256',
       'timestamp_write',
@@ -330,5 +334,239 @@ export class TimestampWrapper implements ITimestampWrapper {
         return Optional.None();
       });
     return response as Promise<Optional<RecordVersionDetails>>;
+  }
+
+  //ADDITIONAL METHODS to fully replicate Timestamp JSON-RPC API
+  //note: these methods are not tested, use with caution and report bugs to trace4eu consortium
+  async timestampHashes(
+    from: string,
+    hashAlgorithmId: number,
+    hashValue: string,
+    timestampData: string[] = [""],
+  ): Promise<Result<string, Error>> {
+    const { access_token } = await this.ebsiAuthtorisationApi.getAccessToken(
+      'ES256',
+      'timestamp_write',
+      [],
+    );
+
+    const unsignedTx = await sendUnsignedTransaction(
+      access_token,
+      'timestampHashes',
+      [
+        {
+          from: from,
+          hashAlgorithmIds: [hashAlgorithmId],
+          hashValues: [hashValue],
+          timestampData: timestampData
+        },
+      ],
+    );
+
+    if (unsignedTx.isErr()) {
+      return Result.err(unsignedTx.unwrapErr());
+    }
+
+    const unsignedTxJson = unsignedTx.unwrap();
+    const signatureResponseData = await this.wallet.signEthTx(unsignedTxJson);
+    const txReceipt = await sendSignedTransaction(
+      unsignedTxJson,
+      signatureResponseData,
+      access_token,
+    );
+
+    if (txReceipt.isErr()) {
+      return Result.err(txReceipt.unwrapErr());
+    }
+
+    return Result.ok(txReceipt.unwrap().transactionHash);
+  }
+
+  async timestampVersionHashes(
+    from: string,
+    versionHash: string,
+    hashAlgorithmId: number,
+    hashValue: string,
+    versionInfo: string,
+    timestampData: string[] = [""],
+  ): Promise<Result<string, Error>> {
+    const { access_token } = await this.ebsiAuthtorisationApi.getAccessToken(
+      'ES256',
+      'timestamp_write',
+      [],
+    );
+
+    const unsignedTx = await sendUnsignedTransaction(
+      access_token,
+      'timestampVersionHashes',
+      [
+        {
+          from: from,
+          versionHash: versionHash,
+          hashAlgorithmIds: [hashAlgorithmId],
+          hashValues: [hashValue],
+          versionInfo: versionInfo,
+          timestampData: timestampData,
+        },
+      ],
+    );
+
+    if (unsignedTx.isErr()) {
+      return Result.err(unsignedTx.unwrapErr());
+    }
+
+    const unsignedTxJson = unsignedTx.unwrap();
+    const signatureResponseData = await this.wallet.signEthTx(unsignedTxJson);
+    const txReceipt = await sendSignedTransaction(
+      unsignedTxJson,
+      signatureResponseData,
+      access_token,
+    );
+
+    if (txReceipt.isErr()) {
+      return Result.err(txReceipt.unwrapErr());
+    }
+
+    return Result.ok(txReceipt.unwrap().transactionHash);
+  }
+
+  async appendRecordVersionHashes(
+    from: string,
+    recordId: string,
+    versionId: string,
+    hashAlgorithmId: number,
+    hashValue: string,
+    versionInfo: string,
+    timestampData: string[] = [""],
+  ): Promise<Result<string, Error>> {
+    const { access_token } = await this.ebsiAuthtorisationApi.getAccessToken(
+      'ES256',
+      'timestamp_write',
+      [],
+    );
+
+    const unsignedTx = await sendUnsignedTransaction(
+      access_token,
+      'appendRecordVersionHashes',
+      [
+        {
+          from: from,
+          recordId: recordId,
+          versionId: versionId,
+          hashAlgorithmIds: [hashAlgorithmId],
+          hashValues: [hashValue],
+          versionInfo: versionInfo,
+          timestampData: timestampData,
+        },
+      ],
+    );
+
+    if (unsignedTx.isErr()) {
+      return Result.err(unsignedTx.unwrapErr());
+    }
+
+    const unsignedTxJson = unsignedTx.unwrap();
+    const signatureResponseData = await this.wallet.signEthTx(unsignedTxJson);
+    const txReceipt = await sendSignedTransaction(
+      unsignedTxJson,
+      signatureResponseData,
+      access_token,
+    );
+
+    if (txReceipt.isErr()) {
+      return Result.err(txReceipt.unwrapErr());
+    }
+
+    return Result.ok(txReceipt.unwrap().transactionHash);
+  }
+
+  async detachRecordVersionHash(
+    from: string,
+    recordId: string,
+    versionId: string,
+    versionHash: string,
+    hashValue: string,
+  ): Promise<Result<string, Error>> {
+    const { access_token } = await this.ebsiAuthtorisationApi.getAccessToken(
+      'ES256',
+      'timestamp_write',
+      [],
+    );
+
+    const unsignedTx = await sendUnsignedTransaction(
+      access_token,
+      'detachRecordVersionHash',
+      [
+        {
+          from: from,
+          recordId: recordId,
+          versionId: versionId,
+          versionHash: versionHash,
+          hashValue: hashValue,
+        },
+      ],
+    );
+
+    if (unsignedTx.isErr()) {
+      return Result.err(unsignedTx.unwrapErr());
+    }
+
+    const unsignedTxJson = unsignedTx.unwrap();
+    const signatureResponseData = await this.wallet.signEthTx(unsignedTxJson);
+    const txReceipt = await sendSignedTransaction(
+      unsignedTxJson,
+      signatureResponseData,
+      access_token,
+    );
+
+    if (txReceipt.isErr()) {
+      return Result.err(txReceipt.unwrapErr());
+    }
+
+    return Result.ok(txReceipt.unwrap().transactionHash);
+  }
+
+  async insertRecordVersionInfo(
+    from: string,
+    recordId: string,
+    versionId: string,
+    versionInfo: string,
+  ): Promise<Result<string, Error>> {
+    const { access_token } = await this.ebsiAuthtorisationApi.getAccessToken(
+      'ES256',
+      'timestamp_write',
+      [],
+    );
+
+    const unsignedTx = await sendUnsignedTransaction(
+      access_token,
+      'insertRecordVersionInfo',
+      [
+        {
+          from: from,
+          recordId: recordId,
+          versionId: versionId,
+          versionInfo: versionInfo,
+        },
+      ],
+    );
+
+    if (unsignedTx.isErr()) {
+      return Result.err(unsignedTx.unwrapErr());
+    }
+
+    const unsignedTxJson = unsignedTx.unwrap();
+    const signatureResponseData = await this.wallet.signEthTx(unsignedTxJson);
+    const txReceipt = await sendSignedTransaction(
+      unsignedTxJson,
+      signatureResponseData,
+      access_token,
+    );
+
+    if (txReceipt.isErr()) {
+      return Result.err(txReceipt.unwrapErr());
+    }
+
+    return Result.ok(txReceipt.unwrap().transactionHash);
   }
 }

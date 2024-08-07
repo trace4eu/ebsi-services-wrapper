@@ -11,8 +11,8 @@ export interface ITimestampWrapper {
 
   // builds a signed transaction to timestamp data and create a record of it with some info. It's possible to insert up to 3 hashes in a single transaction.
   timestampRecordHashes( //aka create record
-    hashAlgorithmId: number,
-    hashValue: string,
+    hashAlgorithmId: number, // note: unlike EBSI's Timestamp API we only allow for 1 hash value instead of 3
+    hashValue: string, // note: unlike EBSI's Timestamp API we only allow for 1 hash value instead of 3
     versionInfo: string, //This field must be a JSON stringified and converted into hex string
     timestampData?: string[], //This field must be a JSON stringified and converted into hex string
     waitMined?: boolean
@@ -21,8 +21,8 @@ export interface ITimestampWrapper {
   // builds a signed transaction to timestamp hashes and store them under the given record. It's possible to insert up to 3 hashes in a single transaction.
   timestampRecordVersionHashes( // aka create version of record
     recordId: string, //TODO: find out how to get recordId after running timestampRecordHashes
-    hashAlgorithmId: number,
-    hashValue: string,
+    hashAlgorithmId: number, // note: unlike EBSI's Timestamp API we only allow for 1 hash value instead of 3
+    hashValue: string, // note: unlike EBSI's Timestamp API we only allow for 1 hash value instead of 3
     versionInfo: string, //This field must be a JSON stringified and converted into hex string	
     timestampData?: string[], //This field must be a JSON stringified and converted into hex string
     waitMined?: boolean
@@ -52,4 +52,46 @@ export interface ITimestampWrapper {
     recordId: string, //multibase base64url encoded
     versionId: string
   ): Promise<Optional<RecordVersionDetails>>;
+
+  //additional methods of EBSI's timestamp API to fully replicate it
+  timestampHashes(
+    from: string, //Ethereum address of the signer
+    hashAlgorithmId: number, // note: unlike EBSI's Timestamp API we only allow for 1 hash value instead of 3
+    hashValue: string, // note: unlike EBSI's Timestamp API we only allow for 1 hash value instead of 3
+    timestampData?: string[], //This field must be a JSON stringified and converted into hex string
+  ): Promise<Result<string, Error>>;
+
+  timestampVersionHashes(
+    from: string, //Ethereum address of the signer
+    versionHash: string,
+    hashAlgorithmId: number, // note: unlike EBSI's Timestamp API we only allow for 1 hash value instead of 3
+    hashValue: string, // note: unlike EBSI's Timestamp API we only allow for 1 hash value instead of 3
+    versionInfo: string, //This field must be a JSON stringified and converted into hex string
+    timestampData?: string[], //This field must be a JSON stringified and converted into hex string
+  ): Promise<Result<string, Error>>;
+
+  appendRecordVersionHashes(
+    from: string, //Ethereum address of the signer
+    recordId: string, //multibase base64url encoded or hex???
+    versionId: string,
+    hashAlgorithmId: number, // note: unlike EBSI's Timestamp API we only allow for 1 hash value instead of 3
+    hashValue: string, // note: unlike EBSI's Timestamp API we only allow for 1 hash value instead of 3
+    versionInfo: string, //This field must be a JSON stringified and converted into hex string
+    timestampData?: string[], //This field must be a JSON stringified and converted into hex string
+  ): Promise<Result<string, Error>>;
+
+  detachRecordVersionHash(
+    from: string, //Ethereum address of the signer
+    recordId: string, //multibase base64url encoded or hex???
+    versionId: string,
+    versionHash: string,
+    hashValue: string, // note: unlike EBSI's Timestamp API we only allow for 1 hash value instead of 3
+  ): Promise<Result<string, Error>>;
+
+  insertRecordVersionInfo(
+    from: string, //Ethereum address of the signer
+    recordId: string, //multibase base64url encoded or hex???
+    versionId: string,
+    versionInfo: string, //This field must be a JSON stringified and converted into hex string
+  ): Promise<Result<string, Error>>;
 }
