@@ -4,6 +4,11 @@ The `timestamp wrapper` simplifies the usage of EBSI's [Timestamp API (version 4
 ## Pre-requisites
 - `npm install timestamp-wrapper`????
 
+## Run tests locally
+- move to this folder (e.g. from root folder: `cd timestamp-wrapper`)
+- `npm install` to download all node packages
+- run tests with command `npm run tests`
+
 ## Functions
 
 
