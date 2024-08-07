@@ -11,8 +11,8 @@ export interface ITimestampWrapper {
 
   // builds a signed transaction to timestamp data and create a record of it with some info. It's possible to insert up to 3 hashes in a single transaction.
   timestampRecordHashes( //aka create record
-    hashAlgorithmIds: number[],
-    hashValues: string[],
+    hashAlgorithmId: number,
+    hashValue: string,
     versionInfo: string, //This field must be a JSON stringified and converted into hex string
     timestampData?: string[], //This field must be a JSON stringified and converted into hex string
     waitMined?: boolean
@@ -21,8 +21,8 @@ export interface ITimestampWrapper {
   // builds a signed transaction to timestamp hashes and store them under the given record. It's possible to insert up to 3 hashes in a single transaction.
   timestampRecordVersionHashes( // aka create version of record
     recordId: string, //TODO: find out how to get recordId after running timestampRecordHashes
-    hashAlgorithmIds: number[],
-    hashValues: string[],
+    hashAlgorithmId: number,
+    hashValue: string,
     versionInfo: string, //This field must be a JSON stringified and converted into hex string	
     timestampData?: string[], //This field must be a JSON stringified and converted into hex string
     waitMined?: boolean

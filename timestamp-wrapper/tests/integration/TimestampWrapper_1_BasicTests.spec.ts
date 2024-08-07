@@ -59,8 +59,8 @@ describe('Timestamp Wrapper', () => {
 
       // create record with hashValue1
       const recordCreationResponse = await timestampWrapper.timestampRecordHashes(
-        [0], // sha2-256
-        [hashValue1],
+        0, // sha2-256
+        hashValue1,
         versionInfo1,
         [timestampData1] //send as timestampData
       );
@@ -89,10 +89,6 @@ describe('Timestamp Wrapper', () => {
       //check if hash value is correctly the first version of the record
       expect(JSON.stringify(recordVersionDetailsResponse.get().info[0]), "info of first version incorrect").toBe(JSON.stringify({ipfs_cid: `ipfs version 1 of ${randomId}`}));
     });
-
-    it('create record with 3 hash values (maximum number of allowed hashes)', async () => {
-      //TODO --> requires porbably adaption of the recordId creation in the timestampWrapper funtion of timestampRecordHashes
-    });
   });
 
   // documenting the supply chain events of a supply chain item means adding new versions to a record
@@ -111,8 +107,8 @@ describe('Timestamp Wrapper', () => {
 
       // create record with hashValue1
       const recordCreationResponse = await timestampWrapper.timestampRecordHashes(
-        [0], // sha2-256
-        [hashValue1],
+        0, // sha2-256
+        hashValue1,
         versionInfo1,
         [timestampData1] //send as timestampData
       );
@@ -144,8 +140,8 @@ describe('Timestamp Wrapper', () => {
       // create another version of the newly created record
       const recordVersionCreationResponse = await timestampWrapper.timestampRecordVersionHashes(
         recordId.hex,
-        [0], // sha2-256
-        [hashValue2],
+        0, // sha2-256
+        hashValue2,
         versionInfo2,
         [timestampData2] //send as timestampData
       );
@@ -185,64 +181,3 @@ describe('Timestamp Wrapper', () => {
   });
 
 });
-
-
-
-/* LEGACY TESTS:
-describe('Timestamp Wrapper - create timestamp', () => {
-  const hashValue1 = "0x"+crypto.createHash('sha256').update("this is a test 1").digest('hex');;
-  const hashValue2 = "0x"+crypto.createHash('sha256').update("this is a test 2").digest('hex');;
-  describe('create timestamp', () => {
-
-
-    it('always true', () => {
-      console.log('create timestamp test always true');
-      expect(true);
-    });
-
-
-    it('hashValue1 with wait to be Mined "false" ', async () => {
-      console.log('hashValue1: ' + hashValue1);
-      const timestamps = await timestampWrapper.timestampHashes(
-        [0], // sha2-256, check if hash value is hashed as sha2-256
-        [hashValue1],
-        "",
-        false
-      );
-      console.log("timestamp hash values:", timestamps)
-      expect(timestamps[0]).toBe(hashValue1);
-    });
-
-    it('get timestamp with hashValue1', async () => {
-      // construct timestamp ID out of hashValue1, followiong formula: timestampId = multibase_base64url(multihash(sha256(original_hash)))
-        //const hashValueHex = '0xb2a8e000d1f25778cecf6b29fc0e7f811fb5f4a3a8230585e9056921';
-        //const timestampId = generateMultibaseBase64urlHash(hashValueHex);
-        //console.log("created timestampID:", timestampId);
-      
-      const timestampData = await timestampWrapper.getTimestampDetails(hashValue1);
-      console.log("timestampData:", timestampData);
-      //expect(timestamps[0]).toBe(hashValue1);
-    });
-
-
-    it('create timestamp with wait to be Mined "true"', async () => {
-      console.log('hashValue2: ' + hashValue2);
-      const timestamps = await timestampWrapper.timestampHashes(
-        [0],
-        [hashValue2],
-        "",
-        true
-      );
-      //const timestampData = await timestampWrapper.getTimestampDetails(hashValue2);
-      //console.log("timestampData:", timestampData);
-      expect(timestamps[0]).toBe(hashValue2);
-    });
-
-
-    it('check if it is mined', async () => {
-      const risp = await timestampWrapper.isTimestampMined(hashValue2);
-      expect(risp).toBe(true);
-    });
-  });
-});
-*/
