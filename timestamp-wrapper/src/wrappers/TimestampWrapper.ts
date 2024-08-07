@@ -119,7 +119,7 @@ export class TimestampWrapper implements ITimestampWrapper {
 
   // create version for a specific record
   async timestampRecordVersionHashes(
-    recordId: string,
+    recordId: string, //hex
     hashAlgorithmIds: number[],
     hashValues: string[],
     versionInfo: string,
@@ -131,6 +131,10 @@ export class TimestampWrapper implements ITimestampWrapper {
       'timestamp_write',
       [],
     );
+
+    // get versionId of newest version specific to inputted record
+    const currentVersions = await this.getRecordVersions(multibaseEncode("base64url", recordId))
+    const totalNumberVersions = currentVersions.get().total
 
     const unsignedTx = await sendUnsignedTransaction(
       access_token,
@@ -181,11 +185,8 @@ export class TimestampWrapper implements ITimestampWrapper {
       }
     }
 
-    // TODO: return... what?
-    // get new versionId
-       //option 1: getRecordVersions(recordId) and then get increment the versionId
-       //option 2: deduce versionId from txReceipt
-    return Result.ok("1")
+    // return versionId of newly created versions
+    return Result.ok(String(totalNumberVersions)) //note: totalNumberVersions = last versionId + 1 = versionId of newest version
  }
 
   async insertRecordOwner(

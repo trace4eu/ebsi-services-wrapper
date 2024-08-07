@@ -9,7 +9,11 @@ The `timestamp wrapper` simplifies the usage of EBSI's [Timestamp API (version 4
 - `npm install` to download all node packages
 - run tests with command `npm run tests`
 
+## Resources
+- [dev style](https://ts.dev/style/)
+- [smart contract underlying EBSI's Timestamp API]()
+
 ## Functions
 
 
-typrescript dev style reference: https://ts.dev/style/
+typrescript dev style reference: 
