@@ -6,7 +6,7 @@ import {
   AuthorisationApi,
   EbsiAuthorisationApi,
 } from '@trace4eu/authorisation-wrapper';
-import { TimestampData, RecordVersions, RecordVersionDetails } from '../types/types';
+import { TimestampData, RecordVersions, RecordVersionDetails, Record } from '../types/types';
 import { ethers } from 'ethers';
 import Multihash from 'multihashes';
 import { hash } from 'crypto';
@@ -188,16 +188,17 @@ export class TimestampWrapper implements ITimestampWrapper {
   async insertRecordOwner(
     recordId: string,
     ownerId: string,
-    notBefore: string,
-    notAfter: string,
-  ): Promise<string> {
+    notBefore: number,
+    notAfter: number,
+    waitMined: boolean = true
+  ): Promise<Result<string, Error>> {
     const { access_token } = await this.ebsiAuthtorisationApi.getAccessToken(
       'ES256',
       'timestamp_write',
       [],
     );
 
-    const UnsignedTx = await sendUnsignedTransaction(
+    const unsignedTx = await sendUnsignedTransaction(
       access_token,
       'insertRecordOwner',
       [
@@ -211,43 +212,53 @@ export class TimestampWrapper implements ITimestampWrapper {
       ],
     );
 
-    if (UnsignedTx.isEmpty()) {
-      throw new Error(
-        'Error sending request to ebsi api: empty DocumentUnsignedTransaction',
-      );
+    if (unsignedTx.isErr()) {
+      return Result.err(unsignedTx.unwrapErr());
     }
-    const UnsignedTxJson = {
-      to: UnsignedTx.get().to,
-      from: UnsignedTx.get().from,
-      data: UnsignedTx.get().data,
-      nonce: UnsignedTx.get().nonce,
-      value: UnsignedTx.get().value,
-      chainId: UnsignedTx.get().chainId,
-      gasLimit: UnsignedTx.get().gasLimit,
-      gasPrice: UnsignedTx.get().gasPrice,
-    };
-    const signatureResponseData = await this.wallet.signEthTx(UnsignedTxJson);
 
-    const txReceipt = await this.sendSignedTransaction(
-      UnsignedTxJson,
+    const unsignedTxJson = unsignedTx.unwrap();
+
+    const signatureResponseData = await this.wallet.signEthTx(unsignedTxJson);
+
+    const txReceipt = await sendSignedTransaction(
+      unsignedTxJson,
       signatureResponseData,
       access_token,
+      waitMined,
     );
 
-    return ownerId;
+    if (txReceipt.isErr()) {
+      return Result.err(txReceipt.unwrapErr());
+    }
+
+    //if wait for transaction to be mined
+    if (waitMined) {
+      //wait for transaction to be mined
+      const resp_mined = await waitTxToBeMined(
+        txReceipt.unwrap().transactionHash,
+        access_token,
+      );
+
+      //check if mining was successful
+      if (resp_mined.isErr()) {
+        return Result.err(resp_mined.unwrapErr());
+      }
+    }
+    return Result.ok(ownerId)
   }
 
   async revokeRecordOwner(
     recordId: string, 
-    ownerId: string
-  ): Promise<string> {
+    ownerId: string,
+    waitMined: boolean = true
+  ): Promise<Result<string, Error>>{
     const { access_token } = await this.ebsiAuthtorisationApi.getAccessToken(
       'ES256',
       'timestamp_write',
       [],
     );
 
-    const UnsignedTx = await sendUnsignedTransaction(
+    const unsignedTx = await sendUnsignedTransaction(
       access_token,
       'revokeRecordOwner',
       [
@@ -259,32 +270,65 @@ export class TimestampWrapper implements ITimestampWrapper {
       ],
     );
 
-    if (UnsignedTx.isEmpty()) {
-      throw new Error(
-        'Error sending request to ebsi api: empty DocumentUnsignedTransaction',
-      );
+    if (unsignedTx.isErr()) {
+      return Result.err(unsignedTx.unwrapErr());
     }
 
-    const UnsignedTxJson = {
-      to: UnsignedTx.get().to,
-      from: UnsignedTx.get().from,
-      data: UnsignedTx.get().data,
-      nonce: UnsignedTx.get().nonce,
-      value: UnsignedTx.get().value,
-      chainId: UnsignedTx.get().chainId,
-      gasLimit: UnsignedTx.get().gasLimit,
-      gasPrice: UnsignedTx.get().gasPrice,
-    };
+    const unsignedTxJson = unsignedTx.unwrap();
 
-    const signatureResponseData = await this.wallet.signEthTx(UnsignedTxJson);
+    const signatureResponseData = await this.wallet.signEthTx(unsignedTxJson);
 
-    const txReceipt = await this.sendSignedTransaction(
-      UnsignedTxJson,
+    const txReceipt = await sendSignedTransaction(
+      unsignedTxJson,
       signatureResponseData,
       access_token,
+      waitMined,
     );
 
-    return ownerId; // ETH address of revoked owner
+    if (txReceipt.isErr()) {
+      return Result.err(txReceipt.unwrapErr());
+    }
+
+    //if wait for transaction to be mined
+    if (waitMined) {
+      //wait for transaction to be mined
+      const resp_mined = await waitTxToBeMined(
+        txReceipt.unwrap().transactionHash,
+        access_token,
+      );
+
+      //check if mining was successful
+      if (resp_mined.isErr()) {
+        return Result.err(resp_mined.unwrapErr());
+      }
+    }
+
+    return Result.ok(ownerId); // ETH address of revoked owner
+  }
+
+  // get list of all versions of a record
+  async getRecord(
+    recordId: string //multibase
+  ): Promise<Optional<Record>> {
+    const config = {
+      method: 'get',
+      maxBodyLength: Infinity,
+      url: `https://api-pilot.ebsi.eu/timestamp/v4/records/${recordId}`,
+      headers: {
+        Accept: 'application/json',
+      },
+    };
+
+    const response = axios
+      .request(config)
+      .then((response) => {
+        return Optional.Some(response.data);
+      })
+      .catch((error) => {
+        console.log(error);
+        return Optional.None();
+      });
+    return response as Promise<Optional<Record>>;
   }
   
   // get list of all versions of a record

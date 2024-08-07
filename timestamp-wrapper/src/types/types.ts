@@ -33,6 +33,14 @@ export interface RecordVersions {
   };
 }
 
+export interface Record {
+  ownerIds: string[],
+  revokedOwnerIds: string[],
+  firstVersionTimestamps: string[],
+  lastVersionTimestamps: string[],
+  totalVersions: number
+}
+
 export interface RecordVersionDetails {
   hashes: string[];
   info: {}[];

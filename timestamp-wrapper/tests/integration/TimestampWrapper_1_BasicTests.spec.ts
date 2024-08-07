@@ -41,7 +41,6 @@ const ebsiAuthorisationApi = new EbsiAuthorisationApi(wallet);
 const timestampWrapper = new TimestampWrapper(wallet);
 
 describe('Timestamp Wrapper', () => {
-
   // create a record wich correspons to the documentation of the first event of a supply chain item: producing or manufacturing
   describe('Create record', () => {
 
@@ -174,10 +173,57 @@ describe('Timestamp Wrapper', () => {
     });
   });
 
-
   //TODO: change owner, reflecting change in ownership of supply chain item represented by the record
   describe('Change owner of record', async () => {
-    
+    const randomId = Math.trunc(Math.random()*1000000)
+    const hashValue1 = "0x"+crypto.createHash('sha256').update(`hash value 1=${randomId}`).digest('hex');;
+    const hashValue2 = "0x"+crypto.createHash('sha256').update(`hash value 2=${randomId}`).digest('hex');;
+    const timestampData1 = "0x"+Buffer.from(JSON.stringify({timestamp:`timestampData1=${randomId}`}), "utf-8").toString("hex");;
+    const timestampData2 = "0x"+Buffer.from(JSON.stringify({timestamp:`timestampData2=${randomId}`}), "utf-8").toString("hex");;
+    const versionInfo1 = "0x"+Buffer.from(JSON.stringify({ipfs_cid: `ipfs version 1 of ${randomId}`}), "utf-8").toString("hex");;
+    const versionInfo2 = "0x"+Buffer.from(JSON.stringify({ipfs_cid: `ipfs version 2 of ${randomId}`}), "utf-8").toString("hex");;
+
+    // create record with hashValue1
+    const recordCreationResponse = await timestampWrapper.timestampRecordHashes(
+      0, // sha2-256
+      hashValue1,
+      versionInfo1,
+      [timestampData1] //send as timestampData
+    );
+
+    // get recordId
+    const recordId = recordCreationResponse.unwrap();
+    console.log("CHANGING OWNER OF RECORD:", recordId)
+
+    // init second wallet for the new owner
+    const wallet2 = WalletFactory.createInstance(false, did2, entityKey2);
+    const ethAddressNewOwner = wallet2.getEthAddress()
+
+    // insert new owner
+    const newOwner = await timestampWrapper.insertRecordOwner(
+      recordId.hex,
+      ethAddressNewOwner,// eth address of new owner
+      Number(new Date()),
+      0
+    )
+    expect(newOwner.value?.toUpperCase(), `insertRecordOwner does not work`).toBe(ethAddressNewOwner.toUpperCase());
+
+    //login new owner to timestamp wrapper
+    const timestampWrapper2 = new TimestampWrapper(wallet2);
+
+    // old owner remove her- or himself
+    const revokedOwner = await timestampWrapper.revokeRecordOwner(
+      recordId.hex,
+      wallet.getEthAddress() // eth address of owner to be removed
+    );
+    expect(revokedOwner.value?.toUpperCase(), `revokeRecordOwner does not work`).toBe(wallet.getEthAddress().toUpperCase());
+
+    // check if owner change successful
+    const record = await timestampWrapper.getRecord(recordId.multibase)
+    const recordOwners = record.get().ownerIds
+    expect(recordOwners.length, `not exactly one record owner`).toBe(1); //check if only one owner is listed in the record after owner change
+    expect(record.get().revokedOwnerIds[0].toUpperCase(), "old owner is not declared as removed").toBe(wallet.getEthAddress().toUpperCase()) //check if old owner is listed as removed
+    expect(recordOwners[0].toUpperCase(), "new owner not listed as owner of record").toBe(ethAddressNewOwner.toUpperCase()) //check if new owner is listed as record owner
   });
 
 });

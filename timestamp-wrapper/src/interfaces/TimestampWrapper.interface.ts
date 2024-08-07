@@ -32,15 +32,17 @@ export interface ITimestampWrapper {
   insertRecordOwner(
     recordId: string,
     ownerId: string, //Ethereum address of new owner
-    notBefore: string, //Point in time when the owner becomes valid. It should be defined in epoch time.
-    notAfter: string, //Point in time when the owner becomes invalid. It should be defined in epoch time. For indefinite time set 0.
-  ): Promise<string>;
+    notBefore: number, //Point in time when the owner becomes valid. It should be defined in epoch time.
+    notAfter: number, //Point in time when the owner becomes invalid. It should be defined in epoch time. For indefinite time set 0.
+    waitMined?: boolean
+  ): Promise<Result<string, Error>>;
 
   //builds a signed transaction to revoke a record owner. This method can be called only by record owners.
   revokeRecordOwner(
     recordId: string,
     ownerId: string, //Ethereum address of owner to be revoked
-  ): Promise<string>;
+    waitMined?: boolean
+  ): Promise<Result<string, Error>>;
 
   //get all versions of a record
   getRecordVersions(
