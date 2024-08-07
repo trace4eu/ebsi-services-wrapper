@@ -97,7 +97,6 @@ describe('Timestamp Wrapper', () => {
 
   // documenting the supply chain events of a supply chain item means adding new versions to a record
   describe('Create record with multiple versions', async () => {
-
     const randomId = Math.trunc(Math.random()*1000000)
     const hashValue1 = "0x"+crypto.createHash('sha256').update(`hash value 1=${randomId}`).digest('hex');;
     const hashValue2 = "0x"+crypto.createHash('sha256').update(`hash value 2=${randomId}`).digest('hex');;
@@ -184,12 +183,6 @@ describe('Timestamp Wrapper', () => {
   describe('Change owner of record', async () => {
     
   });
-
-  //TODO: tracing, i. e. simply call getRecordVersions and for each version getRecordVersionDetails
-  describe('Tracing record', async () => {
-    
-  });
-
 
 });
 
