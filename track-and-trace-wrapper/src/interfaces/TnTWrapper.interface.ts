@@ -9,8 +9,8 @@ import {
   TnTPagedObjectList,
 } from '../types/types';
 
-/** 
- Interface TnTWrapper  
+/**
+ Interface TnTWrapper
  main responsibility: hiding the ethereum details exposed by the api
 */
 export interface ITnTWrapper {
@@ -18,11 +18,13 @@ export interface ITnTWrapper {
    * @param documentHash base64 encoded document hash
    * @param documentMetadata base64 encoded document metadata
    * @param waitMined wait document mined if true - default = true
+   * @param incrementNonce
    */
   createDocument(
     documentHash: string,
     documentMetadata: string,
     waitMined?: boolean,
+    incrementNonce?: boolean,
   ): Promise<Result<string, Error>>;
   getDocumentDetails(
     documentHash: string,

@@ -82,14 +82,14 @@ describe('Track and Trace Wrapper', () => {
       await tntWrapper.createDocument(
         documentHash,
         documentMetadata,
-        true,
+        false,
       );
       await tntWrapper.addEventToDocument(
         documentHash,
         eventExternalHash,
         eventMetadata1,
         origin,
-        true,
+        false,
       );
       const documentDetails = await tntWrapper.getDocumentDetails(documentHash);
       console.log(documentDetails.unwrap());

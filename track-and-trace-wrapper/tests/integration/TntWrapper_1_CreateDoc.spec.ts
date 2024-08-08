@@ -32,40 +32,58 @@ describe('Track and Trace Wrapper - create document', () => {
   const documentHash1 = `0x${crypto.randomBytes(32).toString('hex')}`;
   const documentHash2 = `0x${crypto.randomBytes(32).toString('hex')}`;
   describe('createDocument', () => {
-    it('always true', () => {
-      console.log('createDocument test always true');
-      expect(true);
-    });
-    it('createDocument doc2 wait to be Mined "true"', async () => {
+    it('Error case - two serial transactions', async () => {
       console.log('Document Hash:' + documentHash2);
       const documentMetadata = 'documentMetadata';
       const document = await tntWrapper.createDocument(
         documentHash2,
         documentMetadata,
-        true,
+        false,
+        false,
       );
       if (document.isErr()) {
         console.log('Error: ' + document.unwrapErr());
       }
       console.log(document);
-      const documentData = await tntWrapper.getDocumentDetails(documentHash2);
-      console.log({ documentData });
-      expect(document.unwrap()).toBe(documentHash2);
-    });
-    it('createDocument doc1 with wait to be Mined "false" ', async () => {
+      /* const documentData = await tntWrapper.getDocumentDetails(documentHash2);
+      console.log({ documentData }); */
+
       console.log('Document Hash:' + documentHash1);
-      const documentMetadata = 'documentMetadata';
-      const document = await tntWrapper.createDocument(
+      const documentMetadata2 = 'documentMetadata';
+      const document2 = await tntWrapper.createDocument(
         documentHash1,
-        documentMetadata,
+        documentMetadata2,
+        false,
         false,
       );
-      console.log(document);
-      expect(document.unwrap()).toBe(documentHash1);
+      expect(document2.unwrapErr()).toBeDefined();
     });
-    it.skip('check if it is mined', async () => {
-      const risp = await tntWrapper.isDocumentMined(documentHash2);
-      expect(risp).toBe(true);
+    it('Success case - two serial transactions but incrementing nonce', async () => {
+      console.log('Document Hash:' + documentHash2);
+      const documentMetadata = 'documentMetadata';
+      const document = await tntWrapper.createDocument(
+        documentHash2,
+        documentMetadata,
+        false,
+        false,
+      );
+      if (document.isErr()) {
+        console.log('Error: ' + document.unwrapErr());
+      }
+      console.log(document);
+      /* const documentData = await tntWrapper.getDocumentDetails(documentHash2);
+      console.log({ documentData }); */
+
+      console.log('Document Hash:' + documentHash1);
+      const documentMetadata2 = 'documentMetadata';
+      const document2 = await tntWrapper.createDocument(
+        documentHash1,
+        documentMetadata2,
+        false,
+        true,
+      );
+      console.log(document2.unwrap());
+      expect(document.unwrap()).toBe(documentHash2);
     });
   });
 });

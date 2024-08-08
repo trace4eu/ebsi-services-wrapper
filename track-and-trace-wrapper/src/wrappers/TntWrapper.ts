@@ -53,6 +53,7 @@ export class TnTWrapper implements ITnTWrapper {
     documentHash: string,
     documentMetadata: string,
     waitMined: boolean = true,
+    incrementNonce: boolean = false,
   ): Promise<Result<string, Error>> {
     const { access_token } = await this.ebsiAuthtorisationApi.getAccessToken(
       'ES256',
@@ -78,9 +79,19 @@ export class TnTWrapper implements ITnTWrapper {
       gasLimit: DocumentUnsignedTxValue.gasLimit,
       gasPrice: DocumentUnsignedTxValue.gasPrice,
     };
+
+    if (incrementNonce) {
+      DocumentUnsignedTxJson.nonce = (
+        Number(DocumentUnsignedTxJson.nonce) + 1
+      ).toString(16);
+      DocumentUnsignedTxJson.nonce = '0x' + DocumentUnsignedTxJson.nonce;
+    }
+
+
     const signatureResponseData = await this.wallet.signEthTx(
       DocumentUnsignedTxJson,
     );
+
     // return Optional.None();
     const txReceipt = await this.sendSendSignedTransaction(
       DocumentUnsignedTxJson,
@@ -486,13 +497,19 @@ export class TnTWrapper implements ITnTWrapper {
       },
       data: data,
     };
+    console.log('+++++ config');
+    console.log({ config });
 
     const response = axios
       .request(config)
       .then((response) => {
+        console.log('+++++ response');
+        console.log(response.data['result']);
         return Result.ok(response.data.result);
       })
       .catch((error) => {
+        console.log('+++++ error');
+        console.log(error.response.data);
         return Result.err(error);
       });
     return response as Promise<Result<string, Error>>;
