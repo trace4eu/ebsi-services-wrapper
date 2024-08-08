@@ -36,6 +36,22 @@ describe('Track and Trace Wrapper - create document', () => {
       console.log('createDocument test always true');
       expect(true);
     });
+    it('createDocument doc2 wait to be Mined "true"', async () => {
+      console.log('Document Hash:' + documentHash2);
+      const documentMetadata = 'documentMetadata';
+      const document = await tntWrapper.createDocument(
+        documentHash2,
+        documentMetadata,
+        true,
+      );
+      if (document.isErr()) {
+        console.log('Error: ' + document.unwrapErr());
+      }
+      console.log(document);
+      const documentData = await tntWrapper.getDocumentDetails(documentHash2);
+      console.log({ documentData });
+      expect(document.unwrap()).toBe(documentHash2);
+    });
     it('createDocument doc1 with wait to be Mined "false" ', async () => {
       console.log('Document Hash:' + documentHash1);
       const documentMetadata = 'documentMetadata';
@@ -46,19 +62,6 @@ describe('Track and Trace Wrapper - create document', () => {
       );
       console.log(document);
       expect(document.unwrap()).toBe(documentHash1);
-    });
-    it('createDocument doc2 wait to be Mined "true"', async () => {
-      console.log('Document Hash:' + documentHash2);
-      const documentMetadata = 'documentMetadata';
-      const document = await tntWrapper.createDocument(
-        documentHash2,
-        documentMetadata,
-        true,
-      );
-      console.log(document);
-      const documentData = await tntWrapper.getDocumentDetails(documentHash2);
-      console.log({ documentData });
-      expect(document.unwrap()).toBe(documentHash2);
     });
     it.skip('check if it is mined', async () => {
       const risp = await tntWrapper.isDocumentMined(documentHash2);
