@@ -21,9 +21,9 @@
   },
   "homepage": "https://github.com/trace4eu/ebsi-services-wrapper#readme",
   "dependencies": {
-    "@trace4eu/authorisation-wrapper": "^0.0.8",
+    "@trace4eu/authorisation-wrapper": "^0.0.10",
     "@trace4eu/error-wrapper": "^0.0.2",
-    "@trace4eu/signature-wrapper": "^0.0.10",
+    "@trace4eu/signature-wrapper": "^0.0.13",
     "axios": "^1.7.2",
     "base64url": "^3.0.1",
     "ethers": "^5.7.2",

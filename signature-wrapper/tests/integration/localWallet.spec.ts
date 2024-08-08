@@ -1,6 +1,6 @@
 import { WalletFactory, Algorithm } from '../../src';
 import { ValidationError } from 'joi';
-import { ethers } from 'ethers';
+import { decodeJwt } from 'jose';
 
 describe('Local Wallet should', () => {
   const did = 'did:ebsi:zobuuYAHkAbRFCcqdcJfTgR';
@@ -21,9 +21,16 @@ describe('Local Wallet should', () => {
 
   it('Generate a signed Verifiable Credential', async () => {});
 
-  it('Generate a signed Verifiable Presentation', async () => {
+  it('Generate a signed Verifiable Presentation with default expiration time', async () => {
     const vp = await wallet.signVP(Algorithm.ES256K, 'empty');
     expect(vp).toBeDefined();
+  });
+
+  it('Generate a signed Verifiable Presentation with a defined expiration time', async () => {
+    const vp = await wallet.signVP(Algorithm.ES256K, 'empty', 900);
+    const decodedVp = decodeJwt(vp);
+    const expirationTime = decodedVp.exp - decodedVp.iat;
+    expect(expirationTime).toBe(900);
   });
 
   it('Get did of a wallet', () => {

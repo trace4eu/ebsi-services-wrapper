@@ -20,10 +20,7 @@ enum Scope {
   TntWrite = 'tnt_write',
 }
 export class EbsiAuthorisationApi implements AuthorisationApi {
-  private wallet: Wallet;
-  constructor(wallet: Wallet) {
-    this.wallet = wallet;
-  }
+  constructor(private wallet: Wallet) {}
 
   async getAccessToken(
     alg: string,

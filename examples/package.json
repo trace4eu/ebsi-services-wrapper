@@ -2,17 +2,16 @@
   "name": "examples",
   "version": "1.0.0",
   "scripts": {
-    "test": "ts-node example.ts",
-    "test2": "ts-node example2.ts"
+    "example": "ts-node example.ts"
   },
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
     "@ethersproject/bytes": "^5.7.0",
-    "@trace4eu/authorisation-wrapper": "^0.0.8",
-    "@trace4eu/signature-wrapper": "^0.0.10",
-    "@trace4eu/tnt-wrapper": "^0.0.14",
+    "@trace4eu/authorisation-wrapper": "^0.0.10",
+    "@trace4eu/signature-wrapper": "^0.0.13",
+    "@trace4eu/tnt-wrapper": "^0.0.15",
     "ts-node": "^10.9.2"
   }
 }

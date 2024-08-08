@@ -5,10 +5,6 @@ import * as crypto from 'crypto';
 import {createHash} from "crypto";
 import { arrayify, BytesLike } from "@ethersproject/bytes";
 
-function timeout(ms: number): Promise<void> {
-  return new Promise<void>(resolve => setTimeout(resolve, ms));
-}
-
 export function sha256(data: BytesLike): string {
   return "0x" + createHash("sha256").update(Buffer.from(arrayify(data))).digest("hex")
 }
@@ -45,13 +41,13 @@ async function main() {
   console.log(`Document hash inserted in TnT api!`);
   const documentData = await tntWrapper.getDocumentDetails(documentHash);
   console.log(`Document data retrieved from TnT api:`);
-  console.log({documentData});
+  if (!documentData.isErr()) console.log(documentData.unwrap());
 
   const eventExternalHash = `0x${crypto.randomBytes(32).toString('hex')}`;
   const eventMetadata = 'eventMetadata';
   const origin = 'origin';
 
-  await tntWrapper.addEventToDocument(
+  const transaction = await tntWrapper.addEventToDocument(
     documentHash,
     eventExternalHash,
     eventMetadata,
@@ -59,12 +55,13 @@ async function main() {
     true,
   );
 
-  const documentDetails = await tntWrapper.getDocumentDetails(documentHash);
-  console.log({ documentDetails });
+  if (transaction.isOk()) console.log('Event attached to the document');
 
-  const eventId = documentDetails.events[0];
+  const documentDetails = await tntWrapper.getDocumentDetails(documentHash);
+
+  const eventId = documentDetails.isOk() && documentDetails.value?.events[0];
   const eventData = await tntWrapper.getEventDetails(documentHash, eventId);
-  console.log({ eventData });
+  console.log(eventData.value);
 }
 
 main();

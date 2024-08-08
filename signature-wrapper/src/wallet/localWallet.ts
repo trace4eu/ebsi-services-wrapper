@@ -61,7 +61,7 @@ export class LocalWallet implements Wallet {
   private readonly did: string;
   protected ethWallet!: ethers.Wallet;
 
-  async signVP(alg: string, vc: string | string[]): Promise<string> {
+  async signVP(alg: string, vc: string | string[], expiration?: number): Promise<string> {
     const keyPair: KeyPairJwk | undefined = findKeyByAlg(
       this.keys,
       alg as Algorithm,
@@ -95,6 +95,8 @@ export class LocalWallet implements Wallet {
       verifiableCredential,
     } as EbsiWrapperVerifiablePresentation;
 
+    const expirationTime = expiration ? expiration : 250;
+
     return await ebsiWrapper.createVerifiablePresentationJwt(
       payload,
       issuer,
@@ -103,7 +105,7 @@ export class LocalWallet implements Wallet {
         ebsiAuthority: CONFIG_OPTS.pilot.domain
           .replace('http://', '')
           .replace('https://', ''),
-        exp: Math.floor(Date.now() / 1000) + 900,
+        exp: Math.floor(Date.now() / 1000) + expirationTime,
         nbf: Math.floor(Date.now() / 1000) - 100,
       },
     );

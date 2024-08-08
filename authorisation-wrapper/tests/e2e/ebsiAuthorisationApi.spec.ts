@@ -2,7 +2,6 @@ import { WalletFactory } from '@trace4eu/signature-wrapper';
 import { EbsiAuthorisationApi, EbsiAuthorisationApiError } from '../../src';
 import { Algorithm } from '@trace4eu/signature-wrapper/dist/types/types';
 import { isJwt } from '../../src/utils/jwt';
-import { SignatureError } from '@trace4eu/signature-wrapper/dist/errors/SignatureError';
 
 describe('Ebsi Authorisation Api should', () => {
   const did = 'did:ebsi:zobuuYAHkAbRFCcqdcJfTgR';
