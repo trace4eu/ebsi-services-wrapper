@@ -1,6 +1,6 @@
 import { Wallet } from '@trace4eu/signature-wrapper';
 import { Optional } from '../types/optional';
-import { RecordVersionDetails, RecordVersions, TimestampData } from '../types/types';
+import { RecordVersionDetails, RecordVersions, TimestampData, Record} from '../types/types';
 import {Result} from "@trace4eu/error-wrapper";
 
 /** 
@@ -44,16 +44,21 @@ export interface ITimestampWrapper {
     waitMined?: boolean
   ): Promise<Result<string, Error>>;
 
+  //get record details
+  getRecord(
+    recordId: string
+  ): Promise<Result<Record, Error>>;
+
   //get all versions of a record
   getRecordVersions(
     recordId: string //multibase base64url encoded
-  ): Promise<Optional<RecordVersions>>;
+  ): Promise<Result<RecordVersions, Error>>;
 
   //get the details of one version of a record
   getRecordVersionDetails(
     recordId: string, //multibase base64url encoded
     versionId: string
-  ): Promise<Optional<RecordVersionDetails>>;
+  ): Promise<Result<RecordVersionDetails, Error>>;
 
   //additional methods of EBSI's timestamp API to fully replicate it
   timestampHashes(

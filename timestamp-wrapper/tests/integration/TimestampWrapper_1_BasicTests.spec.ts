@@ -95,7 +95,7 @@ describe('Timestamp Wrapper', () => {
       );
 
       //get versions of record
-      const recordVersions = recordVersionResponse.get().items;
+      const recordVersions = recordVersionResponse.unwrap().items;
 
       // record must only have one version
       expect(
@@ -108,18 +108,18 @@ describe('Timestamp Wrapper', () => {
         await timestampWrapper.getRecordVersionDetails(recordId.multibase, '0');
       console.log(
         'first version of record:',
-        recordVersionDetailsResponse.get(),
+        recordVersionDetailsResponse.unwrap(),
       );
 
       // hash value of record must be the same as the hash value of the first version
       expect(
-        recordVersionDetailsResponse.get().hashes[0],
+        recordVersionDetailsResponse.unwrap().hashes[0],
         `first version of record with id ${recordId.multibase} should have one hash value, namely: ${hashValue1}`,
       ).toBe(hashValue1);
 
       //check if hash value is correctly the first version of the record
       expect(
-        JSON.stringify(recordVersionDetailsResponse.get().info[0]),
+        JSON.stringify(recordVersionDetailsResponse.unwrap().info[0]),
         'info of first version incorrect',
       ).toBe(JSON.stringify({ ipfs_cid: `ipfs version 1 of ${randomId}` }));
     });
@@ -194,7 +194,7 @@ describe('Timestamp Wrapper', () => {
       );
 
       // get versions of record
-      const recordVersions = recordVersionResponse.get().items;
+      const recordVersions = recordVersionResponse.unwrap().items;
 
       // record must only have one version
       expect(
@@ -207,18 +207,18 @@ describe('Timestamp Wrapper', () => {
         await timestampWrapper.getRecordVersionDetails(recordId.multibase, '0');
       console.log(
         'first version of record:',
-        recordVersionDetailsResponse.get(),
+        recordVersionDetailsResponse.unwrap(),
       );
 
       // hash value of record must be the same as the hash value of the first version
       expect(
-        recordVersionDetailsResponse.get().hashes[0],
+        recordVersionDetailsResponse.unwrap().hashes[0],
         `first version of record with id ${recordId} should have one hash value, namely: ${hashValue1}`,
       ).toBe(hashValue1);
 
       // check if hash value is correctly the first version of the record
       expect(
-        JSON.stringify(recordVersionDetailsResponse.get().info[0]),
+        JSON.stringify(recordVersionDetailsResponse.unwrap().info[0]),
         'info of first version incorrect',
       ).toBe(JSON.stringify({ ipfs_cid: `ipfs version 1 of ${randomId}` }));
 
@@ -251,7 +251,7 @@ describe('Timestamp Wrapper', () => {
       );
 
       // get versions of record
-      const newRecordVersions = newRecordVersionResponse.get().items;
+      const newRecordVersions = newRecordVersionResponse.unwrap().items;
 
       // record must now have 2 versions
       expect(
@@ -264,18 +264,18 @@ describe('Timestamp Wrapper', () => {
         await timestampWrapper.getRecordVersionDetails(recordId.multibase, '1');
       console.log(
         'second version of record:',
-        addedRecordVersionDetailsResponse.get(),
+        addedRecordVersionDetailsResponse.unwrap(),
       );
 
       // hash value of record must be the same as the hash value of the first version
       expect(
-        addedRecordVersionDetailsResponse.get().hashes[0],
+        addedRecordVersionDetailsResponse.unwrap().hashes[0],
         `second version of record with id ${recordId} should have one hash value, namely: ${hashValue2}`,
       ).toBe(hashValue2);
 
       // check if hash value is correctly the first version of the record
       expect(
-        JSON.stringify(addedRecordVersionDetailsResponse.get().info[0]),
+        JSON.stringify(addedRecordVersionDetailsResponse.unwrap().info[0]),
         'info of second version incorrect',
       ).toBe(JSON.stringify({ ipfs_cid: `ipfs version 2 of ${randomId}` }));
     });
@@ -364,10 +364,10 @@ describe('Timestamp Wrapper', () => {
 
     // check if owner change successful
     const record = await timestampWrapper.getRecord(recordId.multibase);
-    const recordOwners = record.get().ownerIds;
+    const recordOwners = record.unwrap().ownerIds;
     expect(recordOwners.length, `not exactly one record owner`).toBe(1); //check if only one owner is listed in the record after owner change
     expect(
-      record.get().revokedOwnerIds[0].toUpperCase(),
+      record.unwrap().revokedOwnerIds[0].toUpperCase(),
       'old owner is not declared as removed',
     ).toBe(wallet.getEthAddress().toUpperCase()); //check if old owner is listed as removed
     expect(
