@@ -120,6 +120,7 @@ Retrieves details of a specific version of a record.
 ### `timestampHashes`
 
 Creates a timestamp for a hash value.
+`note: endpoint is not tested, use with caution and report bugs to trace4eu consortium`
 
 - **Parameters:**
   - `from: string`: The sender’s ETH address.
@@ -135,6 +136,7 @@ Creates a timestamp for a hash value.
 ### `timestampVersionHashes`
 
 Creates a timestamp for a versioned hash value.
+`note: endpoint is not tested, use with caution and report bugs to trace4eu consortium`
 
 - **Parameters:**
   - `from: string`: The sender’s ETH address.
@@ -152,6 +154,7 @@ Creates a timestamp for a versioned hash value.
 ### `appendRecordVersionHashes`
 
 Appends hash values to a specific record version.
+`note: endpoint is not tested, use with caution and report bugs to trace4eu consortium`
 
 - **Parameters:**
   - `from: string`: The sender’s ETH address.
@@ -170,6 +173,7 @@ Appends hash values to a specific record version.
 ### `detachRecordVersionHash`
 
 Detaches a hash value from a specific record version.
+`note: endpoint is not tested, use with caution and report bugs to trace4eu consortium`
 
 - **Parameters:**
   - `from: string`: The sender’s ETH address.
@@ -186,6 +190,7 @@ Detaches a hash value from a specific record version.
 ### `insertRecordVersionInfo`
 
 Inserts version information into a specific record version.
+`note: endpoint is not tested, use with caution and report bugs to trace4eu consortium`
 
 - **Parameters:**
   - `from: string`: The sender’s ETH address.
