@@ -77,6 +77,22 @@ export interface ITnTWrapper {
     eventId: string,
   ): Promise<Result<EventData, Error>>;
 
-  //grantAccessToDocument(documentHash: string, grantedBy:
+  grantAccessToDocument(
+    documentHash: string,
+    grantedByAccount: string,
+    subjectAccount: string,
+    grantedByAccType: number,
+    subjectByAccType: number,
+    permission: number,
+    waitMined?: boolean,
+  ): Promise<Result<boolean, Error>>;
+
+  revokeAccessToDocument(
+    documentHash: string,
+    revokeByAccount: string,
+    subjectAccount: string,
+    permission: boolean,
+    waitMined?: boolean,
+  ): Promise<Result<boolean, Error>>;
   //listEventsOfDocument(): any;
 }
