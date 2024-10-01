@@ -4,6 +4,7 @@ import * as SignatureWrapperTypes from '@trace4eu/signature-wrapper';
 import { EbsiAuthorisationApi } from '@trace4eu/authorisation-wrapper';
 import { TnTWrapper } from '../../src/wrappers/TntWrapper';
 import * as crypto from 'crypto';
+import { assert } from 'console';
 
 // Granting user
 const did = 'did:ebsi:zfEmvX5twhXjQJiCWsukvQA';
@@ -53,7 +54,7 @@ const origin = 'origin';
 
 describe('Track and Trace Wrapper', () => {
   let firstDocumentHash;
-  describe('Grant and Revoke permission', () => {
+  describe('Grant and Revoke permission', async () => {
     it('getFirstDocumentWrittenInLedger to be sure it exists and it is mined', async () => {
       const existingDocumentsPage = await tntWrapper.getAllDocuments();
       firstDocumentHash = existingDocumentsPage.value?.items[0].documentId;
@@ -80,6 +81,7 @@ describe('Track and Trace Wrapper', () => {
     });
 
     it('Grant permission to another user', async () => {
+      console.log('fistDocumentHash: ' + firstDocumentHash);
       const result = await tntWrapper.grantAccessToDocument(
         firstDocumentHash,
         wallet.getHexDid(),
@@ -89,7 +91,25 @@ describe('Track and Trace Wrapper', () => {
         1,
       );
       console.log('Grant permission result');
-      console.log(result);
+      assert(result.isOk());
+      //console.log(result.unwrapErr().response.data);
+      const documentData =
+        await tntWrapper.getDocumentDetails(firstDocumentHash);
+      console.log('Document Data');
+      console.log(documentData);
+    });
+
+    it('Revoke permission to another user', async () => {
+      console.log('fistDocumentHash: ' + firstDocumentHash);
+      const result = await tntWrapper.revokeAccessToDocument(
+        firstDocumentHash,
+        wallet.getHexDid(),
+        walletSubject.getHexDid(),
+        1,
+      );
+      console.log('Revoke permission result');
+      assert(result.isOk());
+      //console.log(result.unwrapErr().response.data);
     });
   });
 });

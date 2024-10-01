@@ -38,7 +38,7 @@ export class TnTWrapper implements ITnTWrapper {
   ): Promise<Result<boolean, Error>> {
     const { access_token } = await this.ebsiAuthtorisationApi.getAccessToken(
       'ES256',
-      'tnt_create',
+      'tnt_write',
       [],
     );
     const GrantUnsignedTx = await this.sendGrantAccessRequest(
@@ -93,12 +93,12 @@ export class TnTWrapper implements ITnTWrapper {
     documentHash: string,
     revokeByAccount: string,
     subjectAccount: string,
-    permission: boolean,
+    permission: number,
     waitMined: boolean = true,
   ): Promise<Result<boolean, Error>> {
     const { access_token } = await this.ebsiAuthtorisationApi.getAccessToken(
       'ES256',
-      'tnt_create',
+      'tnt_write',
       [],
     );
     const UnsignedTx = await this.sendRevokeAccessRequest(

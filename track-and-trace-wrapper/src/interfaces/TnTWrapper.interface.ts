@@ -91,7 +91,7 @@ export interface ITnTWrapper {
     documentHash: string,
     revokeByAccount: string,
     subjectAccount: string,
-    permission: boolean,
+    permission: number,
     waitMined?: boolean,
   ): Promise<Result<boolean, Error>>;
   //listEventsOfDocument(): any;
