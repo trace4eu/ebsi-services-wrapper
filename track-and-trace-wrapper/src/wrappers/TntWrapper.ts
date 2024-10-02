@@ -27,6 +27,31 @@ export class TnTWrapper implements ITnTWrapper {
     this.ebsiAuthtorisationApi = new EbsiAuthorisationApi(this.wallet);
   }
 
+  async checkAccess(creator: string): Promise<Result<boolean, Error>> {
+    const config = {
+      method: 'head',
+      maxBodyLength: Infinity,
+      url: `https://api-pilot.ebsi.eu/track-and-trace/v1/accesses?creator=${creator}`,
+      headers: {},
+    };
+
+    return axios
+      .request(config)
+      .then((response) => {
+        switch (response.status) {
+          case 204:
+            return Result.ok(true);
+          case 404:
+            return Result.ok(false);
+          default:
+            return Result.ok(false);
+        }
+      })
+      .catch((error) => {
+        return Result.err(error);
+      });
+  }
+
   async grantAccessToDocument(
     documentHash: string,
     grantedByAccount: string,
@@ -352,6 +377,21 @@ export class TnTWrapper implements ITnTWrapper {
     }
     return this.getDocumentsFromAPI();
   }
+  async listAccesses(
+    pageSize?: number,
+    pageAfter?: number,
+  ): Promise<Result<TnTPagedObjectList, Error>> {
+    if (typeof pageAfter !== 'undefined' && typeof pageSize !== 'undefined') {
+      // both undefined
+      return this.getAccessesFromAPI(pageSize, pageAfter);
+    } else {
+      // pageAfter without pageSize makes no sense
+      if (typeof pageSize !== 'undefined') {
+        return this.getAccessesFromAPI(pageSize);
+      }
+    }
+    return this.getAccessesFromAPI();
+  }
   async getAllEventsOfDocument(
     documentHash: string,
   ): Promise<Result<TnTObjectRef[], Error>> {
@@ -511,6 +551,40 @@ export class TnTWrapper implements ITnTWrapper {
     pageAfter?: number,
   ): Promise<Result<TnTPagedObjectList, Error>> {
     let url = `https://api-pilot.ebsi.eu/track-and-trace/v1/documents`;
+    if (typeof pageAfter !== 'undefined' && typeof pageSize !== 'undefined') {
+      // both undefined
+      url +=
+        '?page[size]=' +
+        pageSize.toString() +
+        '&page[after]=' +
+        pageAfter.toString();
+    } else {
+      // pageAfter without pageSize makes no sense
+      if (typeof pageSize !== 'undefined') {
+        url += '?page[size]=' + pageSize.toString();
+      }
+    }
+
+    const config = {
+      method: 'get',
+      url: url,
+    };
+
+    return axios
+      .request(config)
+      .then((response) => {
+        return Result.ok(response.data);
+      })
+      .catch((error) => {
+        return Result.err(error);
+      });
+  }
+  private async getAccessesFromAPI(
+    pageSize?: number,
+    pageAfter?: number,
+  ): Promise<Result<TnTPagedObjectList, Error>> {
+    let url = `https://api-pilot.ebsi.eu/track-and-trace/v1/accesses`;
+
     if (typeof pageAfter !== 'undefined' && typeof pageSize !== 'undefined') {
       // both undefined
       url +=

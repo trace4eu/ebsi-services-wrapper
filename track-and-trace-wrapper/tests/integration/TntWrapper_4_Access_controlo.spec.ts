@@ -81,7 +81,7 @@ describe('Track and Trace Wrapper', () => {
     });
 
     it('Grant permission to another user', async () => {
-      console.log('fistDocumentHash: ' + firstDocumentHash);
+      const access_status = await tntWrapper.checkAccess(didSubject);
       const result = await tntWrapper.grantAccessToDocument(
         firstDocumentHash,
         wallet.getHexDid(),
@@ -93,14 +93,9 @@ describe('Track and Trace Wrapper', () => {
       console.log('Grant permission result');
       assert(result.isOk());
       //console.log(result.unwrapErr().response.data);
-      const documentData =
-        await tntWrapper.getDocumentDetails(firstDocumentHash);
-      console.log('Document Data');
-      console.log(documentData);
     });
 
     it('Revoke permission to another user', async () => {
-      console.log('fistDocumentHash: ' + firstDocumentHash);
       const result = await tntWrapper.revokeAccessToDocument(
         firstDocumentHash,
         wallet.getHexDid(),

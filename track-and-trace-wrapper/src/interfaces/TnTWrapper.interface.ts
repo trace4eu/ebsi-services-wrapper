@@ -94,5 +94,11 @@ export interface ITnTWrapper {
     permission: number,
     waitMined?: boolean,
   ): Promise<Result<boolean, Error>>;
-  //listEventsOfDocument(): any;
+
+  listAccesses(
+    pageSize?: number,
+    pageAfter?: number,
+  ): Promise<Result<TnTPagedObjectList, Error>>;
+
+  checkAccess(creator: string): Promise<Result<boolean, Error>>;
 }
