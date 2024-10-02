@@ -77,6 +77,16 @@ export interface ITnTWrapper {
     eventId: string,
   ): Promise<Result<EventData, Error>>;
 
+  /**
+   * Grant access to write event to a document
+   * @param documentHash hash of the document
+   * @param grantedByAccount Entity that grants the permission. If the entity uses the did:ebsi method, grantedByAccount must be the UTF-8 DID encoded in hexadecimal. If the entity uses the did:key method, grantedByAccount must be the secp256k1 uncompressed public key (64 bytes or 65 bytes with 04 prefix) encoded in hexadecimal.
+   * @param subjectAccount Entity that receives the permission. If the entity uses the did:ebsi method, subjectAccount must be the UTF-8 DID encoded in hexadecimal. If the entity uses the did:key method, subjectAccount must be the secp256k1 uncompressed public key (64 bytes or 65 bytes with 04 prefix) encoded in hexadecimal.
+   * @param grantedByAccType DID method of grantedByAccount. Use 0 for did:ebsi or 1 for did:key.
+   * @param subjectByAccType DID method of subjectAccount. Use 0 for did:ebsi or 1 for did:key.
+   * @param permission Type of the permission to grant. Use 0 for "delegate" or 1 for "write"
+   * @param waitMined wait event mined if true - default = true
+   */
   grantAccessToDocument(
     documentHash: string,
     grantedByAccount: string,
@@ -87,6 +97,14 @@ export interface ITnTWrapper {
     waitMined?: boolean,
   ): Promise<Result<boolean, Error>>;
 
+  /**
+   * Revoke access to document
+   * @param documentHash hash of the document
+   * @param revokeByAccount Entity that revokes the permission. If the entity uses the did:ebsi method, revokedByAccount must be the UTF-8 DID encoded in hexadecimal. If the entity uses the did:key method, revokedByAccount must be the secp256k1 uncompressed public key (64 bytes or 65 bytes with 04 prefix) encoded in hexadecimal.
+   * @param subjectAccount Entity whose permission is revoked. If the entity uses the did:ebsi method, subjectAccount must be the UTF-8 DID encoded in hexadecimal. If the entity uses the did:key method, subjectAccount must be the secp256k1 uncompressed public key (64 bytes or 65 bytes with 04 prefix) encoded in hexadecimal.
+   * @param permission Type of the permission to revoke. Use 0 for "delegate" or 1 for "write"
+   * @param waitMined wait event mined if true - default = true
+   */
   revokeAccessToDocument(
     documentHash: string,
     revokeByAccount: string,
@@ -95,11 +113,21 @@ export interface ITnTWrapper {
     waitMined?: boolean,
   ): Promise<Result<boolean, Error>>;
 
+  /**
+   * Returns a list of accesses related to the document.
+   * @param documentHash hash of the document
+   * @param pageSize Cursor that points to the end of the page of data that has been returned.
+   * @param pageAfter Defines the maximum number of objects that may be returned.
+   */
   listAccesses(
     documentHash: string,
     pageSize?: number,
     pageAfter?: number,
   ): Promise<Result<TnTPagedObjectList, Error>>;
 
+  /**
+   * Checks if the DID is included in the allowlist of TnT Document creators or not.
+   * @param creator did to check
+   */
   checkAccess(creator: string): Promise<Result<boolean, Error>>;
 }
