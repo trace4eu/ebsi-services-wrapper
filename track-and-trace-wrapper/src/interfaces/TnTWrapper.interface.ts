@@ -96,6 +96,7 @@ export interface ITnTWrapper {
   ): Promise<Result<boolean, Error>>;
 
   listAccesses(
+    documentHash: string,
     pageSize?: number,
     pageAfter?: number,
   ): Promise<Result<TnTPagedObjectList, Error>>;

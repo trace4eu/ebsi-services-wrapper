@@ -378,19 +378,20 @@ export class TnTWrapper implements ITnTWrapper {
     return this.getDocumentsFromAPI();
   }
   async listAccesses(
+    documentHash: string,
     pageSize?: number,
     pageAfter?: number,
   ): Promise<Result<TnTPagedObjectList, Error>> {
     if (typeof pageAfter !== 'undefined' && typeof pageSize !== 'undefined') {
       // both undefined
-      return this.getAccessesFromAPI(pageSize, pageAfter);
+      return this.getAccessesFromAPI(documentHash, pageSize, pageAfter);
     } else {
       // pageAfter without pageSize makes no sense
       if (typeof pageSize !== 'undefined') {
-        return this.getAccessesFromAPI(pageSize);
+        return this.getAccessesFromAPI(documentHash, pageSize);
       }
     }
-    return this.getAccessesFromAPI();
+    return this.getAccessesFromAPI(documentHash);
   }
   async getAllEventsOfDocument(
     documentHash: string,
@@ -580,10 +581,11 @@ export class TnTWrapper implements ITnTWrapper {
       });
   }
   private async getAccessesFromAPI(
+    documentHash: string,
     pageSize?: number,
     pageAfter?: number,
   ): Promise<Result<TnTPagedObjectList, Error>> {
-    let url = `https://api-pilot.ebsi.eu/track-and-trace/v1/accesses`;
+    let url = `https://api-pilot.ebsi.eu/track-and-trace/v1/documents/${documentHash}/accesses`;
 
     if (typeof pageAfter !== 'undefined' && typeof pageSize !== 'undefined') {
       // both undefined
