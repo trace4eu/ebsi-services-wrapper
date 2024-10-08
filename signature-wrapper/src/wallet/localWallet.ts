@@ -1,6 +1,8 @@
 import { Wallet } from './wallet.interface';
 import {
   Algorithm,
+  JwtHeader,
+  JWTVerifyResult,
   KeyPairData,
   KeyPairJwk,
   SignatureOptions,
@@ -18,7 +20,6 @@ import {
 
 import { EBSI_CONFIG } from '../config';
 import * as crypto from 'crypto';
-import { calculateJwkThumbprint } from 'jose';
 import {
   ebsiWrapper,
   EbsiWrapperIssuer,
@@ -32,6 +33,8 @@ import {
 import { ethersWrapper } from '../wrappers/ethersWrapper';
 import { UnsupportedAlgorithmError } from '../errors/UnspportedAlgorithmError';
 import { EbsiIssuer } from '@cef-ebsi/verifiable-credential';
+import { joseWrapper } from '../wrappers/joseWrapper';
+import { JWK } from 'jose';
 
 export class LocalWallet implements Wallet {
   constructor(did: string, keys: KeyPairData[]) {
@@ -65,10 +68,10 @@ export class LocalWallet implements Wallet {
     vc: string | string[],
     expiration?: number,
   ): Promise<string> {
-    const keyPair: KeyPairJwk = this.findKeyByAlg(
-      alg as Algorithm,
+    const keyPair: KeyPairJwk = this.findKeyByAlg(alg as Algorithm);
+    keyPair.kid = await joseWrapper.calculateJwkThumbprint(
+      keyPair.publicKeyJwk,
     );
-    keyPair.kid = await calculateJwkThumbprint(keyPair.publicKeyJwk, 'sha256');
 
     const issuer: EbsiWrapperIssuer = {
       did: this.did,
@@ -126,10 +129,10 @@ export class LocalWallet implements Wallet {
   }
 
   async signVC(data: Buffer, opts: SignatureOptions): Promise<string> {
-    const keyPair: KeyPairJwk = this.findKeyByAlg(
-      opts.alg as Algorithm,
+    const keyPair: KeyPairJwk = this.findKeyByAlg(opts.alg as Algorithm);
+    keyPair.kid = await joseWrapper.calculateJwkThumbprint(
+      keyPair.publicKeyJwk,
     );
-    keyPair.kid = await calculateJwkThumbprint(keyPair.publicKeyJwk, 'sha256');
     const issuer: EbsiIssuer = {
       did: this.did,
       kid: `${this.did}#${keyPair.kid}`,
@@ -138,6 +141,30 @@ export class LocalWallet implements Wallet {
       privateKeyJwk: keyPair.privateKeyJwk,
     };
     return await ebsiWrapper.createVerifiableCredentialJwt(data, opts, issuer);
+  }
+
+  async signJwt(
+    data: Buffer,
+    opts: SignatureOptions,
+    header?: JwtHeader,
+  ): Promise<string> {
+    const keyPair: KeyPairJwk = this.findKeyByAlg(opts.alg as Algorithm);
+    keyPair.kid = await joseWrapper.calculateJwkThumbprint(
+      keyPair.publicKeyJwk,
+    );
+    if (header) {
+      header.kid = header.kid ? header.kid : keyPair.kid;
+    }
+
+    return await joseWrapper.signJwt(keyPair.privateKeyJwk, data, header);
+  }
+
+  async verifyJwt(
+    jwt: string,
+    alg: string,
+  ): Promise<JWTVerifyResult> {
+    const keyPair: KeyPairJwk = this.findKeyByAlg(alg as Algorithm);
+    return await joseWrapper.verifyJwt(jwt, keyPair.publicKeyJwk, alg);
   }
 
   getDid(): string {

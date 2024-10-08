@@ -1,6 +1,6 @@
 import { Wallet } from './wallet.interface';
 import { ethers } from 'ethers';
-import {KeyPairData, SignatureOptions, SignatureResponse} from '../types/types';
+import {JwtHeader, JWTVerifyResult, KeyPairData, SignatureOptions, SignatureResponse} from '../types/types';
 
 export class EnterpriseWallet implements Wallet {
   constructor(
@@ -10,6 +10,18 @@ export class EnterpriseWallet implements Wallet {
   ) {}
 
   async signVP(): Promise<string> {
+    throw new Error('Not Implemented yet');
+  }
+
+  signJwt(
+    data: Buffer,
+    opts: SignatureOptions,
+    header?: JwtHeader,
+  ): Promise<string> {
+    throw new Error('Not Implemented yet');
+  }
+
+  verifyJwt(jwt: string, alg: string): Promise<JWTVerifyResult> {
     throw new Error('Not Implemented yet');
   }
 

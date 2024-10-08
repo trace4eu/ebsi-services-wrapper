@@ -19,6 +19,27 @@ describe('Local Wallet should', () => {
 
   const wallet = WalletFactory.createInstance(false, did, entityKeys);
 
+  it('Generate a signed JWT', async () => {
+    const payload = { test: 1234 };
+    const jwt = await wallet.signJwt(
+      Buffer.from(JSON.stringify(payload)),
+      { alg: Algorithm.ES256 },
+      {
+        typ: 'JWT',
+        alg: 'ES256',
+      },
+    );
+    expect(jwt).toBeDefined();
+  });
+
+  it('Verify a signed JWT', async () => {
+    const jwt =
+      'eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiIsImtpZCI6Ijg0OXh3dWNxaFRRV21tcGpweG0yNlA3UmgtMTlwZm5COURTY0JZRkNDWXcifQ.eyJ0ZXN0IjoxMjM0fQ.9x6SCpo2b9Wq4f1EnzAUx1xqUK62QdRti_C3Mkwr1VLsRpHNPY0RJO4B8EATDbL_oU0xhfsYNrDvPTYVLyDhEA';
+    const result = await wallet.verifyJwt(jwt, 'ES256');
+    expect(result).toBeDefined();
+    expect(result.payload).toStrictEqual({ test: 1234 });
+  });
+
   it('Generate a signed Verifiable Credential', async () => {
     const vcPayload = {
       '@context': ['https://www.w3.org/2018/credentials/v1'],
