@@ -1,0 +1,1 @@
+typrescript dev style reference: https://ts.dev/style/

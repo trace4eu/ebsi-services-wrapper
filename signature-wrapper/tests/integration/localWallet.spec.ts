@@ -1,29 +1,158 @@
-import WalletFactory from '../../src/wallet/walletFactory';
-import { Algorithm } from '../../src/types/types';
-import { SignatureError } from '../../src/errors/SignatureError';
+import { WalletFactory, Algorithm } from '../../src';
+import { ValidationError } from 'joi';
+import { decodeJwt } from 'jose';
 
 describe('Local Wallet should', () => {
-  const entityKeys = {
-    entityData: {
-      did: 'did:ebsi:zobuuYAHkAbRFCcqdcJfTgR',
-      keys: [
-        {
-          alg: Algorithm.ES256K,
-          privateKeyHex:
-            'c4877a6d51c382b25a57684b5ac0a70398ab77b0eda0fcece0ca14ed00737e57',
-        },
-      ],
+  const did = 'did:ebsi:zobuuYAHkAbRFCcqdcJfTgR';
+  const entityKeys = [
+    {
+      alg: Algorithm.ES256K,
+      privateKeyHex:
+        'c4877a6d51c382b25a57684b5ac0a70398ab77b0eda0fcece0ca14ed00737e57',
     },
-  };
+    {
+      alg: Algorithm.ES256,
+      privateKeyHex:
+        'fa50bbba9feade27ea61dd9973abfd7c04e72366b607558cd0b423b75d067a86',
+    },
+  ];
 
-  const wallet = WalletFactory.createInstance(false, entityKeys);
+  const wallet = WalletFactory.createInstance(false, did, entityKeys);
 
-  it('Generate a signed Verifiable Credential', async () => {});
+  it('Generate a signed JWT', async () => {
+    const payload = { test: 1234 };
+    const jwt = await wallet.signJwt(
+      Buffer.from(JSON.stringify(payload)),
+      { alg: Algorithm.ES256 },
+      {
+        typ: 'JWT',
+        alg: 'ES256',
+      },
+    );
+    expect(jwt).toBeDefined();
+  });
 
-  it('Generate a signed Verifiable Presentation', async () => {
-    const vc = await wallet.signVP(Algorithm.ES256K, 'empty');
+  it('Verify a signed JWT', async () => {
+    const jwt =
+      'eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiIsImtpZCI6Ijg0OXh3dWNxaFRRV21tcGpweG0yNlA3UmgtMTlwZm5COURTY0JZRkNDWXcifQ.eyJ0ZXN0IjoxMjM0fQ.9x6SCpo2b9Wq4f1EnzAUx1xqUK62QdRti_C3Mkwr1VLsRpHNPY0RJO4B8EATDbL_oU0xhfsYNrDvPTYVLyDhEA';
+    const result = await wallet.verifyJwt(jwt, 'ES256');
+    expect(result).toBeDefined();
+    expect(result.payload).toStrictEqual({ test: 1234 });
+  });
+
+  it('Generate a signed Verifiable Credential', async () => {
+    const vcPayload = {
+      '@context': ['https://www.w3.org/2018/credentials/v1'],
+      id: 'urn:did:123456',
+      type: ['VerifiableCredential', 'VerifiableAttestation', 'VerifiableId'],
+      issuer: wallet.getDid(),
+      credentialSubject: {
+        id: 'did:key:z2dmzD81cgPx8Vki7JbuuMmFYrWPgYoytykUZ3eyqht1j9KbrDt4zxXoDrBWYFiATYZ8G9JMeEXC7Kki24fbTwtsJbGe5qcbkYFunSzcDokMRmj8UJ1PbdCGh33mf97K3To89bMzd15qrYq3VkDztoZqfmujkJVpvTbqoXWXqxmzNDbvMJ',
+        personalIdentifier: 'IT/DE/1234',
+        familyName: 'Castafiori',
+        firstName: 'Bianca',
+        dateOfBirth: '1930-10-01',
+      },
+      credentialSchema: {
+        id: 'https://api-pilot.ebsi.eu/trusted-schemas-registry/v2/schemas/zDpWGUBenmqXzurskry9Nsk6vq2R8thh9VSeoRqguoyMD',
+        type: 'FullJsonSchemaValidator2021',
+      },
+    };
+    const vc = await wallet.signVC(Buffer.from(JSON.stringify(vcPayload)), {
+      alg: Algorithm.ES256,
+    });
     expect(vc).toBeDefined();
   });
 
-  it('Generate a signed Ethereum Transaction', async () => {});
+  it('Generate a signed Verifiable Presentation with default expiration time', async () => {
+    const vp = await wallet.signVP(Algorithm.ES256K, 'empty');
+    expect(vp).toBeDefined();
+  });
+
+  it('Generate a signed Verifiable Presentation with a defined expiration time', async () => {
+    const vp = await wallet.signVP(Algorithm.ES256K, 'empty', 900);
+    const decodedVp = decodeJwt(vp);
+    const expirationTime = decodedVp.exp - decodedVp.iat;
+    expect(expirationTime).toBe(900);
+  });
+
+  it('Get did of a wallet', () => {
+    const wallet = WalletFactory.createInstance(false, did, entityKeys);
+    expect(wallet.getDid()).toBe('did:ebsi:zobuuYAHkAbRFCcqdcJfTgR');
+  });
+
+  it('Get ethereum address of an ebsi wallet', () => {
+    const wallet = WalletFactory.createInstance(false, did, entityKeys);
+    expect(wallet.getEthAddress()).toBe(
+      '0xC09b57dA0F949F666DaD6dAE3cfC6A5D977B8639',
+    );
+  });
+
+  it('Get ebsi did of an ebsi wallet encoded in hex format', () => {
+    const wallet = WalletFactory.createInstance(false, did, entityKeys);
+    expect(wallet.getHexDid()).toBe(
+      '0x6469643a656273693a7a6f6275755941486b4162524643637164634a66546752',
+    );
+  });
+
+  it('Get did and the ethereum address of a wallet', () => {
+    const wallet = WalletFactory.createInstance(false, did, entityKeys);
+    expect(wallet.getEthAddress()).toBe(
+      '0xC09b57dA0F949F666DaD6dAE3cfC6A5D977B8639',
+    );
+    expect(wallet.getDid()).toBe('did:ebsi:zobuuYAHkAbRFCcqdcJfTgR');
+  });
+
+  it('Generate a signed Ethereum Transaction', async () => {
+    const did = 'did:ebsi:z22h9L3a8f32vF9CY9jWMqKL';
+    entityKeys[0].privateKeyHex =
+      '58919053817fecb9118542a45258dff7025980a005f046adeee80ca4d7299265';
+
+    const unsignedEthTrx = {
+      to: '0xf15e3682BCe7ADDefb2F1E1EAE3163448DB539f6',
+      data: '0xfbb2240800000000000000000000000000000000000000000000000000000000000000e0000000000000000000000000000000000000000000000000000000000000014000000000000000000000000000000000000000000000000000000000000001c00000000000000000000000000000000000000000000000000000000000000220000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000664b6656000000000000000000000000000000000000000000000000000000006f7f47ce00000000000000000000000000000000000000000000000000000000000000216469643a656273693a7a323268394c3361386633327646394359396a574d714b4c00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000005c7b2240636f6e74657874223a5b2268747470733a2f2f7777772e77332e6f72672f6e732f6469642f7631222c2268747470733a2f2f773369642e6f72672f73656375726974792f7375697465732f6a77732d323032302f7631225d7d00000000000000000000000000000000000000000000000000000000000000000000002b7a36326f646a4e6f79547954742d694964704e7033394a33465639325544615030525042457354506f456b000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000004104c79c36781d4981cd81766a4bd3fad000ac2d6f43c979b1c89dd4ba011ee2fbdbe409cc45af9324668dd6e3b224c6ff26332f0469f263d178e6930235a6d0900600000000000000000000000000000000000000000000000000000000000000',
+      value: '0x0',
+      nonce: '0x0',
+      chainId: '0x181f',
+      gasLimit: '0x1b395a',
+      gasPrice: '0x0',
+    };
+
+    const expectedSignedTrx = {
+      r: '0x5fcf886bed6b4270d52745a119d5b0b5fcd3c9594501294603883c8be61e7990',
+      s: '0x2a1b021bc16ad223eb10bb27a9669f76b27fdcac92edd61fffab2ce90cda2b24',
+      v: '0x3062',
+      signedRawTransaction:
+        '0xf903088080831b395a94f15e3682bce7addefb2f1e1eae3163448db539f680b902a4fbb2240800000000000000000000000000000000000000000000000000000000000000e0000000000000000000000000000000000000000000000000000000000000014000000000000000000000000000000000000000000000000000000000000001c00000000000000000000000000000000000000000000000000000000000000220000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000664b6656000000000000000000000000000000000000000000000000000000006f7f47ce00000000000000000000000000000000000000000000000000000000000000216469643a656273693a7a323268394c3361386633327646394359396a574d714b4c00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000005c7b2240636f6e74657874223a5b2268747470733a2f2f7777772e77332e6f72672f6e732f6469642f7631222c2268747470733a2f2f773369642e6f72672f73656375726974792f7375697465732f6a77732d323032302f7631225d7d00000000000000000000000000000000000000000000000000000000000000000000002b7a36326f646a4e6f79547954742d694964704e7033394a33465639325544615030525042457354506f456b000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000004104c79c36781d4981cd81766a4bd3fad000ac2d6f43c979b1c89dd4ba011ee2fbdbe409cc45af9324668dd6e3b224c6ff26332f0469f263d178e6930235a6d0900600000000000000000000000000000000000000000000000000000000000000823062a05fcf886bed6b4270d52745a119d5b0b5fcd3c9594501294603883c8be61e7990a02a1b021bc16ad223eb10bb27a9669f76b27fdcac92edd61fffab2ce90cda2b24',
+    };
+
+    const wallet = WalletFactory.createInstance(false, did, entityKeys);
+    const signedTrx = await wallet.signEthTx(unsignedEthTrx);
+    expect(signedTrx).toStrictEqual(expectedSignedTrx);
+  });
+
+  it('Throw a ValidationError exception if input EthTrx is not well formatted', async () => {
+    const did = 'did:ebsi:z22h9L3a8f32vF9CY9jWMqKL';
+    entityKeys[0].privateKeyHex =
+      '58919053817fecb9118542a45258dff7025980a005f046adeee80ca4d7299265';
+
+    const unsignedEthTrx = {
+      to: '0xf15e3682BCe7',
+      data: 'noHexData',
+      value: '0x0',
+      nonce: '0x0',
+      chainId: '0x181f',
+      gasLimit: '0x1b395a',
+      gasPrice: '0x0',
+    };
+
+    const expectedSignedTrx =
+      '0xf903088080831b395a94f15e3682bce7addefb2f1e1eae3163448db539f680b902a4fbb2240800000000000000000000000000000000000000000000000000000000000000e0000000000000000000000000000000000000000000000000000000000000014000000000000000000000000000000000000000000000000000000000000001c00000000000000000000000000000000000000000000000000000000000000220000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000664b6656000000000000000000000000000000000000000000000000000000006f7f47ce00000000000000000000000000000000000000000000000000000000000000216469643a656273693a7a323268394c3361386633327646394359396a574d714b4c00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000005c7b2240636f6e74657874223a5b2268747470733a2f2f7777772e77332e6f72672f6e732f6469642f7631222c2268747470733a2f2f773369642e6f72672f73656375726974792f7375697465732f6a77732d323032302f7631225d7d00000000000000000000000000000000000000000000000000000000000000000000002b7a36326f646a4e6f79547954742d694964704e7033394a33465639325544615030525042457354506f456b000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000004104c79c36781d4981cd81766a4bd3fad000ac2d6f43c979b1c89dd4ba011ee2fbdbe409cc45af9324668dd6e3b224c6ff26332f0469f263d178e6930235a6d0900600000000000000000000000000000000000000000000000000000000000000823067a01b1eb21be7c107fae2d6e09f25120151ff5bf34b2160ae6c772cbb5c09165cada04dff3433ae866ad405fc2b86b74ae9d77c1150f5d82861bd6669f2d01187efa3';
+
+    const wallet = WalletFactory.createInstance(false, did, entityKeys);
+
+    await expect(wallet.signEthTx(unsignedEthTrx)).rejects.toThrow(
+      ValidationError,
+    );
+  });
 });
