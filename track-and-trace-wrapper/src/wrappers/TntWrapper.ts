@@ -14,6 +14,7 @@ import {
   TnTObjectRef,
   TnTPagedObjectList,
 } from '../types/types';
+import { send } from 'process';
 
 const delay = (ms) => new Promise((res) => setTimeout(res, ms));
 
@@ -26,14 +27,125 @@ export class TnTWrapper implements ITnTWrapper {
     this.ebsiAuthtorisationApi = new EbsiAuthorisationApi(this.wallet);
   }
 
-  grantAccessToDocument() {
-    throw new Error('Method not implemented.');
+  async grantAccessToDocument(
+    documentHash: string,
+    grantedByAccount: string,
+    subjectAccount: string,
+    grantedByAccType: boolean,
+    subjectByAccType: boolean,
+    permission: boolean,
+    waitMined: boolean = true,
+  ): Promise<Result<boolean, Error>> {
+    const { access_token } = await this.ebsiAuthtorisationApi.getAccessToken(
+      'ES256',
+      'tnt_create',
+      [],
+    );
+    const GrantUnsignedTx = await this.sendGrantAccessRequest(
+      documentHash,
+      grantedByAccount,
+      subjectAccount,
+      grantedByAccType,
+      subjectByAccType,
+      permission,
+      access_token,
+    );
+
+    if (GrantUnsignedTx.isErr()) {
+      return Result.err(GrantUnsignedTx.unwrapErr());
+    }
+    const UnsignedTxValue = GrantUnsignedTx.unwrap();
+    const UnsignedTxJson = {
+      to: UnsignedTxValue.to,
+      from: UnsignedTxValue.from,
+      data: UnsignedTxValue.data,
+      nonce: UnsignedTxValue.nonce,
+      value: UnsignedTxValue.value,
+      chainId: UnsignedTxValue.chainId,
+      gasLimit: UnsignedTxValue.gasLimit,
+      gasPrice: UnsignedTxValue.gasPrice,
+    };
+    const signatureResponseData = await this.wallet.signEthTx(UnsignedTxJson);
+    // return Optional.None();
+    const txReceipt = await this.sendSendSignedTransaction(
+      UnsignedTxJson,
+      signatureResponseData,
+      access_token,
+    );
+
+    if (txReceipt.isErr()) {
+      return Result.err(txReceipt.unwrapErr());
+    }
+
+    if (waitMined) {
+      const resp_mined = await this.waitTxToBeMined(
+        txReceipt.unwrap(),
+        access_token,
+      );
+      if (resp_mined.isErr()) {
+        return Result.err(resp_mined.unwrapErr());
+      }
+    }
+    return Result.ok(true);
   }
 
-  revokeAccessToDocument() {
-    throw new Error('Method not implemented.');
-  }
+  async revokeAccessToDocument(
+    documentHash: string,
+    revokeByAccount: string,
+    subjectAccount: string,
+    permission: boolean,
+    waitMined: boolean = true,
+  ): Promise<Result<boolean, Error>> {
+    const { access_token } = await this.ebsiAuthtorisationApi.getAccessToken(
+      'ES256',
+      'tnt_create',
+      [],
+    );
+    const UnsignedTx = await this.sendRevokeAccessRequest(
+      documentHash,
+      revokeByAccount,
+      subjectAccount,
+      permission,
+      access_token,
+    );
 
+    if (UnsignedTx.isErr()) {
+      return Result.err(UnsignedTx.unwrapErr());
+    }
+    const UnsignedTxValue = UnsignedTx.unwrap();
+    const UnsignedTxJson = {
+      to: UnsignedTxValue.to,
+      from: UnsignedTxValue.from,
+      data: UnsignedTxValue.data,
+      nonce: UnsignedTxValue.nonce,
+      value: UnsignedTxValue.value,
+      chainId: UnsignedTxValue.chainId,
+      gasLimit: UnsignedTxValue.gasLimit,
+      gasPrice: UnsignedTxValue.gasPrice,
+    };
+    const signatureResponseData = await this.wallet.signEthTx(UnsignedTxJson);
+    // return Optional.None();
+    const txReceipt = await this.sendSendSignedTransaction(
+      UnsignedTxJson,
+      signatureResponseData,
+      access_token,
+    );
+
+    if (txReceipt.isErr()) {
+      return Result.err(txReceipt.unwrapErr());
+    }
+
+    if (waitMined) {
+      const resp_mined = await this.waitTxToBeMined(
+        txReceipt.unwrap(),
+        access_token,
+      );
+      if (resp_mined.isErr()) {
+        return Result.err(resp_mined.unwrapErr());
+      }
+    }
+    return Result.ok(true);
+  }
   async isDocumentMined(documenthash: string): Promise<boolean> {
     const { access_token } = await this.ebsiAuthtorisationApi.getAccessToken(
       'ES256',
@@ -160,7 +272,6 @@ export class TnTWrapper implements ITnTWrapper {
     }
     return Result.ok(eventId);
   }
-
   async getDocumentDetails(
     documentHash: string,
   ): Promise<Result<DocumentData, Error>> {
@@ -183,7 +294,6 @@ export class TnTWrapper implements ITnTWrapper {
       creator: documentDataValue.creator,
     });
   }
-
   async getEventDetails(
     documentHash: string,
     eventId: string,
@@ -227,7 +337,6 @@ export class TnTWrapper implements ITnTWrapper {
       metadata: data.metadata,
     });
   }
-
   async getAllDocuments(
     pageSize?: number,
     pageAfter?: number,
@@ -243,13 +352,11 @@ export class TnTWrapper implements ITnTWrapper {
     }
     return this.getDocumentsFromAPI();
   }
-
   async getAllEventsOfDocument(
     documentHash: string,
   ): Promise<Result<TnTObjectRef[], Error>> {
     return this.getEventsOfDocumentFromAPI(documentHash);
   }
-
   //
   //
   //  UTILS METHODS
@@ -277,7 +384,6 @@ export class TnTWrapper implements ITnTWrapper {
     ); // res2.isEmpty() && tentatives > 0
     return transactionReceipt;
   }
-
   private async sendCreateEventRequest(
     documentHash: string,
     eventId: string,
@@ -380,7 +486,6 @@ export class TnTWrapper implements ITnTWrapper {
       });
     return response as Promise<Result<TransactionReceipt, Error>>;
   }
-
   private async getEventsOfDocumentFromAPI(
     documentID: string,
   ): Promise<Result<TnTObjectRef[], Error>> {
@@ -401,7 +506,6 @@ export class TnTWrapper implements ITnTWrapper {
         return Result.err(error);
       });
   }
-
   private async getDocumentsFromAPI(
     pageSize?: number,
     pageAfter?: number,
@@ -435,7 +539,6 @@ export class TnTWrapper implements ITnTWrapper {
         return Result.err(error);
       });
   }
-
   private async getDocumentFromApi(
     documentHash: string,
   ): Promise<Result<DocumentData, Error>> {
@@ -497,7 +600,6 @@ export class TnTWrapper implements ITnTWrapper {
       });
     return response as Promise<Result<string, Error>>;
   }
-
   private async sendCreateDocumentRequest(
     documentHash: string,
     documentMetadata: string,
@@ -513,6 +615,100 @@ export class TnTWrapper implements ITnTWrapper {
           documentHash: documentHash,
           documentMetadata: documentMetadata,
           didEbsiCreator: ebsiDID,
+        },
+      ],
+      id: Math.ceil(Math.random() * 1000),
+    });
+
+    const config = {
+      method: 'post',
+      maxBodyLength: Infinity,
+      url: 'https://api-pilot.ebsi.eu/track-and-trace/v1/jsonrpc',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+        Authorization: 'Bearer ' + accesToken,
+      },
+      data: data,
+    };
+
+    const response = axios
+      .request(config)
+      .then((response) => {
+        return Result.ok(response.data.result);
+      })
+      .catch((error) => {
+        return Result.err(error);
+      });
+    return response as Promise<Result<UnsignedTransaction, Error>>;
+  }
+
+  private async sendGrantAccessRequest(
+    documentHash: string,
+    grantedByAccount: string,
+    subjectAccount: string,
+    grantedByAccType: number,
+    subjectByAccType: number,
+    permission: number,
+    accesToken: string,
+  ): Promise<Result<UnsignedTransaction, Error>> {
+    const data = JSON.stringify({
+      jsonrpc: '2.0',
+      method: 'grantAccess',
+      params: [
+        {
+          from: this.wallet.getEthAddress(),
+          documentHash: documentHash,
+          grantedByAccount: grantedByAccount,
+          subjectAccount: subjectAccount,
+          grantedByAccType: grantedByAccType,
+          subjectAccType: subjectByAccType,
+          permission: permission,
+        },
+      ],
+      id: Math.ceil(Math.random() * 1000),
+    });
+
+    const config = {
+      method: 'post',
+      maxBodyLength: Infinity,
+      url: 'https://api-pilot.ebsi.eu/track-and-trace/v1/jsonrpc',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+        Authorization: 'Bearer ' + accesToken,
+      },
+      data: data,
+    };
+
+    const response = axios
+      .request(config)
+      .then((response) => {
+        return Result.ok(response.data.result);
+      })
+      .catch((error) => {
+        return Result.err(error);
+      });
+    return response as Promise<Result<UnsignedTransaction, Error>>;
+  }
+
+  private async sendRevokeAccessRequest(
+    documentHash: string,
+    revokedByAccount: string,
+    subjectAccount: string,
+    permission: boolean,
+    accesToken: string,
+  ): Promise<Result<UnsignedTransaction, Error>> {
+    const data = JSON.stringify({
+      jsonrpc: '2.0',
+      method: 'revokeAccess',
+      params: [
+        {
+          from: this.wallet.getEthAddress(),
+          documentHash: documentHash,
+          revokedByAccount: revokedByAccount,
+          subjectAccount: subjectAccount,
+          permission: permission,
         },
       ],
       id: Math.ceil(Math.random() * 1000),
