@@ -19,7 +19,29 @@ describe('Local Wallet should', () => {
 
   const wallet = WalletFactory.createInstance(false, did, entityKeys);
 
-  it('Generate a signed Verifiable Credential', async () => {});
+  it('Generate a signed Verifiable Credential', async () => {
+    const vcPayload = {
+      '@context': ['https://www.w3.org/2018/credentials/v1'],
+      id: 'urn:did:123456',
+      type: ['VerifiableCredential', 'VerifiableAttestation', 'VerifiableId'],
+      issuer: wallet.getDid(),
+      credentialSubject: {
+        id: 'did:key:z2dmzD81cgPx8Vki7JbuuMmFYrWPgYoytykUZ3eyqht1j9KbrDt4zxXoDrBWYFiATYZ8G9JMeEXC7Kki24fbTwtsJbGe5qcbkYFunSzcDokMRmj8UJ1PbdCGh33mf97K3To89bMzd15qrYq3VkDztoZqfmujkJVpvTbqoXWXqxmzNDbvMJ',
+        personalIdentifier: 'IT/DE/1234',
+        familyName: 'Castafiori',
+        firstName: 'Bianca',
+        dateOfBirth: '1930-10-01',
+      },
+      credentialSchema: {
+        id: 'https://api-pilot.ebsi.eu/trusted-schemas-registry/v2/schemas/zDpWGUBenmqXzurskry9Nsk6vq2R8thh9VSeoRqguoyMD',
+        type: 'FullJsonSchemaValidator2021',
+      },
+    };
+    const vc = await wallet.signVC(Buffer.from(JSON.stringify(vcPayload)), {
+      alg: Algorithm.ES256,
+    });
+    expect(vc).toBeDefined();
+  });
 
   it('Generate a signed Verifiable Presentation with default expiration time', async () => {
     const vp = await wallet.signVP(Algorithm.ES256K, 'empty');

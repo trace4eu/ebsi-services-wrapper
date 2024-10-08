@@ -1,6 +1,6 @@
 import { Wallet } from './wallet.interface';
 import { ethers } from 'ethers';
-import { KeyPairData, SignatureResponse } from '../types/types';
+import {KeyPairData, SignatureOptions, SignatureResponse} from '../types/types';
 
 export class EnterpriseWallet implements Wallet {
   constructor(
@@ -14,6 +14,10 @@ export class EnterpriseWallet implements Wallet {
   }
 
   async signEthTx(): Promise<SignatureResponse> {
+    throw new Error('Not Implemented yet');
+  }
+
+  signVC(data: Buffer, opts: SignatureOptions): Promise<string> {
     throw new Error('Not Implemented yet');
   }
 

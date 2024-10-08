@@ -21,8 +21,11 @@
   },
   "homepage": "https://github.com/trace4eu/ebsi-services-wrapper#readme",
   "dependencies": {
+    "@cef-ebsi/verifiable-credential": "^4.4.2",
     "@cef-ebsi/verifiable-presentation": "^5.4.1",
     "@cef-ebsi/wallet-lib": "^4.1.0",
+    "base64url": "^3.0.1",
+    "did-jwt": "^8.0.4",
     "elliptic": "^6.5.4",
     "ethers": "^5.7.2",
     "joi": "^17.11.0",

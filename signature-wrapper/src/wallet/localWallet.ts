@@ -1,9 +1,9 @@
 import { Wallet } from './wallet.interface';
 import {
   Algorithm,
-  DidMethod,
   KeyPairData,
   KeyPairJwk,
+  SignatureOptions,
   SignatureResponse,
   UnsignedTransaction,
 } from '../types/types';
@@ -16,7 +16,7 @@ import {
   prefixWith0x,
 } from '../utils/keys';
 
-import { CONFIG_OPTS } from '../config';
+import { EBSI_CONFIG } from '../config';
 import * as crypto from 'crypto';
 import { calculateJwkThumbprint } from 'jose';
 import {
@@ -31,9 +31,8 @@ import {
 } from '../utils/ethers';
 import { ethersWrapper } from '../wrappers/ethersWrapper';
 import { UnsupportedAlgorithmError } from '../errors/UnspportedAlgorithmError';
-import { whatDidMethodIs } from '../utils/did';
+import { EbsiIssuer } from '@cef-ebsi/verifiable-credential';
 
-const supportedSignatureAlgorithms = [Algorithm.ES256K, Algorithm.ES256];
 export class LocalWallet implements Wallet {
   constructor(did: string, keys: KeyPairData[]) {
     this.validateKeys(keys);
@@ -61,13 +60,14 @@ export class LocalWallet implements Wallet {
   private readonly did: string;
   protected ethWallet!: ethers.Wallet;
 
-  async signVP(alg: string, vc: string | string[], expiration?: number): Promise<string> {
-    const keyPair: KeyPairJwk | undefined = findKeyByAlg(
-      this.keys,
+  async signVP(
+    alg: string,
+    vc: string | string[],
+    expiration?: number,
+  ): Promise<string> {
+    const keyPair: KeyPairJwk = this.findKeyByAlg(
       alg as Algorithm,
     );
-    if (!keyPair) throw new SignatureError(`No keys defined for alg ${alg}`);
-    this.validaSignatureAlgorithm(keyPair.alg);
     keyPair.kid = await calculateJwkThumbprint(keyPair.publicKeyJwk, 'sha256');
 
     const issuer: EbsiWrapperIssuer = {
@@ -100,11 +100,9 @@ export class LocalWallet implements Wallet {
     return await ebsiWrapper.createVerifiablePresentationJwt(
       payload,
       issuer,
-      CONFIG_OPTS.pilot.authorisationApiUrl,
+      this.did,
       {
-        ebsiAuthority: CONFIG_OPTS.pilot.domain
-          .replace('http://', '')
-          .replace('https://', ''),
+        ebsiAuthority: EBSI_CONFIG.authority,
         exp: Math.floor(Date.now() / 1000) + expirationTime,
         nbf: Math.floor(Date.now() / 1000) - 100,
       },
@@ -127,6 +125,21 @@ export class LocalWallet implements Wallet {
     };
   }
 
+  async signVC(data: Buffer, opts: SignatureOptions): Promise<string> {
+    const keyPair: KeyPairJwk = this.findKeyByAlg(
+      opts.alg as Algorithm,
+    );
+    keyPair.kid = await calculateJwkThumbprint(keyPair.publicKeyJwk, 'sha256');
+    const issuer: EbsiIssuer = {
+      did: this.did,
+      kid: `${this.did}#${keyPair.kid}`,
+      alg: keyPair.alg,
+      publicKeyJwk: keyPair.publicKeyJwk,
+      privateKeyJwk: keyPair.privateKeyJwk,
+    };
+    return await ebsiWrapper.createVerifiableCredentialJwt(data, opts, issuer);
+  }
+
   getDid(): string {
     return this.did;
   }
@@ -147,9 +160,17 @@ export class LocalWallet implements Wallet {
   }
 
   private validaSignatureAlgorithm(alg: string): void {
-    if (!supportedSignatureAlgorithms.includes(alg as Algorithm))
-      throw new UnsupportedAlgorithmError(
-        `Supported algorithms: ${supportedSignatureAlgorithms.toString()}`,
-      );
+    if (alg !== Algorithm.ES256 && alg !== Algorithm.ES256K)
+      throw new UnsupportedAlgorithmError(`Unsupported algorithm: ${alg}`);
+  }
+
+  private findKeyByAlg(alg: Algorithm) {
+    const keyPair: KeyPairJwk | undefined = findKeyByAlg(
+      this.keys,
+      alg as Algorithm,
+    );
+    if (!keyPair) throw new SignatureError(`No keys defined for alg ${alg}`);
+    this.validaSignatureAlgorithm(keyPair.alg);
+    return keyPair;
   }
 }

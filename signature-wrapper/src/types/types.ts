@@ -40,3 +40,12 @@ export interface SignatureResponse {
   s: string;
   v: string;
 }
+
+export interface SignatureOptions {
+  issuer?: string;
+  kid?: string;
+  expiresIn?: number;
+  alg?: string;
+  selfIssued?: string;
+  iat?: number;
+}
