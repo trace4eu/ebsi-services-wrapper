@@ -34,7 +34,6 @@ import { ethersWrapper } from '../wrappers/ethersWrapper';
 import { UnsupportedAlgorithmError } from '../errors/UnspportedAlgorithmError';
 import { EbsiIssuer } from '@cef-ebsi/verifiable-credential';
 import { joseWrapper } from '../wrappers/joseWrapper';
-import { JWK } from 'jose';
 
 export class LocalWallet implements Wallet {
   constructor(did: string, keys: KeyPairData[]) {
