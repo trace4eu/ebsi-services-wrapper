@@ -1,6 +1,6 @@
 {
   "name": "@trace4eu/timestamp-wrapper",
-  "version": "0.0.1",
+  "version": "0.0.5",
   "description": "",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -27,11 +27,12 @@
     "axios": "^1.7.2",
     "base64url": "^3.0.1",
     "ethers": "^5.7.2",
-    "multiformats": "^13.1.3",
+    "jose": "^5.9.3",
     "multihashes": "^4.0.3"
   },
   "devDependencies": {
     "@tsconfig/node20": "^20.1.4",
+    "@types/axios": "^0.14.0",
     "@types/jest": "^29.5.12",
     "@types/node": "^20.3.1",
     "@typescript-eslint/eslint-plugin": "^6.0.0",

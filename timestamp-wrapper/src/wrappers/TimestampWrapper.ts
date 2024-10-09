@@ -1,29 +1,26 @@
-import { UnsignedTransaction, Wallet } from '@trace4eu/signature-wrapper';
+import { Wallet } from '@trace4eu/signature-wrapper';
 import { ITimestampWrapper } from '../interfaces/TimestampWrapper.interface';
-import { Optional } from '../types/optional';
 import axios from 'axios';
 import {
   AuthorisationApi,
   EbsiAuthorisationApi,
 } from '@trace4eu/authorisation-wrapper';
 import {
-  TimestampData,
   RecordVersions,
   RecordVersionDetails,
   Record,
+  TimestampData,
 } from '../types/types';
-import { ethers } from 'ethers';
-import Multihash from 'multihashes';
-import { hash } from 'crypto';
 import { Result } from '@trace4eu/error-wrapper';
 import {
   sendSignedTransaction,
   sendUnsignedTransaction,
   waitTxToBeMined,
 } from '../utils/ledger-v4';
-import { fromHexString, multibaseEncode } from '../utils/utils';
-
-const { sha256 } = ethers.utils;
+import Multihash from 'multihashes';
+import { base64url } from 'jose';
+import { bufferToBase64URL, sha256 } from '../utils/utils';
+import { ethers } from 'ethers';
 
 /**
  * Wrapper class for handling timestamping-related operations.
@@ -34,7 +31,7 @@ export class TimestampWrapper implements ITimestampWrapper {
 
   /**
    * Constructs a TimestampWrapper instance.
-   * 
+   *
    * @param wallet - The Wallet instance used for signing transactions.
    */
   constructor(wallet: Wallet) {
@@ -43,8 +40,34 @@ export class TimestampWrapper implements ITimestampWrapper {
   }
 
   /**
+   * Computes a timestampId. Multihash of the sha256 of the original hash, encoded in multibase base64url.
+   *
+   * @param hash - Original hash
+   * @returns A Result object containing the record ID in hex and multibase format or an error.
+   */
+  computeTimestampId(hash: string): string {
+    const bufferSha256 = Buffer.from(sha256(hash), 'hex');
+    const multihash = Multihash.encode(bufferSha256, 'sha2-256', 32);
+    return `u${base64url.encode(multihash)}`;
+  }
+
+  async getTimestamp(
+    timestampId: string,
+  ): Promise<Result<TimestampData, Error>> {
+    try {
+      const response = await axios.get<TimestampData>(
+        `https://api-pilot.ebsi.eu/timestamp/v4/timestamps/${timestampId}`,
+      );
+      return Result.ok(response.data as TimestampData);
+    } catch (error) {
+      console.log('Error fetching record version details:', error);
+      return Result.err(error as Error);
+    }
+  }
+
+  /**
    * Creates a timestamp record with ability to be versioned.
-   * 
+   *
    * @param hashAlgorithmId - The ID of the hashing algorithm used. note: input 0 for sha2-256
    * @param hashValue - The hash value to be recorded. note: unlike EBSI's Timestamp API, the wrapper only allow for 1 hash value instead of 3
    * @param versionInfo - Information about the version.
@@ -57,12 +80,12 @@ export class TimestampWrapper implements ITimestampWrapper {
     hashValue: string,
     versionInfo: string,
     timestampData: string[] = [''],
-    waitMined: boolean = true
+    waitMined: boolean = true,
   ): Promise<Result<{ hex: string; multibase: string }, Error>> {
     const { access_token } = await this.ebsiAuthorisationApi.getAccessToken(
       'ES256',
       'timestamp_write',
-      []
+      [],
     );
 
     const unsignedTx = await sendUnsignedTransaction(
@@ -76,7 +99,7 @@ export class TimestampWrapper implements ITimestampWrapper {
           versionInfo: versionInfo,
           timestampData: timestampData,
         },
-      ]
+      ],
     );
 
     if (unsignedTx.isErr()) {
@@ -90,7 +113,7 @@ export class TimestampWrapper implements ITimestampWrapper {
       unsignedTxJson,
       signatureResponseData,
       access_token,
-      waitMined
+      waitMined,
     );
 
     if (txReceipt.isErr()) {
@@ -100,7 +123,7 @@ export class TimestampWrapper implements ITimestampWrapper {
     if (waitMined) {
       const resp_mined = await waitTxToBeMined(
         txReceipt.unwrap().transactionHash,
-        access_token
+        access_token,
       );
 
       if (resp_mined.isErr()) {
@@ -111,18 +134,17 @@ export class TimestampWrapper implements ITimestampWrapper {
     const recordId = ethers.utils.sha256(
       ethers.utils.defaultAbiCoder.encode(
         ['address', 'uint256', 'bytes'],
-        [unsignedTxJson.from, txReceipt.value.blockNumber, hashValue]
-      )
+        [unsignedTxJson.from, txReceipt.value.blockNumber, hashValue],
+      ),
     );
 
-    const multibase64urlRecordId = multibaseEncode('base64url', recordId);
-
+    const multibase64urlRecordId = bufferToBase64URL(recordId);
     return Result.ok({ hex: recordId, multibase: multibase64urlRecordId });
   }
 
   /**
    * Creates a new version for a specific timestamp record.
-   * 
+   *
    * @param recordId - The ID of the record (in hex format).
    * @param hashAlgorithmId - The ID of the hashing algorithm used.
    * @param hashValue - The hash value to be recorded.
@@ -137,16 +159,16 @@ export class TimestampWrapper implements ITimestampWrapper {
     hashValue: string,
     versionInfo: string,
     timestampData: string[] = [''],
-    waitMined: boolean = true
+    waitMined: boolean = true,
   ): Promise<Result<string, Error>> {
     const { access_token } = await this.ebsiAuthorisationApi.getAccessToken(
       'ES256',
       'timestamp_write',
-      []
+      [],
     );
 
     const currentVersions = await this.getRecordVersions(
-      multibaseEncode('base64url', recordId)
+      bufferToBase64URL(recordId),
     );
     const totalNumberVersions = currentVersions.unwrap().total;
 
@@ -162,7 +184,7 @@ export class TimestampWrapper implements ITimestampWrapper {
           versionInfo: versionInfo,
           timestampData: timestampData,
         },
-      ]
+      ],
     );
 
     if (unsignedTx.isErr()) {
@@ -176,7 +198,7 @@ export class TimestampWrapper implements ITimestampWrapper {
       unsignedTxJson,
       signatureResponseData,
       access_token,
-      waitMined
+      waitMined,
     );
 
     if (txReceipt.isErr()) {
@@ -186,7 +208,7 @@ export class TimestampWrapper implements ITimestampWrapper {
     if (waitMined) {
       const resp_mined = await waitTxToBeMined(
         txReceipt.unwrap().transactionHash,
-        access_token
+        access_token,
       );
 
       if (resp_mined.isErr()) {
@@ -199,7 +221,7 @@ export class TimestampWrapper implements ITimestampWrapper {
 
   /**
    * Inserts a new owner for a specific timestamp record.
-   * 
+   *
    * @param recordId - The ID of the record (in hex format).
    * @param ownerId - The ID of the new owner (in ETH address format).
    * @param notBefore - The start time for ownership.
@@ -212,12 +234,12 @@ export class TimestampWrapper implements ITimestampWrapper {
     ownerId: string,
     notBefore: number,
     notAfter: number,
-    waitMined: boolean = true
+    waitMined: boolean = true,
   ): Promise<Result<string, Error>> {
     const { access_token } = await this.ebsiAuthorisationApi.getAccessToken(
       'ES256',
       'timestamp_write',
-      []
+      [],
     );
 
     const unsignedTx = await sendUnsignedTransaction(
@@ -231,7 +253,7 @@ export class TimestampWrapper implements ITimestampWrapper {
           notBefore: notBefore,
           notAfter: notAfter,
         },
-      ]
+      ],
     );
 
     if (unsignedTx.isErr()) {
@@ -245,7 +267,7 @@ export class TimestampWrapper implements ITimestampWrapper {
       unsignedTxJson,
       signatureResponseData,
       access_token,
-      waitMined
+      waitMined,
     );
 
     if (txReceipt.isErr()) {
@@ -255,7 +277,7 @@ export class TimestampWrapper implements ITimestampWrapper {
     if (waitMined) {
       const resp_mined = await waitTxToBeMined(
         txReceipt.unwrap().transactionHash,
-        access_token
+        access_token,
       );
 
       if (resp_mined.isErr()) {
@@ -268,7 +290,7 @@ export class TimestampWrapper implements ITimestampWrapper {
 
   /**
    * Revokes ownership of a specific timestamp record.
-   * 
+   *
    * @param recordId - The ID of the record (in hex format).
    * @param ownerId - The ID of the owner to revoke (in ETH address format).
    * @param waitMined - Whether to wait for the transaction to be mined.
@@ -277,12 +299,12 @@ export class TimestampWrapper implements ITimestampWrapper {
   async revokeRecordOwner(
     recordId: string,
     ownerId: string,
-    waitMined: boolean = true
+    waitMined: boolean = true,
   ): Promise<Result<string, Error>> {
     const { access_token } = await this.ebsiAuthorisationApi.getAccessToken(
       'ES256',
       'timestamp_write',
-      []
+      [],
     );
 
     const unsignedTx = await sendUnsignedTransaction(
@@ -294,7 +316,7 @@ export class TimestampWrapper implements ITimestampWrapper {
           recordId: recordId,
           ownerId: ownerId,
         },
-      ]
+      ],
     );
 
     if (unsignedTx.isErr()) {
@@ -308,7 +330,7 @@ export class TimestampWrapper implements ITimestampWrapper {
       unsignedTxJson,
       signatureResponseData,
       access_token,
-      waitMined
+      waitMined,
     );
 
     if (txReceipt.isErr()) {
@@ -318,7 +340,7 @@ export class TimestampWrapper implements ITimestampWrapper {
     if (waitMined) {
       const resp_mined = await waitTxToBeMined(
         txReceipt.unwrap().transactionHash,
-        access_token
+        access_token,
       );
 
       if (resp_mined.isErr()) {
@@ -331,16 +353,14 @@ export class TimestampWrapper implements ITimestampWrapper {
 
   /**
    * Retrieves details of a specific record by its ID.
-   * 
+   *
    * @param recordId - The ID of the record (in multibase format).
    * @returns A Result object containing the record details or an error.
    */
-  async getRecord(
-    recordId: string
-  ): Promise<Result<Record, Error>> {
+  async getRecord(recordId: string): Promise<Result<Record, Error>> {
     try {
       const response = await axios.get<Record>(
-        `https://api-pilot.ebsi.eu/timestamp/v4/records/${recordId}`
+        `https://api-pilot.ebsi.eu/timestamp/v4/records/${recordId}`,
       );
       return Result.ok(response.data);
     } catch (error) {
@@ -351,16 +371,16 @@ export class TimestampWrapper implements ITimestampWrapper {
 
   /**
    * Retrieves the versions of a specific record by its ID.
-   * 
+   *
    * @param recordId - The ID of the record (in multibase format).
    * @returns A Result object containing the record versions or an error.
    */
   async getRecordVersions(
-    recordId: string
+    recordId: string,
   ): Promise<Result<RecordVersions, Error>> {
     try {
       const response = await axios.get<RecordVersions>(
-        `https://api-pilot.ebsi.eu/timestamp/v4/records/${recordId}/versions`
+        `https://api-pilot.ebsi.eu/timestamp/v4/records/${recordId}/versions`,
       );
       return Result.ok(response.data);
     } catch (error) {
@@ -371,18 +391,18 @@ export class TimestampWrapper implements ITimestampWrapper {
 
   /**
    * Retrieves details of a specific version of a record.
-   * 
+   *
    * @param recordId - The ID of the record (in multibase format).
    * @param versionId - The ID of the version.
    * @returns A Result object containing the version details or an error.
    */
   async getRecordVersionDetails(
     recordId: string,
-    versionId: string
+    versionId: string,
   ): Promise<Result<RecordVersionDetails, Error>> {
     try {
       const response = await axios.get<RecordVersionDetails>(
-        `https://api-pilot.ebsi.eu/timestamp/v4/records/${recordId}/versions/${versionId}`
+        `https://api-pilot.ebsi.eu/timestamp/v4/records/${recordId}/versions/${versionId}`,
       );
       return Result.ok(response.data);
     } catch (error) {
@@ -397,7 +417,7 @@ export class TimestampWrapper implements ITimestampWrapper {
     from: string,
     hashAlgorithmId: number,
     hashValue: string,
-    timestampData: string[] = [""],
+    timestampData: string[] = [''],
   ): Promise<Result<string, Error>> {
     const { access_token } = await this.ebsiAuthorisationApi.getAccessToken(
       'ES256',
@@ -413,7 +433,7 @@ export class TimestampWrapper implements ITimestampWrapper {
           from: from,
           hashAlgorithmIds: [hashAlgorithmId],
           hashValues: [hashValue],
-          timestampData: timestampData
+          timestampData: timestampData,
         },
       ],
     );
@@ -443,7 +463,7 @@ export class TimestampWrapper implements ITimestampWrapper {
     hashAlgorithmId: number,
     hashValue: string,
     versionInfo: string,
-    timestampData: string[] = [""],
+    timestampData: string[] = [''],
   ): Promise<Result<string, Error>> {
     const { access_token } = await this.ebsiAuthorisationApi.getAccessToken(
       'ES256',
@@ -492,7 +512,7 @@ export class TimestampWrapper implements ITimestampWrapper {
     hashAlgorithmId: number,
     hashValue: string,
     versionInfo: string,
-    timestampData: string[] = [""],
+    timestampData: string[] = [''],
   ): Promise<Result<string, Error>> {
     const { access_token } = await this.ebsiAuthorisationApi.getAccessToken(
       'ES256',
