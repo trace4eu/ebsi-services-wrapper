@@ -56,9 +56,9 @@ export class TnTWrapper implements ITnTWrapper {
     documentHash: string,
     grantedByAccount: string,
     subjectAccount: string,
-    grantedByAccType: boolean,
-    subjectByAccType: boolean,
-    permission: boolean,
+    grantedByAccType: number,
+    subjectByAccType: number,
+    permission: number,
     waitMined: boolean = true,
   ): Promise<Result<boolean, Error>> {
     const { access_token } = await this.ebsiAuthtorisationApi.getAccessToken(
@@ -772,7 +772,7 @@ export class TnTWrapper implements ITnTWrapper {
     documentHash: string,
     revokedByAccount: string,
     subjectAccount: string,
-    permission: boolean,
+    permission: number,
     accesToken: string,
   ): Promise<Result<UnsignedTransaction, Error>> {
     const data = JSON.stringify({
