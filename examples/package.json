@@ -9,7 +9,6 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "@ethersproject/bytes": "^5.7.0",
     "@trace4eu/timestamp-wrapper": "^0.0.5",
     "@trace4eu/tnt-wrapper": "^0.0.17",
     "ts-node": "^10.9.2"

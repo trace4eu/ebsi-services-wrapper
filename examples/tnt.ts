@@ -2,10 +2,9 @@ import {WalletFactory} from "@trace4eu/signature-wrapper";
 import {TnTWrapper} from "@trace4eu/tnt-wrapper";
 import * as crypto from 'crypto';
 import {createHash} from "crypto";
-import { arrayify, BytesLike } from "@ethersproject/bytes";
 
-export function sha256(data: BytesLike): string {
-  return "0x" + createHash("sha256").update(Buffer.from(arrayify(data))).digest("hex")
+export function sha256(data: string) {
+  return `0x${createHash('sha256').update(data, 'utf8').digest().toString('hex')}`;
 }
 
 function getHexDid(did: string): string {
@@ -32,7 +31,7 @@ async function main() {
 
   const stringToHash = crypto.randomUUID();
   console.log(`String to hash: ${stringToHash}`);
-  const documentHash = sha256(Buffer.from(stringToHash));
+  const documentHash = sha256(stringToHash);
   console.log(`String hashed: ${documentHash}`);
 
   const documentMetadata = '';

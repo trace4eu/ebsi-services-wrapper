@@ -4,8 +4,8 @@ import { arrayify, BytesLike } from "@ethersproject/bytes";
 import {TimestampWrapper} from "@trace4eu/timestamp-wrapper";
 import crypto from "crypto";
 
-export function sha256(data: BytesLike): string {
-  return "0x" + createHash("sha256").update(Buffer.from(arrayify(data))).digest("hex")
+export function sha256(data: string) {
+  return `0x${createHash('sha256').update(data, 'utf8').digest().toString('hex')}`;
 }
 
 async function main() {
@@ -32,7 +32,7 @@ async function main() {
       JSON.stringify({ timestamp: `timestampData=${dataToHash}` }),
       'utf-8',
     ).toString('hex');
-  const hashedData = sha256(Buffer.from(dataToHash));
+  const hashedData = sha256(dataToHash);
   const versionInfo =
     '0x' +
     Buffer.from(
