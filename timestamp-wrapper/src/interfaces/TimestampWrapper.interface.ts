@@ -1,31 +1,35 @@
 import { Wallet } from '@trace4eu/signature-wrapper';
 import { Optional } from '../types/optional';
-import { RecordVersionDetails, RecordVersions, TimestampData, Record} from '../types/types';
-import {Result} from "@trace4eu/error-wrapper";
+import {
+  RecordVersionDetails,
+  RecordVersions,
+  TimestampData,
+  Record,
+} from '../types/types';
+import { Result } from '@trace4eu/error-wrapper';
 
-/** 
+/**
  Interface TimestampWrapper
  main responsibility: ???
 */
 export interface ITimestampWrapper {
-
   // builds a signed transaction to timestamp data and create a record of it with some info. It's possible to insert up to 3 hashes in a single transaction.
   timestampRecordHashes( //aka create record
     hashAlgorithmId: number, // note: unlike EBSI's Timestamp API we only allow for 1 hash value instead of 3
     hashValue: string, // note: unlike EBSI's Timestamp API we only allow for 1 hash value instead of 3
     versionInfo: string, //This field must be a JSON stringified and converted into hex string
     timestampData?: string[], //This field must be a JSON stringified and converted into hex string
-    waitMined?: boolean
-  ): Promise<Result<{"hex": string, "multibase": string}, Error>>;
+    waitMined?: boolean,
+  ): Promise<Result<{ hex: string; multibase: string }, Error>>;
 
   // builds a signed transaction to timestamp hashes and store them under the given record. It's possible to insert up to 3 hashes in a single transaction.
   timestampRecordVersionHashes( // aka create version of record
     recordId: string, //TODO: find out how to get recordId after running timestampRecordHashes
     hashAlgorithmId: number, // note: unlike EBSI's Timestamp API we only allow for 1 hash value instead of 3
     hashValue: string, // note: unlike EBSI's Timestamp API we only allow for 1 hash value instead of 3
-    versionInfo: string, //This field must be a JSON stringified and converted into hex string	
+    versionInfo: string, //This field must be a JSON stringified and converted into hex string
     timestampData?: string[], //This field must be a JSON stringified and converted into hex string
-    waitMined?: boolean
+    waitMined?: boolean,
   ): Promise<Result<string, Error>>;
 
   //builds a signed transaction to insert a record owner. This method can be called only by record owners.
@@ -34,30 +38,28 @@ export interface ITimestampWrapper {
     ownerId: string, //Ethereum address of new owner
     notBefore: number, //Point in time when the owner becomes valid. It should be defined in epoch time.
     notAfter: number, //Point in time when the owner becomes invalid. It should be defined in epoch time. For indefinite time set 0.
-    waitMined?: boolean
+    waitMined?: boolean,
   ): Promise<Result<string, Error>>;
 
   //builds a signed transaction to revoke a record owner. This method can be called only by record owners.
   revokeRecordOwner(
     recordId: string,
     ownerId: string, //Ethereum address of owner to be revoked
-    waitMined?: boolean
+    waitMined?: boolean,
   ): Promise<Result<string, Error>>;
 
   //get record details
-  getRecord(
-    recordId: string
-  ): Promise<Result<Record, Error>>;
+  getRecord(recordId: string): Promise<Result<Record, Error>>;
 
   //get all versions of a record
   getRecordVersions(
-    recordId: string //multibase base64url encoded
+    recordId: string, //multibase base64url encoded
   ): Promise<Result<RecordVersions, Error>>;
 
   //get the details of one version of a record
   getRecordVersionDetails(
     recordId: string, //multibase base64url encoded
-    versionId: string
+    versionId: string,
   ): Promise<Result<RecordVersionDetails, Error>>;
 
   //additional methods of EBSI's timestamp API to fully replicate it
@@ -101,4 +103,7 @@ export interface ITimestampWrapper {
     versionId: string,
     versionInfo: string, //This field must be a JSON stringified and converted into hex string
   ): Promise<Result<string, Error>>;
+
+  computeTimestampId(hash: string): string;
+  getTimestamp(timestampId: string): Promise<Result<TimestampData, Error>>;
 }

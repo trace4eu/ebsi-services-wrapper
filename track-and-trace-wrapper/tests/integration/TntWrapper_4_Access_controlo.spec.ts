@@ -4,6 +4,7 @@ import * as SignatureWrapperTypes from '@trace4eu/signature-wrapper';
 import { EbsiAuthorisationApi } from '@trace4eu/authorisation-wrapper';
 import { TnTWrapper } from '../../src/wrappers/TntWrapper';
 import * as crypto from 'crypto';
+import { assert } from 'console';
 
 // Granting user
 const did = 'did:ebsi:zfEmvX5twhXjQJiCWsukvQA';
@@ -52,44 +53,61 @@ const eventMetadata2 = 'BBBBBBBBBBBBB';
 const origin = 'origin';
 
 describe('Track and Trace Wrapper', () => {
-  let firstDocumentHash;
-  describe('Grant and Revoke permission', () => {
-    it('getFirstDocumentWrittenInLedger to be sure it exists and it is mined', async () => {
-      const existingDocumentsPage = await tntWrapper.getAllDocuments();
-      firstDocumentHash = existingDocumentsPage.value?.items[0].documentId;
-      console.log('Document Hash:' + firstDocumentHash);
-      const documentData =
-        await tntWrapper.getDocumentDetails(firstDocumentHash);
-      console.log('Document Data');
-      console.log(
-        'Document Data before adding new event' + JSON.stringify(documentData),
+  const documentHash = `0x${crypto.randomBytes(32).toString('hex')}`;
+  describe('createDocument', () => {
+    it('createDocument doc wait to be Mined "true"', async () => {
+      console.log('Document Hash:' + documentHash);
+      const documentMetadata = 'documentMetadata';
+      const document = await tntWrapper.createDocument(
+        documentHash,
+        documentMetadata,
+        true,
       );
-      expect(documentData.unwrap()).toHaveProperty('metadata');
-      expect(documentData.unwrap()).toEqual(
-        expect.objectContaining({
-          metadata: expect.any(String),
-          creator: expect.any(String),
-          events: expect.any(Array),
-          timestamp: expect.objectContaining({
-            datetime: expect.any(String),
-            source: expect.any(String),
-            proof: expect.any(String),
-          }),
-        }),
-      );
+      if (document.isErr()) {
+        console.log('Error: ' + document.unwrapErr());
+      }
+      console.log(document);
+      const documentData = await tntWrapper.getDocumentDetails(documentHash);
+      console.log({ documentData });
+      expect(document.unwrap()).toBe(documentHash);
+      const accesses = await tntWrapper.listAccesses(documentHash);
+      console.log('Accesses: ');
+      console.log(accesses.value?.items);
     });
+  });
 
-    it('Grant permission to another user', async () => {
-      const result = await tntWrapper.grantAccessToDocument(
-        firstDocumentHash,
-        wallet.getHexDid(),
-        walletSubject.getHexDid(),
-        0,
-        0,
-        1,
-      );
-      console.log('Grant permission result');
-      console.log(result);
-    });
+  it('Grant permission to another user', async () => {
+    const access_status = await tntWrapper.checkAccess(didSubject);
+    const result = await tntWrapper.grantAccessToDocument(
+      documentHash,
+      wallet.getHexDid(),
+      walletSubject.getHexDid(),
+      0,
+      0,
+      1,
+    );
+    console.log('Grant permission result');
+    assert(result.isOk());
+    //console.log(result.unwrapErr().response.data);
+    const accesses = await tntWrapper.listAccesses(documentHash);
+    console.log('Accesses');
+    console.log(accesses.value?.items);
+    assert(accesses.value?.items.length == 2);
+  });
+
+  it('Revoke permission to another user', async () => {
+    const result = await tntWrapper.revokeAccessToDocument(
+      documentHash,
+      wallet.getHexDid(),
+      walletSubject.getHexDid(),
+      1,
+    );
+    console.log('Revoke permission result');
+    assert(result.isOk());
+    const accesses = await tntWrapper.listAccesses(documentHash);
+    console.log('Accesses');
+    console.log(accesses.value?.items);
+    assert(accesses.value?.items.length == 1);
+    //console.log(result.unwrapErr().response.data);
   });
 });

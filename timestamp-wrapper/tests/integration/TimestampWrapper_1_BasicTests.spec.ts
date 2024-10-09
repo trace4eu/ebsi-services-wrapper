@@ -1,12 +1,8 @@
 import { describe, it, expect, vi, beforeAll } from 'vitest';
 import { WalletFactory } from '@trace4eu/signature-wrapper';
 import * as SignatureWrapperTypes from '@trace4eu/signature-wrapper';
-import { EbsiAuthorisationApi } from '@trace4eu/authorisation-wrapper';
-import { TimestampWrapper } from '../../src/wrappers/TimestampWrapper';
+import { TimestampWrapper } from '../../src';
 import * as crypto from 'crypto';
-const base64url = require('base64url');
-import { time, trace } from 'console';
-import { version } from 'os';
 
 const did = 'did:ebsi:zobuuYAHkAbRFCcqdcJfTgR';
 const entityKey = [
@@ -37,7 +33,6 @@ const entityKey2 = [
 ];
 
 const wallet = WalletFactory.createInstance(false, did, entityKey);
-const ebsiAuthorisationApi = new EbsiAuthorisationApi(wallet);
 const timestampWrapper = new TimestampWrapper(wallet);
 
 describe('Timestamp Wrapper', () => {
@@ -63,10 +58,6 @@ describe('Timestamp Wrapper', () => {
         'utf-8',
       ).toString('hex');
 
-    it('always true', () => {
-      console.log('create record test always true');
-      expect(true);
-    });
     it('create record with one hash value', async () => {
       console.log('hashValue1: ' + hashValue1);
 
@@ -88,6 +79,11 @@ describe('Timestamp Wrapper', () => {
       // get recordId
       const recordId = recordCreationResponse.unwrap();
       console.log('recordId:', recordId);
+
+      const timestampId = timestampWrapper.computeTimestampId(hashValue1);
+
+      const timestampData = await timestampWrapper.getTimestamp(timestampId);
+      expect(timestampData).toBeDefined();
 
       // get list of record versions
       const recordVersionResponse = await timestampWrapper.getRecordVersions(
