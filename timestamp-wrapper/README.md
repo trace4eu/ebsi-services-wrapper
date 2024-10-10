@@ -201,6 +201,31 @@ Inserts version information into a specific record version.
 - **Returns:**
   - `Promise<Result<string, Error>>`: A `Result` object containing the transaction hash or an error.
 
+---
 
+### `computeTimestampId`
+
+Multihash of the sha256 of the original hash, encoded in multibase base64url.
+```
+timestampId = multibase_base64url(multihash(sha256(original_hash)))
+```
+
+- **Parameters:**
+  - `hash: string`: Original hash.
+
+- **Returns:**
+  - `string`: A `Result` string that represents the timestampId
+
+---
+
+### `getTimestamp`
+
+Inserts version information into a specific record version.
+
+- **Parameters:**
+  - `timestampId: string`: timestampId computed as describe in the `computeTimestampId` method
+
+- **Returns:**
+  - `Promise<Result<TimestampData, Error>>`: A `Result` object containing the timestamp data
 
 
