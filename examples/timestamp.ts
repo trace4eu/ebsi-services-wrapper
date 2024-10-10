@@ -1,6 +1,5 @@
 import {WalletFactory} from "@trace4eu/signature-wrapper";
 import {createHash} from "crypto";
-import { arrayify, BytesLike } from "@ethersproject/bytes";
 import {TimestampWrapper} from "@trace4eu/timestamp-wrapper";
 import crypto from "crypto";
 
