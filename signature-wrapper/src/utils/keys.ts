@@ -2,7 +2,7 @@ import { JWK } from 'jose';
 import elliptic from 'elliptic';
 import { Algorithm, KeyPairJwk } from '../types/types';
 import { EbsiWallet } from '@cef-ebsi/wallet-lib';
-import base64url from "base64url";
+import base64url from 'base64url';
 
 const EC = elliptic.ec;
 
@@ -39,12 +39,14 @@ export function getPrivateKeyJwkES256(privateKeyHex: string): JWK {
 export function exportKeyPairJwk(
   alg: Algorithm,
   privateKeyJwk: JWK,
+  kid?: string,
 ): KeyPairJwk {
   const publicKeyJwk = getPublicKeyJwk(privateKeyJwk, alg);
   return {
     alg,
     privateKeyJwk,
     publicKeyJwk,
+    kid,
   };
 }
 

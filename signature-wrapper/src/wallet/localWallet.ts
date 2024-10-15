@@ -48,6 +48,7 @@ export class LocalWallet implements Wallet {
           exportKeyPairJwk(
             Algorithm.ES256K,
             getPrivateKeyJwk(keyPair.privateKeyHex),
+            keyPair.kid,
           ),
         );
       }
@@ -102,7 +103,7 @@ export class LocalWallet implements Wallet {
     return await ebsiWrapper.createVerifiablePresentationJwt(
       payload,
       issuer,
-      this.did,
+      EBSI_CONFIG.authorisationApiUrl,
       {
         ebsiAuthority: EBSI_CONFIG.authority,
         exp: Math.floor(Date.now() / 1000) + expirationTime,
@@ -129,12 +130,12 @@ export class LocalWallet implements Wallet {
 
   async signVC(data: Buffer, opts: SignatureOptions): Promise<string> {
     const keyPair: KeyPairJwk = this.findKeyByAlg(opts.alg as Algorithm);
-    keyPair.kid = await joseWrapper.calculateJwkThumbprint(
-      keyPair.publicKeyJwk,
-    );
+    keyPair.kid = keyPair.kid
+      ? keyPair.kid
+      : await joseWrapper.calculateJwkThumbprint(keyPair.publicKeyJwk);
     const issuer: EbsiIssuer = {
       did: this.did,
-      kid: `${this.did}#${keyPair.kid}`,
+      kid: keyPair.kid,
       alg: keyPair.alg,
       publicKeyJwk: keyPair.publicKeyJwk,
       privateKeyJwk: keyPair.privateKeyJwk,
@@ -148,20 +149,17 @@ export class LocalWallet implements Wallet {
     header?: JwtHeader,
   ): Promise<string> {
     const keyPair: KeyPairJwk = this.findKeyByAlg(opts.alg as Algorithm);
-    keyPair.kid = await joseWrapper.calculateJwkThumbprint(
-      keyPair.publicKeyJwk,
-    );
+    keyPair.kid =
+      keyPair.kid ??
+      `${this.did}#${await joseWrapper.calculateJwkThumbprint(keyPair.publicKeyJwk)}`;
     if (header) {
-      header.kid = header.kid ? header.kid : keyPair.kid;
+      header.kid = header.kid ?? keyPair.kid;
     }
 
     return await joseWrapper.signJwt(keyPair.privateKeyJwk, data, header);
   }
 
-  async verifyJwt(
-    jwt: string,
-    alg: string,
-  ): Promise<JWTVerifyResult> {
+  async verifyJwt(jwt: string, alg: string): Promise<JWTVerifyResult> {
     const keyPair: KeyPairJwk = this.findKeyByAlg(alg as Algorithm);
     return await joseWrapper.verifyJwt(jwt, keyPair.publicKeyJwk, alg);
   }
@@ -181,7 +179,7 @@ export class LocalWallet implements Wallet {
   private validateKeys(keys: KeyPairData[]): void {
     const isES256K = keys.some((key) => key.alg === Algorithm.ES256K);
     const isES256 = keys.some((key) => key.alg === Algorithm.ES256);
-    if (!isES256K || !isES256)
+    if (!(isES256K || isES256))
       throw new InitializationError('ES256 and ES256K keys are required');
   }
 

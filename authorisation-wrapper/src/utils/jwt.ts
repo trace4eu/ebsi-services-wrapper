@@ -8,3 +8,11 @@ export function isJwt(jwt: string): boolean {
     return false;
   }
 }
+
+export function isOryFormatAccessToken(jwt: string): boolean {
+  try {
+    return jwt.startsWith('ory_at_');
+  } catch (error) {
+    return false;
+  }
+}

@@ -22,11 +22,13 @@ Creates a new instance of the `Wallet` class.
       alg: Algorithm.ES256K,
       privateKeyHex:
         '<ecc private key>',
+      kid: '<optional key identifier>'
     },
     {
       alg: Algorithm.ES256,
       privateKeyHex:
-        '<ecc private key>',
+        '<ecc private key>',,
+      kid: '<optional key identifier>'
     },
   ];
   const wallet = WalletFactory.createInstance(false, did, entityKeys);
