@@ -25,10 +25,10 @@ export class EbsiAuthorisationApi implements AuthorisationApi {
   async getAccessToken(
     alg: string,
     scope: string,
-    credential: string | string[],
+    credential?: string | string[],
   ): Promise<TokenResponse> {
     const { tokenEndpoint } = await this.getAuthorisationApiOpenidMetadata();
-    const signedVp = await this.wallet.signVP(alg, credential);
+    const signedVp = await this.wallet.signVP(alg, credential ?? []);
     const tokenPresentatationEndpointParams = new URLSearchParams();
     tokenPresentatationEndpointParams.append('grant_type', 'vp_token');
     tokenPresentatationEndpointParams.append('scope', `openid ${scope}`);
@@ -81,7 +81,6 @@ export class EbsiAuthorisationApi implements AuthorisationApi {
     const authorisationApiMetadata = await httpCall.get(
       `${CONFIG_OPTS.pilot.ebsiAuthorisationApiUrl}/.well-known/openid-configuration`,
     );
-    this.checkAuthorisationApiMetadata(authorisationApiMetadata);
     const authorisationApiMetadataResponse =
       (await authorisationApiMetadata.json()) as {
         presentation_definition_endpoint: string;
@@ -95,9 +94,5 @@ export class EbsiAuthorisationApi implements AuthorisationApi {
       presentationDefinitionEndpoint,
       tokenEndpoint,
     };
-  }
-
-  private checkAuthorisationApiMetadata(authorisationApiMetadata: any) {
-    // TODO: check authorisation api metadata: check that has the desired scopes supported, urls, etc.
   }
 }

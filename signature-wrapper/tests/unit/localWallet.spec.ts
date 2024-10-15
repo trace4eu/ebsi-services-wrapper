@@ -21,6 +21,7 @@ describe('Local Wallet should', () => {
         '15504399647d7c298be3ff52c47f674fa4f7fa2a553c51c87d79fb6073930aa9',
     },
   ];
+
   const wallet = WalletFactory.createInstance(false, did, entityKeys);
 
   beforeAll(async () => {
@@ -31,13 +32,7 @@ describe('Local Wallet should', () => {
 
   it('raise an error if LocalWallet cannot be initialized due to missing input keys', async () => {
     expect(() => {
-      new LocalWallet('did:ebsi:1234', [
-        {
-          alg: Algorithm.ES256,
-          privateKeyHex:
-            '15504399647d7c298be3ff52c47f674fa4f7fa2a553c51c87d79fb6073930aa9',
-        },
-      ]);
+      new LocalWallet('did:ebsi:1234', []);
     }).toThrow(InitializationError);
   });
 

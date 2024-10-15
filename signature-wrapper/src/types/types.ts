@@ -43,7 +43,6 @@ export interface SignatureResponse {
 
 export interface SignatureOptions {
   issuer?: string;
-  kid?: string;
   expiresIn?: number;
   alg: string;
   selfIssued?: string;
