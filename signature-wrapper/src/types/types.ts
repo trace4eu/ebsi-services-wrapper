@@ -1,4 +1,5 @@
 import { JWK } from 'jose';
+import { JoseWrapperJWK } from '../wrappers/joseWrapper';
 
 export enum DidMethod {
   DidKey = 'key',
@@ -58,4 +59,8 @@ export interface JwtHeader {
 export interface JWTVerifyResult {
   payload: object;
   protectedHeader: JwtHeader;
+}
+
+export interface JwksResponse {
+  keys: JoseWrapperJWK[];
 }

@@ -1,6 +1,13 @@
 import { Wallet } from './wallet.interface';
 import { ethers } from 'ethers';
-import {JwtHeader, JWTVerifyResult, KeyPairData, SignatureOptions, SignatureResponse} from '../types/types';
+import {
+  JwksResponse,
+  JwtHeader,
+  JWTVerifyResult,
+  KeyPairData,
+  SignatureOptions,
+  SignatureResponse,
+} from '../types/types';
 
 export class EnterpriseWallet implements Wallet {
   constructor(
@@ -42,6 +49,10 @@ export class EnterpriseWallet implements Wallet {
   }
 
   getEthAddress(): string {
+    throw new Error('Not Implemented yet');
+  }
+
+  getPublicJwks(): JwksResponse {
     throw new Error('Not Implemented yet');
   }
 }

@@ -46,6 +46,25 @@ describe('Local Wallet should', () => {
     );
   });
 
+  it('return the public keys in JWK format as an array', () => {
+    expect(wallet.getPublicJwks()).toStrictEqual({
+      keys: [
+        {
+          crv: 'secp256k1',
+          kty: 'EC',
+          x: 'LGab-ItFIAQWe5d4uF-9_bgDUsKp5Kb9SDMnL50ZAWA',
+          y: '1LVURPhALC5rxvCqXdmXhgU8zjJauR3saoUryu80GwM',
+        },
+        {
+          crv: 'P-256',
+          kty: 'EC',
+          x: '7fcJZOkj2z2Qmk4Dxdmeypj-4X-BdbNQzc_Y5i4T1lc',
+          y: 'qKIlZf0cGz1r6b2Ji40pMXZ0UuhHPPcgilpSy6XG5Mw',
+        },
+      ],
+    });
+  });
+
   it('Generate a signed Verifiable Credential', async () => {});
   it('Generate a signed Ethereum Transaction', async () => {});
 });
