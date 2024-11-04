@@ -1,6 +1,7 @@
 import { Wallet } from './wallet.interface';
 import {
   Algorithm,
+  JwksResponse,
   JwtHeader,
   JWTVerifyResult,
   KeyPairData,
@@ -174,6 +175,14 @@ export class LocalWallet implements Wallet {
 
   getEthAddress(): string {
     return this.ethWallet.address;
+  }
+  getPublicJwks(): JwksResponse {
+    const jwks = this.keys.map((key) => {
+      return key.publicKeyJwk;
+    });
+    return {
+      keys: jwks,
+    };
   }
 
   private validateKeys(keys: KeyPairData[]): void {

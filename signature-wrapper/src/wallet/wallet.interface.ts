@@ -1,4 +1,5 @@
 import {
+  JwksResponse,
   JwtHeader,
   JWTVerifyResult,
   SignatureOptions,
@@ -6,6 +7,7 @@ import {
   UnsignedTransaction,
 } from '../types/types';
 import { JWK } from 'jose';
+import { JoseWrapperJWK } from '../wrappers/joseWrapper';
 
 export interface Wallet {
   signVC(data: Buffer, opts: SignatureOptions): Promise<string>;
@@ -28,4 +30,5 @@ export interface Wallet {
   getDid(): string;
   getHexDid(): string;
   getEthAddress(): string;
+  getPublicJwks(): JwksResponse;
 }

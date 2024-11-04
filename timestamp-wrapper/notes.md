@@ -4,7 +4,7 @@
 ## Run tests locally
 - move to this folder (e.g. from root folder: `cd timestamp-wrapper`)
 - `npm install` to download all node packages
-- run tests with command `npm run tests`
+- run tests with command `npm run test` or ``npm test -- ./tests/integration/TimestampWrapper_1_BasicTests.spec.ts``
 
 ## Resources
 - [dev style](https://ts.dev/style/)

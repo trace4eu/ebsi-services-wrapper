@@ -179,3 +179,30 @@ It returns the ethereum address that is computed from the public key. It is used
 - **Returns:**
   - `string`: ethereum address
 ---
+
+### `getPublicJwks`
+
+It returns the public keys in a JWK format. It's used in the `vc-component`, in the `authorization server`.
+
+- **Returns:**
+  - `JwksResponse`: Json Web Keys
+  
+- **Example:**
+  ```typescript
+  {
+    keys: [
+      {
+        crv: 'secp256k1',
+        kty: 'EC',
+        x: 'LGab-ItFIAQWe5d4uF-9_bgDUsKp5Kb9SDMnL50ZAWA',
+        y: '1LVURPhALC5rxvCqXdmXhgU8zjJauR3saoUryu80GwM',
+      },
+      {
+        crv: 'P-256',
+        kty: 'EC',
+        x: '7fcJZOkj2z2Qmk4Dxdmeypj-4X-BdbNQzc_Y5i4T1lc',
+        y: 'qKIlZf0cGz1r6b2Ji40pMXZ0UuhHPPcgilpSy6XG5Mw',
+      },
+    ],
+  }
+---

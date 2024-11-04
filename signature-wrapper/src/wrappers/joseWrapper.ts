@@ -11,8 +11,9 @@ import {
   KeyLike,
   SignJWT,
 } from 'jose';
-import {JwtHeader} from "../types/types";
+import { JwtHeader } from '../types/types';
 
+export type JoseWrapperJWK = JWK;
 class JoseWrapper {
   exportJWK = async (key: KeyLike): Promise<JWK> => {
     return exportJWK(key);
