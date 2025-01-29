@@ -171,20 +171,6 @@ export class TnTWrapper implements ITnTWrapper {
     }
     return Result.ok(true);
   }
-  async isDocumentMined(documenthash: string): Promise<boolean> {
-    const { access_token } = await this.ebsiAuthtorisationApi.getAccessToken(
-      'ES256',
-      'tnt_create',
-      [],
-    );
-    // ToDo, not working, we need to use the normal getDocument api call
-    const response = await this.getTransactionReceipt(
-      documenthash,
-      access_token,
-    );
-
-    return response.isOk();
-  }
 
   async createDocument(
     documentHash: string,

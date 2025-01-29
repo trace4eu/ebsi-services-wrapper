@@ -3,6 +3,10 @@ import {TnTWrapper} from "@trace4eu/tnt-wrapper";
 import * as crypto from 'crypto';
 import {createHash} from "crypto";
 
+import * as dotenv from 'dotenv';
+
+dotenv.config();
+
 export function sha256(data: string) {
   return `0x${createHash('sha256').update(data, 'utf8').digest().toString('hex')}`;
 }
@@ -12,17 +16,17 @@ function getHexDid(did: string): string {
 }
 
 async function main() {
-  const did = 'did:ebsi:zobuuYAHkAbRFCcqdcJfTgR';
+  const did = process.env.DID_1 as string;
   const entityKeys = [
     {
       alg: 'ES256K',
       privateKeyHex:
-        'c4877a6d51c382b25a57684b5ac0a70398ab77b0eda0fcece0ca14ed00737e57',
+        process.env.PRIVATE_KEY_ES256K_DID_1 as string,
     },
     {
       alg: 'ES256',
       privateKeyHex:
-        'fa50bbba9feade27ea61dd9973abfd7c04e72366b607558cd0b423b75d067a86 ',
+        process.env.PRIVATE_KEY_ES256_DID_1 as string,
     },
   ];
   const walletEntityDocumentCreator = WalletFactory.createInstance(false, did, entityKeys);
@@ -62,17 +66,17 @@ async function main() {
   const eventData = await tntWrapper.getEventDetails(documentHash, eventId);
   console.log(eventData.value);
 
-  const didDelegatedEntity = 'did:ebsi:zfEmvX5twhXjQJiCWsukvQA';
+  const didDelegatedEntity = process.env.DID_2 as string;
   const entityKeysDelegatedEntity = [
     {
       alg: 'ES256K',
       privateKeyHex:
-        'c5306796cb9cc41e143774e152c9e3396ba87b8caee91d618062666796483f8e',
+        process.env.PRIVATE_KEY_ES256K_DID_2 as string,
     },
     {
       alg: 'ES256',
       privateKeyHex:
-        '869176bf92b63061b59a26eff6370d26125720844987a60537dee3bff08740fb',
+        process.env.PRIVATE_KEY_ES256_DID_2 as string,
     },
   ];
 

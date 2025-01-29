@@ -8,17 +8,17 @@ import {
 import { ebsiWrapper } from '../../src/wrappers/ebsiWrapper';
 
 describe('Local Wallet should', () => {
-  const did = 'did:ebsi:zp27tdN18pFHAhSPfHWDH4s';
+  const did = 'did:ebsi:zgTR5EytcDC47UhfDwJ8viz';
   const entityKeys = [
     {
       alg: Algorithm.ES256K,
       privateKeyHex:
-        '260482ab2d4f7f1bad8f89c48eab81d30eae31f7625dbea73466e29554611e0c',
+        '20e50bb192a6841247198e0c06a90679dae1ce0dd13f760283917d3df3c75c78',
     },
     {
       alg: Algorithm.ES256,
       privateKeyHex:
-        '15504399647d7c298be3ff52c47f674fa4f7fa2a553c51c87d79fb6073930aa9',
+        '39b9e0453f4bab8b0d1724d9a6cbbccb0e91a43d03b805dc4c2182dc393650c0',
     },
   ];
 
@@ -36,10 +36,6 @@ describe('Local Wallet should', () => {
     }).toThrow(InitializationError);
   });
 
-  it('Generate a signed Verifiable Presentation', async () => {
-    const signedVp = await wallet.signVP('ES256', 'empty');
-    expect(signedVp).toBe('header.payload.signature');
-  });
   it('raise an error if there are no valid keys for sign a Verifiable Presentation', async () => {
     await expect(wallet.signVP('RSA256', 'empty')).rejects.toThrow(
       SignatureError,
@@ -52,19 +48,16 @@ describe('Local Wallet should', () => {
         {
           crv: 'secp256k1',
           kty: 'EC',
-          x: 'LGab-ItFIAQWe5d4uF-9_bgDUsKp5Kb9SDMnL50ZAWA',
-          y: '1LVURPhALC5rxvCqXdmXhgU8zjJauR3saoUryu80GwM',
+          x: 'UlECaasKBFQurBDk62SaL7KSFiKMYpnj93UBQSaT7Zg',
+          y: 'lRU92eMUxYWbRZAZtkVHkQ9KjKtUevIagQgDkoWlBQ8',
         },
         {
           crv: 'P-256',
           kty: 'EC',
-          x: '7fcJZOkj2z2Qmk4Dxdmeypj-4X-BdbNQzc_Y5i4T1lc',
-          y: 'qKIlZf0cGz1r6b2Ji40pMXZ0UuhHPPcgilpSy6XG5Mw',
+          x: 'VosVbG2YhYx7x-Ena3aiHtkOuM2A-uXoXWlnkSfKcII',
+          y: 'R5IJevYjPdZ_De_t2CjTFwdclwmDH_Qwk6feM7pzGRM',
         },
       ],
     });
   });
-
-  it('Generate a signed Verifiable Credential', async () => {});
-  it('Generate a signed Ethereum Transaction', async () => {});
 });

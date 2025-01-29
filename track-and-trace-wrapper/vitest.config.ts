@@ -1,6 +1,7 @@
-// eslint-disable-next-line import/no-extraneous-dependencies
 import { defineConfig } from 'vitest/config';
+import dotenv from 'dotenv';
 
+dotenv.config(); // Load environment variables from .env
 export default defineConfig({
   test: {
     include: ['tests/**/*.{test,spec}.ts'],

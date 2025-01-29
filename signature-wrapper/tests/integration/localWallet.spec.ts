@@ -1,19 +1,18 @@
 import { WalletFactory, Algorithm } from '../../src';
 import { ValidationError } from 'joi';
 import { decodeJwt } from 'jose';
+import { DID, PRIVATE_KEY_ES256_DID, PRIVATE_KEY_ES256K_DID } from '../setup';
 
 describe('Local Wallet should', () => {
-  const did = 'did:ebsi:zobuuYAHkAbRFCcqdcJfTgR';
+  const did = DID;
   const entityKeys = [
     {
       alg: Algorithm.ES256K,
-      privateKeyHex:
-        'c4877a6d51c382b25a57684b5ac0a70398ab77b0eda0fcece0ca14ed00737e57',
+      privateKeyHex: PRIVATE_KEY_ES256K_DID,
     },
     {
       alg: Algorithm.ES256,
-      privateKeyHex:
-        'fa50bbba9feade27ea61dd9973abfd7c04e72366b607558cd0b423b75d067a86',
+      privateKeyHex: PRIVATE_KEY_ES256_DID,
     },
   ];
 

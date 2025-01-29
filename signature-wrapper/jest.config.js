@@ -27,5 +27,4 @@ module.exports = {
   collectCoverage: false,
   reporters: ['default', ['jest-junit', { outputDirectory: './coverage' }]],
   testTimeout: 100000,
-  setupFiles: [],
 };

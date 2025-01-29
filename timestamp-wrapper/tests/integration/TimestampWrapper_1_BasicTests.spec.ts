@@ -3,32 +3,48 @@ import { WalletFactory } from '@trace4eu/signature-wrapper';
 import * as SignatureWrapperTypes from '@trace4eu/signature-wrapper';
 import { TimestampWrapper } from '../../src';
 import * as crypto from 'crypto';
+import * as dotenv from 'dotenv';
 
-const did = 'did:ebsi:zobuuYAHkAbRFCcqdcJfTgR';
+dotenv.config();
+
+const checkStrVar = (variable: string | undefined, name: string): string => {
+  if (!variable) throw new Error(`undefined variable: ${name}`);
+  return variable;
+};
+
+const did = checkStrVar(process.env.DID_1, 'DID_1');
 const entityKey = [
   {
     alg: SignatureWrapperTypes.Algorithm.ES256K,
-    privateKeyHex:
-      'c4877a6d51c382b25a57684b5ac0a70398ab77b0eda0fcece0ca14ed00737e57',
+    privateKeyHex: checkStrVar(
+      process.env.PRIVATE_KEY_ES256K_DID_1,
+      'PRIVATE_KEY_ES256K_DID_1',
+    ),
   },
   {
     alg: SignatureWrapperTypes.Algorithm.ES256,
-    privateKeyHex:
-      'fa50bbba9feade27ea61dd9973abfd7c04e72366b607558cd0b423b75d067a86',
+    privateKeyHex: checkStrVar(
+      process.env.PRIVATE_KEY_ES256_DID_1,
+      'PRIVATE_KEY_ES256_DID_1',
+    ),
   },
 ];
 
-const did2 = 'did:ebsi:z21ExDPMoRDzXetA6FeHPkUi';
+const did2 = checkStrVar(process.env.DID_2, 'DID_2');
 const entityKey2 = [
   {
     alg: SignatureWrapperTypes.Algorithm.ES256K,
-    privateKeyHex:
-      '7d7ce544bf90b13e53d2b5c25be92fac25087778bfb6139aa47b029381aa1b5b',
+    privateKeyHex: checkStrVar(
+      process.env.PRIVATE_KEY_ES256K_DID_2,
+      'PRIVATE_KEY_ES256K_DID_2',
+    ),
   },
   {
     alg: SignatureWrapperTypes.Algorithm.ES256,
-    privateKeyHex:
-      '97726eb73aeeb66f9c28b9bab06f3b02e465615839b86c15df89c231a44afb35',
+    privateKeyHex: checkStrVar(
+      process.env.PRIVATE_KEY_ES256_DID_2,
+      'PRIVATE_KEY_ES256_DID_2',
+    ),
   },
 ];
 
