@@ -1,32 +1,23 @@
 import { describe, it, expect, vi, beforeAll } from 'vitest';
 import { WalletFactory } from '@trace4eu/signature-wrapper';
-import * as SignatureWrapperTypes from '@trace4eu/signature-wrapper';
-import { EbsiAuthorisationApi } from '@trace4eu/authorisation-wrapper';
-import { TnTWrapper } from '../../src/wrappers/TntWrapper';
+import { TnTWrapper } from '../../src';
 import * as crypto from 'crypto';
-import { trace } from 'console';
+import * as SignatureWrapperTypes from '@trace4eu/signature-wrapper';
 
-const did = 'did:ebsi:zobuuYAHkAbRFCcqdcJfTgR';
-const entityKey = [
+const DID = process.env.DID_1;
+const ENTITY_KEY = [
   {
     alg: SignatureWrapperTypes.Algorithm.ES256K,
-    privateKeyHex:
-      'c4877a6d51c382b25a57684b5ac0a70398ab77b0eda0fcece0ca14ed00737e57',
+    privateKeyHex: process.env.PRIVATE_KEY_ES256K_DID_1,
   },
   {
     alg: SignatureWrapperTypes.Algorithm.ES256,
-    privateKeyHex:
-      'fa50bbba9feade27ea61dd9973abfd7c04e72366b607558cd0b423b75d067a86',
+    privateKeyHex: process.env.PRIVATE_KEY_ES256_DID_1,
   },
 ];
 
-const wallet = WalletFactory.createInstance(false, did, entityKey);
-const ebsiAuthorisationApi = new EbsiAuthorisationApi(wallet);
+const wallet = WalletFactory.createInstance(false, DID, ENTITY_KEY);
 const tntWrapper = new TnTWrapper(wallet);
-
-const eventId = `0x${crypto.randomBytes(32).toString('hex')}`;
-const eventMetadata = 'eventMetadata';
-const origin = 'origin';
 
 describe('Track and Trace Wrapper - create document', () => {
   const documentHash1 = `0x${crypto.randomBytes(32).toString('hex')}`;

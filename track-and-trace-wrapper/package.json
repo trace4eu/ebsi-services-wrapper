@@ -22,8 +22,8 @@
   "homepage": "https://github.com/trace4eu/ebsi-services-wrapper#readme",
   "dependencies": {
     "@trace4eu/authorisation-wrapper": "^0.0.10",
-    "@trace4eu/signature-wrapper": "^0.0.13",
     "@trace4eu/error-wrapper": "0.0.2",
+    "@trace4eu/signature-wrapper": "^0.0.13",
     "axios": "^1.7.2",
     "ethers": "^5.7.2"
   },
@@ -33,6 +33,7 @@
     "@types/node": "^20.3.1",
     "@typescript-eslint/eslint-plugin": "^6.0.0",
     "@typescript-eslint/parser": "^6.0.0",
+    "dotenv": "^16.4.7",
     "eslint": "^8.42.0",
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-prettier": "^5.0.0",

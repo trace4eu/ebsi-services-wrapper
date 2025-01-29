@@ -3,14 +3,14 @@ import { Trace4euAuthorisationApi } from '../../src';
 import { Algorithm } from '@trace4eu/signature-wrapper/dist/types/types';
 import { isJwt, isOryFormatAccessToken } from '../../src/utils/jwt';
 import { Trace4euAuthorisationApiError } from '../../src/errors/trace4euAuthorisationApiError';
+import { TRACE4EU_DID, TRACE4EU_PRIVATE_KEY_ES256_DID } from '../setup';
 
-describe('Ebsi Authorisation Api should', () => {
-  const did = 'did:ebsi:zfEmvX5twhXjQJiCWsukvQA';
+describe('TraceEU Authorisation wrapper should', () => {
+  const did = TRACE4EU_DID;
   const entityKeys = [
     {
       alg: Algorithm.ES256,
-      privateKeyHex:
-        '869176bf92b63061b59a26eff6370d26125720844987a60537dee3bff08740fb',
+      privateKeyHex: TRACE4EU_PRIVATE_KEY_ES256_DID,
     },
   ];
   const wallet = WalletFactory.createInstance(false, did, entityKeys);

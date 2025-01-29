@@ -11,6 +11,7 @@
   "dependencies": {
     "@trace4eu/timestamp-wrapper": "^0.0.5",
     "@trace4eu/tnt-wrapper": "^0.0.17",
+    "dotenv": "^16.4.7",
     "ts-node": "^10.9.2"
   }
 }

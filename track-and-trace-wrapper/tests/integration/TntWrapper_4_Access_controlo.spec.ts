@@ -1,56 +1,42 @@
-import { describe, it, expect, vi, beforeAll } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { WalletFactory } from '@trace4eu/signature-wrapper';
 import * as SignatureWrapperTypes from '@trace4eu/signature-wrapper';
-import { EbsiAuthorisationApi } from '@trace4eu/authorisation-wrapper';
-import { TnTWrapper } from '../../src/wrappers/TntWrapper';
+import { TnTWrapper } from '../../src';
 import * as crypto from 'crypto';
 import { assert } from 'console';
 
-// Granting user
-const did = 'did:ebsi:zfEmvX5twhXjQJiCWsukvQA';
-const entityKey = [
+const OWNER_DID = process.env.DID_1;
+const OWNER_ENTITY_KEY = [
   {
     alg: SignatureWrapperTypes.Algorithm.ES256K,
-    privateKeyHex:
-      'c5306796cb9cc41e143774e152c9e3396ba87b8caee91d618062666796483f8e',
+    privateKeyHex: process.env.PRIVATE_KEY_ES256K_DID_1,
   },
   {
     alg: SignatureWrapperTypes.Algorithm.ES256,
-    privateKeyHex:
-      '869176bf92b63061b59a26eff6370d26125720844987a60537dee3bff08740fb',
+    privateKeyHex: process.env.PRIVATE_KEY_ES256_DID_1,
   },
 ];
 
-// Subject user
-const didSubject = 'did:ebsi:z21ExDPMoRDzXetA6FeHPkUi';
-const entityKeySubject = [
+const GRANTED_ENTITY_DID = process.env.DID_2;
+const GRANTED_ENTITY_KEY = [
   {
     alg: SignatureWrapperTypes.Algorithm.ES256K,
-    privateKeyHex:
-      '7d7ce544bf90b13e53d2b5c25be92fac25087778bfb6139aa47b029381aa1b5b',
+    privateKeyHex: process.env.PRIVATE_KEY_ES256K_DID_2,
   },
   {
     alg: SignatureWrapperTypes.Algorithm.ES256,
-    privateKeyHex:
-      '97726eb73aeeb66f9c28b9bab06f3b02e465615839b86c15df89c231a44afb35',
+    privateKeyHex: process.env.PRIVATE_KEY_ES256_DID_2,
   },
 ];
 
-const wallet = WalletFactory.createInstance(false, did, entityKey);
-const walletSubject = WalletFactory.createInstance(
+const wallet = WalletFactory.createInstance(false, OWNER_DID, OWNER_ENTITY_KEY);
+const grantedWallet = WalletFactory.createInstance(
   false,
-  didSubject,
-  entityKeySubject,
+  GRANTED_ENTITY_DID,
+  GRANTED_ENTITY_KEY,
 );
 
 const tntWrapper = new TnTWrapper(wallet);
-// document already inserted
-const documentHash = `0x${crypto.randomBytes(32).toString('hex')}`;
-const eventExternalHash = `0x${crypto.randomBytes(32).toString('hex')}`;
-const eventMetadata = 'eventMetadata_' + new Date();
-const eventMetadata1 = 'AAAAAAAAAAAAA';
-const eventMetadata2 = 'BBBBBBBBBBBBB';
-const origin = 'origin';
 
 describe('Track and Trace Wrapper', () => {
   const documentHash = `0x${crypto.randomBytes(32).toString('hex')}`;
@@ -73,15 +59,27 @@ describe('Track and Trace Wrapper', () => {
       const accesses = await tntWrapper.listAccesses(documentHash);
       console.log('Accesses: ');
       console.log(accesses.value?.items);
+      expect(accesses.unwrap().total).equal(1);
+      expect(accesses.unwrap().items[0]).toEqual(
+        expect.objectContaining({
+          subject: OWNER_DID,
+          grantedBy: OWNER_DID,
+          permission: 'creator',
+          documentId: documentHash,
+        }),
+      );
     });
   });
 
   it('Grant permission to another user', async () => {
-    const access_status = await tntWrapper.checkAccess(didSubject);
+    const documentHash =
+      '0xbb5090f82e73f53ed9ec2cb531ef6fc50fa63ac338e84212990d108b03a2f639';
+    const access_status = await tntWrapper.checkAccess(GRANTED_ENTITY_DID);
+    expect(access_status.unwrap()).equal(true);
     const result = await tntWrapper.grantAccessToDocument(
       documentHash,
       wallet.getHexDid(),
-      walletSubject.getHexDid(),
+      grantedWallet.getHexDid(),
       0,
       0,
       1,
@@ -96,10 +94,12 @@ describe('Track and Trace Wrapper', () => {
   });
 
   it('Revoke permission to another user', async () => {
+    const documentHash =
+      '0xbb5090f82e73f53ed9ec2cb531ef6fc50fa63ac338e84212990d108b03a2f639';
     const result = await tntWrapper.revokeAccessToDocument(
       documentHash,
       wallet.getHexDid(),
-      walletSubject.getHexDid(),
+      grantedWallet.getHexDid(),
       1,
     );
     console.log('Revoke permission result');
@@ -108,6 +108,5 @@ describe('Track and Trace Wrapper', () => {
     console.log('Accesses');
     console.log(accesses.value?.items);
     assert(accesses.value?.items.length == 1);
-    //console.log(result.unwrapErr().response.data);
   });
 });

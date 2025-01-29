@@ -2,23 +2,26 @@ import {WalletFactory} from "@trace4eu/signature-wrapper";
 import {createHash} from "crypto";
 import {TimestampWrapper} from "@trace4eu/timestamp-wrapper";
 import crypto from "crypto";
+import * as dotenv from 'dotenv';
+
+dotenv.config();
 
 export function sha256(data: string) {
   return `0x${createHash('sha256').update(data, 'utf8').digest().toString('hex')}`;
 }
 
 async function main() {
-  const did = 'did:ebsi:zobuuYAHkAbRFCcqdcJfTgR';
+  const did = process.env.DID_1 as string;
   const entityKey = [
     {
       alg: 'ES256K',
       privateKeyHex:
-        'c4877a6d51c382b25a57684b5ac0a70398ab77b0eda0fcece0ca14ed00737e57',
+        process.env.PRIVATE_KEY_ES256K_DID_1 as string,
     },
     {
       alg: 'ES256',
       privateKeyHex:
-        'fa50bbba9feade27ea61dd9973abfd7c04e72366b607558cd0b423b75d067a86',
+        process.env.PRIVATE_KEY_ES256_DID_1 as string,
     },
   ];
 
