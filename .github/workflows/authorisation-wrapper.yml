@@ -1,0 +1,41 @@
+name: Test Authorisation Wrapper
+
+on:
+  workflow_dispatch:
+    inputs:
+      test-type:
+        type: choice
+        description: Test type
+        required: true
+        default: e2e
+        options:
+          - e2e
+
+jobs:
+  test-verifier:
+    name: Test the Authorisation Wrapper
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v4
+
+      - name: Set up Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Set up env variables
+        run: |
+          echo "${{ secrets.SECRETS_AUTHORISATION_WRAPPER }}" | base64 --decode > authorisation-wrapper/.env
+
+      - name: Install dependencies
+        working-directory: authorisation-wrapper
+        run: |
+          npm install
+
+      - name: Run Authorisation Wrapper Tests
+        working-directory: authorisation-wrapper
+        run: |
+          npm run test:${{ github.event.inputs.test-type || 'e2e' }}
+        continue-on-error: true

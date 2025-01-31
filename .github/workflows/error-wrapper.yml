@@ -1,0 +1,37 @@
+name: Test Error Wrapper
+
+on:
+  workflow_dispatch:
+    inputs:
+      test-type:
+        type: choice
+        description: Test type
+        required: true
+        default: unit
+        options:
+          - unit
+
+jobs:
+  test-verifier:
+    name: Test the Error Wrapper
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v4
+
+      - name: Set up Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        working-directory: error-wrapper
+        run: |
+          npm install
+
+      - name: Run Authorisation Wrapper Tests
+        working-directory: error-wrapper
+        run: |
+          npm run test:${{ github.event.inputs.test-type || 'unit' }}
+        continue-on-error: true
