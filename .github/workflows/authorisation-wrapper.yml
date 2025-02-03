@@ -12,7 +12,7 @@ on:
           - e2e
 
 jobs:
-  test-verifier:
+  test-authorisation-wrapper:
     name: Test the Authorisation Wrapper
     runs-on: ubuntu-latest
 

@@ -12,7 +12,7 @@ on:
           - integration
 
 jobs:
-  test-verifier:
+  test-tnt-wrapper:
     name: Test the Track And Trace Wrapper
     runs-on: ubuntu-latest
 

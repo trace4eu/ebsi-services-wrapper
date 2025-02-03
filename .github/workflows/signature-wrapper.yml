@@ -13,7 +13,7 @@ on:
           - unit
 
 jobs:
-  test-verifier:
+  test-signature-wrapper:
     name: Test the Signature Wrapper
     runs-on: ubuntu-latest
 

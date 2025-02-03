@@ -12,7 +12,7 @@ on:
           - unit
 
 jobs:
-  test-verifier:
+  test-error-wrapper:
     name: Test the Error Wrapper
     runs-on: ubuntu-latest
 

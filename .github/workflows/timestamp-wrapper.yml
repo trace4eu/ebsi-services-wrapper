@@ -12,7 +12,7 @@ on:
           - integration
 
 jobs:
-  test-verifier:
+  test-timestamp-wrapper:
     name: Test the Timestamp Wrapper
     runs-on: ubuntu-latest
 
