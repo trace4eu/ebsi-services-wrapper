@@ -1,0 +1,42 @@
+name: Test Signature Wrapper
+
+on:
+  workflow_dispatch:
+    inputs:
+      test-type:
+        type: choice
+        description: Test type
+        required: true
+        default: integration
+        options:
+          - integration
+          - unit
+
+jobs:
+  test-signature-wrapper:
+    name: Test the Signature Wrapper
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v4
+
+      - name: Set up Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Set up env variables
+        run: |
+          echo "${{ secrets.SECRETS_SIGNATURE_WRAPPER }}" | base64 --decode > signature-wrapper/.env
+
+      - name: Install dependencies
+        working-directory: signature-wrapper
+        run: |
+          npm install
+
+      - name: Run Authorisation Wrapper Tests
+        working-directory: signature-wrapper
+        run: |
+          npm run test:${{ github.event.inputs.test-type || 'integration' }}
+        continue-on-error: true
