@@ -26,7 +26,7 @@ import { ethers } from 'ethers';
  * Wrapper class for handling timestamping-related operations.
  */
 export class TimestampWrapper implements ITimestampWrapper {
-  private wallet: Wallet;
+  private readonly wallet: Wallet;
   private ebsiAuthorisationApi: AuthorisationApi;
 
   /**
@@ -51,6 +51,10 @@ export class TimestampWrapper implements ITimestampWrapper {
     return `u${base64url.encode(multihash)}`;
   }
 
+  async getTransactionReceipt(transactionHash: string) {
+    return await waitTxToBeMined(transactionHash);
+  }
+
   async getTimestamp(
     timestampId: string,
   ): Promise<Result<TimestampData, Error>> {
@@ -60,7 +64,6 @@ export class TimestampWrapper implements ITimestampWrapper {
       );
       return Result.ok(response.data as TimestampData);
     } catch (error) {
-      console.log('Error fetching record version details:', error);
       return Result.err(error as Error);
     }
   }
@@ -81,7 +84,9 @@ export class TimestampWrapper implements ITimestampWrapper {
     versionInfo: string,
     timestampData: string[] = [''],
     waitMined: boolean = true,
-  ): Promise<Result<{ hex: string; multibase: string }, Error>> {
+  ): Promise<
+    Result<{ hex?: string; multibase?: string; transactionHash: string }, Error>
+  > {
     const { access_token } = await this.ebsiAuthorisationApi.getAccessToken(
       'ES256',
       'timestamp_write',
@@ -115,8 +120,7 @@ export class TimestampWrapper implements ITimestampWrapper {
       access_token,
       waitMined,
     );
-
-    if (txReceipt.isErr()) {
+    if (waitMined && txReceipt.isErr()) {
       return Result.err(txReceipt.unwrapErr());
     }
 
@@ -129,17 +133,22 @@ export class TimestampWrapper implements ITimestampWrapper {
       if (resp_mined.isErr()) {
         return Result.err(resp_mined.unwrapErr());
       }
+
+      const recordId = ethers.utils.sha256(
+        ethers.utils.defaultAbiCoder.encode(
+          ['address', 'uint256', 'bytes'],
+          [unsignedTxJson.from, resp_mined.value.blockNumber, hashValue],
+        ),
+      );
+
+      const multibase64urlRecordId = bufferToBase64URL(recordId);
+      return Result.ok({
+        hex: recordId,
+        multibase: multibase64urlRecordId,
+        transactionHash: txReceipt.unwrap().transactionHash,
+      });
     }
-
-    const recordId = ethers.utils.sha256(
-      ethers.utils.defaultAbiCoder.encode(
-        ['address', 'uint256', 'bytes'],
-        [unsignedTxJson.from, txReceipt.value.blockNumber, hashValue],
-      ),
-    );
-
-    const multibase64urlRecordId = bufferToBase64URL(recordId);
-    return Result.ok({ hex: recordId, multibase: multibase64urlRecordId });
+    return Result.ok(txReceipt.unwrap());
   }
 
   /**
@@ -364,7 +373,6 @@ export class TimestampWrapper implements ITimestampWrapper {
       );
       return Result.ok(response.data);
     } catch (error) {
-      console.log('Error fetching record:', error);
       return Result.err(error as Error);
     }
   }
@@ -384,7 +392,6 @@ export class TimestampWrapper implements ITimestampWrapper {
       );
       return Result.ok(response.data);
     } catch (error) {
-      console.log('Error fetching record versions:', error);
       return Result.err(error as Error);
     }
   }
@@ -406,7 +413,6 @@ export class TimestampWrapper implements ITimestampWrapper {
       );
       return Result.ok(response.data);
     } catch (error) {
-      console.log('Error fetching record version details:', error);
       return Result.err(error as Error);
     }
   }
@@ -414,11 +420,11 @@ export class TimestampWrapper implements ITimestampWrapper {
   //ADDITIONAL METHODS to fully replicate Timestamp JSON-RPC API
   //note: these methods are not tested, use with caution and report bugs to trace4eu consortium
   async timestampHashes(
-    from: string,
     hashAlgorithmId: number,
     hashValue: string,
-    timestampData: string[] = [''],
-  ): Promise<Result<string, Error>> {
+    timestampData: string = '',
+    waitMined: boolean = true,
+  ): Promise<Result<{ id: string; transactionHash: string }, Error>> {
     const { access_token } = await this.ebsiAuthorisationApi.getAccessToken(
       'ES256',
       'timestamp_write',
@@ -430,10 +436,10 @@ export class TimestampWrapper implements ITimestampWrapper {
       'timestampHashes',
       [
         {
-          from: from,
+          from: this.wallet.getEthAddress(),
           hashAlgorithmIds: [hashAlgorithmId],
           hashValues: [hashValue],
-          timestampData: timestampData,
+          timestampData: [timestampData],
         },
       ],
     );
@@ -450,11 +456,25 @@ export class TimestampWrapper implements ITimestampWrapper {
       access_token,
     );
 
-    if (txReceipt.isErr()) {
+    if (waitMined) {
+      const resp_mined = await waitTxToBeMined(
+        txReceipt.unwrap().transactionHash,
+        access_token,
+      );
+
+      if (resp_mined.isErr()) {
+        return Result.err(resp_mined.unwrapErr());
+      }
+    }
+
+    if (waitMined && txReceipt.isErr()) {
       return Result.err(txReceipt.unwrapErr());
     }
 
-    return Result.ok(txReceipt.unwrap().transactionHash);
+    return Result.ok({
+      id: this.computeTimestampId(hashValue),
+      transactionHash: txReceipt.unwrap().transactionHash,
+    });
   }
 
   async timestampVersionHashes(
