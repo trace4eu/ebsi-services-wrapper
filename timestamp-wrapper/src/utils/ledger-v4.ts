@@ -9,13 +9,16 @@ const delay = (ms) => new Promise((res) => setTimeout(res, ms));
 
 export async function waitTxToBeMined(
   txReceipt: string, //TODO: call transactionHash
-  ebsiAccessToken: string,
+  ebsiAccessToken?: string,
 ): Promise<Result<TransactionReceipt, Error>> {
   let transactionReceipt: Result<TransactionReceipt, Error>;
   let tentatives = 10;
   do {
     await delay(5000);
-    transactionReceipt = await getTransactionReceipt(txReceipt, ebsiAccessToken);
+    transactionReceipt = await getTransactionReceipt(
+      txReceipt,
+      ebsiAccessToken,
+    );
     tentatives -= 1;
   } while (
     transactionReceipt.isErr() &&
@@ -35,7 +38,7 @@ export async function waitTxToBeMined(
  */
 export async function getTransactionReceipt(
   txHash: string,
-  accessToken: string,
+  accessToken?: string,
 ): Promise<Result<TransactionReceipt, Error>> {
   const data = JSON.stringify({
     jsonrpc: '2.0',
@@ -51,7 +54,7 @@ export async function getTransactionReceipt(
     headers: {
       'Content-Type': 'application/json',
       Accept: 'application/json',
-      Authorization: 'Bearer ' + accessToken,
+      ...(accessToken && { Authorization: 'Bearer ' + accessToken }),
     },
     data: data,
   };
@@ -78,7 +81,7 @@ export async function sendSignedTransaction(
   signedTx: object,
   accessToken: string,
   waitMined?: boolean,
-): Promise<Result<TransactionReceipt, Error>> {
+): Promise<Result<TransactionReceipt | { transactionHash: string }, Error>> {
   const data = JSON.stringify({
     jsonrpc: '2.0',
     method: 'sendSignedTransaction',
@@ -107,7 +110,10 @@ export async function sendSignedTransaction(
   };
 
   let trxReceipt: string;
-  let resp_mined: Result<TransactionReceipt, Error>;
+  let resp_mined: Result<
+    TransactionReceipt | { transactionHash: string },
+    Error
+  >;
   try {
     const response = await axios.request(config);
     trxReceipt = response.data.result;
@@ -120,8 +126,9 @@ export async function sendSignedTransaction(
     if (resp_mined.isErr()) {
       return Result.err(resp_mined.unwrapErr());
     }
+    return Result.ok(resp_mined.unwrap());
   }
-  return Result.ok(resp_mined.unwrap());
+  return Result.ok({ transactionHash: trxReceipt });
 }
 
 export async function sendUnsignedTransaction(

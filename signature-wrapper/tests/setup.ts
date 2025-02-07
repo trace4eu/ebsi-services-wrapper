@@ -16,3 +16,13 @@ export const PRIVATE_KEY_ES256K_DID = checkStrVar(
   process.env.PRIVATE_KEY_ES256K_DID,
   'PRIVATE_KEY_ES256K_DID',
 );
+
+export const PRIVATE_KEY_ES256K_DID_2 = checkStrVar(
+  process.env.PRIVATE_KEY_ES256K_DID_2,
+  'PRIVATE_KEY_ES256K_DID_2',
+);
+
+export const PRIVATE_KEY_ES256K_DID_3 = checkStrVar(
+  process.env.PRIVATE_KEY_ES256K_DID_3,
+  'PRIVATE_KEY_ES256K_DID_3',
+);

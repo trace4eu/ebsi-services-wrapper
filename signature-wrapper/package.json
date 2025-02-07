@@ -1,11 +1,11 @@
 {
   "name": "@trace4eu/signature-wrapper",
-  "version": "0.0.20",
+  "version": "0.0.22",
   "description": "",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "release": "standard-version --skip.bump --skip.commit --skip.tag",
+    "release": "npm run build && standard-version",
     "test": "jest",
     "test:integration": "jest tests/integration",
     "test:unit": "jest tests/unit",

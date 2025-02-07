@@ -16,7 +16,7 @@ import {
 } from '../types/types';
 import { send } from 'process';
 
-const delay = (ms) => new Promise((res) => setTimeout(res, ms));
+const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
 
 export class TnTWrapper implements ITnTWrapper {
   private wallet: Wallet;
@@ -464,7 +464,7 @@ export class TnTWrapper implements ITnTWrapper {
         });
     } catch (err) {
       console.error(err);
-      return Result.err(err);
+      return Result.err(err as Error);
     }
   }
   /**

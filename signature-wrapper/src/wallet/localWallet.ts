@@ -41,10 +41,14 @@ export class LocalWallet implements Wallet {
     this.validateKeys(keys);
     this.keys = [];
     this.did = did;
+    this.privateKeyEs256kCounter = 0;
+    this.ethWallet = [];
 
     keys.forEach((keyPair) => {
       if (keyPair.alg === Algorithm.ES256K && keyPair.privateKeyHex) {
-        this.ethWallet = new ethers.Wallet(prefixWith0x(keyPair.privateKeyHex));
+        this.ethWallet.push(
+          new ethers.Wallet(prefixWith0x(keyPair.privateKeyHex)),
+        );
         this.keys.push(
           exportKeyPairJwk(
             Algorithm.ES256K,
@@ -62,7 +66,8 @@ export class LocalWallet implements Wallet {
 
   private readonly keys: KeyPairJwk[];
   private readonly did: string;
-  protected ethWallet!: ethers.Wallet;
+  protected ethWallet!: ethers.Wallet[];
+  private privateKeyEs256kCounter: number;
 
   async signVP(
     alg: string,
@@ -115,11 +120,12 @@ export class LocalWallet implements Wallet {
 
   async signEthTx(data: UnsignedTransaction): Promise<SignatureResponse> {
     validateUnsignedTransaction(data);
-
     const signedRawTransaction = await ethersWrapper.signTransaction(
-      this.ethWallet,
+      this.ethWallet[this.privateKeyEs256kCounter],
       formatEthereumTransaction(data),
     );
+
+    this.incrementCounter();
     const { r, s, v } = ethers.utils.parseTransaction(signedRawTransaction);
     return {
       r,
@@ -174,7 +180,7 @@ export class LocalWallet implements Wallet {
   }
 
   getEthAddress(): string {
-    return this.ethWallet.address;
+    return this.ethWallet[this.privateKeyEs256kCounter].address;
   }
   getPublicJwks(): JwksResponse {
     const jwks = this.keys.map((key) => {
@@ -197,13 +203,22 @@ export class LocalWallet implements Wallet {
       throw new UnsupportedAlgorithmError(`Unsupported algorithm: ${alg}`);
   }
 
-  private findKeyByAlg(alg: Algorithm) {
+  private findKeyByAlg(alg: Algorithm, position?: number) {
     const keyPair: KeyPairJwk | undefined = findKeyByAlg(
       this.keys,
       alg as Algorithm,
+      position ?? 0,
     );
     if (!keyPair) throw new SignatureError(`No keys defined for alg ${alg}`);
     this.validaSignatureAlgorithm(keyPair.alg);
     return keyPair;
+  }
+
+  private incrementCounter() {
+    if (this.privateKeyEs256kCounter === this.ethWallet.length - 1) {
+      this.privateKeyEs256kCounter = 0;
+      return;
+    }
+    ++this.privateKeyEs256kCounter;
   }
 }

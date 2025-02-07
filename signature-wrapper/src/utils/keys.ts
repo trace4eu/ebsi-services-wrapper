@@ -73,8 +73,9 @@ export function getPrivateKeyJwk(privateKeyHex: string): JWK {
 export function findKeyByAlg(
   keyPairs: KeyPairJwk[],
   alg: Algorithm,
+  position: number,
 ): KeyPairJwk | undefined {
-  return keyPairs.find((keyPair) => keyPair.alg === alg);
+  return keyPairs.filter((keyPair) => keyPair.alg === alg)[position];
 }
 
 export function getPrivateKeyHexFromJWK(privateKeyJwk: JWK): string {

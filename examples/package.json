@@ -3,15 +3,20 @@
   "version": "1.0.0",
   "scripts": {
     "tnt": "ts-node tnt.ts",
-    "timestamp": "ts-node timestamp.ts"
+    "timestamp": "ts-node timestamp.ts",
+    "concurrency-ts": "ts-node timestamp-concurrency.ts",
+    "concurrency-tnt": "ts-node tnt-concurrency.ts"
   },
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "@trace4eu/timestamp-wrapper": "^0.0.5",
-    "@trace4eu/tnt-wrapper": "^0.0.17",
+    "@trace4eu/error-wrapper": "^0.0.2",
+    "@trace4eu/signature-wrapper": "^0.0.22",
+    "@trace4eu/timestamp-wrapper": "^0.0.8",
+    "@trace4eu/tnt-wrapper": "^0.0.19",
     "dotenv": "^16.4.7",
+    "ethers": "^5.7.2",
     "ts-node": "^10.9.2"
   }
 }
